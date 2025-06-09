@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profile Settings</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: { primary: "#10B981", secondary: "#064e3b" },
+            borderRadius: {
+              none: "0px",
+              sm: "8px",
+              DEFAULT: "12px",
+              md: "16px",
+              lg: "20px",
+              xl: "24px",
+              "2xl": "28px",
+              "3xl": "32px",
+              full: "9999px",
+              button: "12px",
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
+    />
+    <style>
+      :where([class^="ri-"])::before { content: "\f3c2"; }
+      body {
+          background: linear-gradient(135deg, #0f172a 0%, #064e3b 100%);
+          min-height: 100vh;
+          color: #e2e8f0;
+      }
+      .glass {
+          background: rgba(15, 23, 42, 0.6);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      }
+      input:focus, button:focus {
+          outline: none;
+          box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.5);
+      }
+      input[type="number"]::-webkit-inner-spin-button,
+      input[type="number"]::-webkit-outer-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+      }
+      .custom-switch {
+          position: relative;
+          display: inline-block;
+          width: 48px;
+          height: 24px;
+      }
+      .custom-switch input {
+          opacity: 0;
+          width: 0;
+          height: 0;
+      }
+      .switch-slider {
+          position: absolute;
+          cursor: pointer;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(100, 116, 139, 0.3);
+          transition: .4s;
+          border-radius: 24px;
+      }
+      .switch-slider:before {
+          position: absolute;
+          content: "";
+          height: 18px;
+          width: 18px;
+          left: 3px;
+          bottom: 3px;
+          background-color: white;
+          transition: .4s;
+          border-radius: 50%;
+      }
+      input:checked + .switch-slider {
+          background-color: #10B981;
+      }
+      input:checked + .switch-slider:before {
+          transform: translateX(24px);
+      }
+    </style>
+  </head>
+  <body class="font-sans">
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+      <header class="mb-8">
+        <h1 class="text-3xl font-bold text-white mb-2">Profile Settings</h1>
+        <div
+          class="h-1 w-24 bg-gradient-to-r from-primary to-transparent rounded-full"
+        ></div>
+      </header>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- User Info Section -->
+        <div class="lg:col-span-1">
+          <div class="glass rounded p-6 h-full">
+            <div class="flex flex-col items-center mb-6">
+              <div class="relative mb-4 group">
+                <div
+                  class="w-28 h-28 rounded-full overflow-hidden border-2 border-primary"
+                >
+                  <img
+                    src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20person%20with%20neutral%20expression%2C%20high%20quality%20portrait%2C%20professional%20lighting%2C%20dark%20background%2C%20detailed%20face%20features%2C%20professional%20attire&width=200&height=200&seq=avatar1&orientation=squarish"
+                    alt="Profile"
+                    class="w-full h-full object-cover"
+                  />
+                </div>
+                <div
+                  class="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                >
+                  <div
+                    class="w-8 h-8 flex items-center justify-center text-white"
+                  >
+                    <i class="ri-camera-line ri-lg"></i>
+                  </div>
+                </div>
+              </div>
+              <h2 class="text-xl font-semibold text-white">
+                Alexander Mitchell
+              </h2>
+              <span
+                class="inline-block px-3 py-1 rounded-full bg-primary text-xs font-medium text-white mt-2"
+                >Admin</span
+              >
+            </div>
+
+            <div class="space-y-4">
+              <div class="flex flex-col">
+                <span class="text-sm text-gray-400">Email</span>
+                <span class="text-gray-300"
+                  >alexander.mitchell@example.com</span
+                >
+              </div>
+              <div class="flex flex-col">
+                <span class="text-sm text-gray-400">Phone</span>
+                <span class="text-gray-300">+1 (555) 123-4567</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-sm text-gray-400">Unique ID</span>
+                <div class="flex items-center">
+                  <span class="text-gray-300 mr-2">VOT-2025-8471-93X</span>
+                  <button
+                    class="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-primary transition-colors"
+                  >
+                    <i class="ri-file-copy-line"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-sm text-gray-400">Voter Status</span>
+                <span
+                  class="inline-block px-3 py-1 rounded-full bg-green-900 bg-opacity-30 text-xs font-medium text-green-400 mt-1 w-fit"
+                  >Approved</span
+                >
+              </div>
+              <div class="flex flex-col">
+                <span class="text-sm text-gray-400">Joined</span>
+                <span class="text-gray-300">March 15, 2025</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Content Section -->
+        <div class="lg:col-span-2 space-y-6">
+          <!-- Edit Profile Section -->
+          <div class="glass rounded p-6">
+            <h3 class="text-xl font-semibold text-white mb-4">Edit Profile</h3>
+            <form>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div class="flex flex-col">
+                  <label for="firstName" class="text-sm text-gray-400 mb-1"
+                    >First Name</label
+                  >
+                  <input
+                    type="text"
+                    id="firstName"
+                    value="Alexander"
+                    class="bg-gray-800 bg-opacity-50 border border-gray-700 rounded text-white px-4 py-2 focus:border-primary transition-colors"
+                  />
+                </div>
+                <div class="flex flex-col">
+                  <label for="lastName" class="text-sm text-gray-400 mb-1"
+                    >Last Name</label
+                  >
+                  <input
+                    type="text"
+                    id="lastName"
+                    value="Mitchell"
+                    class="bg-gray-800 bg-opacity-50 border border-gray-700 rounded text-white px-4 py-2 focus:border-primary transition-colors"
+                  />
+                </div>
+                <div class="flex flex-col">
+                  <label for="email" class="text-sm text-gray-400 mb-1"
+                    >Email</label
+                  >
+                  <input
+                    type="email"
+                    id="email"
+                    value="alexander.mitchell@example.com"
+                    disabled
+                    class="bg-gray-800 bg-opacity-30 border border-gray-700 rounded text-gray-500 px-4 py-2 cursor-not-allowed"
+                  />
+                </div>
+                <div class="flex flex-col">
+                  <label for="phone" class="text-sm text-gray-400 mb-1"
+                    >Phone</label
+                  >
+                  <input
+                    type="tel"
+                    id="phone"
+                    value="+1 (555) 123-4567"
+                    class="bg-gray-800 bg-opacity-50 border border-gray-700 rounded text-white px-4 py-2 focus:border-primary transition-colors"
+                  />
+                </div>
+              </div>
+
+              <div class="flex flex-col mb-6">
+                <label for="bio" class="text-sm text-gray-400 mb-1">Bio</label>
+                <textarea
+                  id="bio"
+                  rows="3"
+                  class="bg-gray-800 bg-opacity-50 border border-gray-700 rounded text-white px-4 py-2 focus:border-primary transition-colors"
+                >
+Experienced security professional with a background in digital identity verification and election systems.</textarea
+                >
+              </div>
+
+              <div class="flex justify-end">
+                <button
+                  type="submit"
+                  class="bg-primary hover:bg-opacity-90 text-white px-6 py-2 !rounded-button whitespace-nowrap flex items-center"
+                >
+                  <i class="ri-save-line mr-2"></i>
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Security Settings -->
+          <div class="glass rounded p-6">
+            <h3 class="text-xl font-semibold text-white mb-4">
+              Security Settings
+            </h3>
+
+            <div class="space-y-6">
+              <div class="flex flex-col space-y-4">
+                <div class="flex justify-between items-center">
+                  <div>
+                    <h4 class="font-medium text-white">Password</h4>
+                    <p class="text-sm text-gray-400">
+                      Last changed: May 2, 2025
+                    </p>
+                  </div>
+                  <button
+                    class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 !rounded-button whitespace-nowrap flex items-center"
+                  >
+                    <i class="ri-lock-line mr-2"></i>
+                    Change Password
+                  </button>
+                </div>
+
+                <div class="h-px bg-gray-700"></div>
+
+                <div class="flex justify-between items-center">
+                  <div>
+                    <h4 class="font-medium text-white">
+                      Two-Factor Authentication
+                    </h4>
+                    <p class="text-sm text-gray-400">
+                      Add an extra layer of security
+                    </p>
+                  </div>
+                  <label class="custom-switch">
+                    <input type="checkbox" checked />
+                    <span class="switch-slider"></span>
+                  </label>
+                </div>
+
+                <div class="h-px bg-gray-700"></div>
+
+                <div class="flex justify-between items-center">
+                  <div>
+                    <h4 class="font-medium text-white">Session Management</h4>
+                    <p class="text-sm text-gray-400">
+                      Current session: Chrome on Windows
+                    </p>
+                  </div>
+                  <button
+                    class="bg-red-900 hover:bg-red-800 text-white px-4 py-2 !rounded-button whitespace-nowrap flex items-center"
+                  >
+                    <i class="ri-logout-box-line mr-2"></i>
+                    Sign Out
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Registered Events -->
+          <div class="glass rounded p-6">
+            <h3 class="text-xl font-semibold text-white mb-4">
+              Registered Events
+            </h3>
+
+            <div class="space-y-4 max-h-80 overflow-y-auto pr-2">
+              <div
+                class="bg-gray-800 bg-opacity-50 rounded p-4 flex justify-between items-center"
+              >
+                <div>
+                  <h4 class="font-medium text-white">
+                    National General Election 2025
+                  </h4>
+                  <p class="text-sm text-gray-400">June 15, 2025</p>
+                </div>
+                <span
+                  class="inline-block px-3 py-1 rounded-full bg-green-900 bg-opacity-30 text-xs font-medium text-green-400"
+                  >Eligible</span
+                >
+              </div>
+
+              <div
+                class="bg-gray-800 bg-opacity-50 rounded p-4 flex justify-between items-center"
+              >
+                <div>
+                  <h4 class="font-medium text-white">City Council Election</h4>
+                  <p class="text-sm text-gray-400">July 22, 2025</p>
+                </div>
+                <span
+                  class="inline-block px-3 py-1 rounded-full bg-green-900 bg-opacity-30 text-xs font-medium text-green-400"
+                  >Eligible</span
+                >
+              </div>
+
+              <div
+                class="bg-gray-800 bg-opacity-50 rounded p-4 flex justify-between items-center"
+              >
+                <div>
+                  <h4 class="font-medium text-white">
+                    University Board Election
+                  </h4>
+                  <p class="text-sm text-gray-400">August 5, 2025</p>
+                </div>
+                <span
+                  class="inline-block px-3 py-1 rounded-full bg-yellow-900 bg-opacity-30 text-xs font-medium text-yellow-400"
+                  >Pending</span
+                >
+              </div>
+
+              <div
+                class="bg-gray-800 bg-opacity-50 rounded p-4 flex justify-between items-center"
+              >
+                <div>
+                  <h4 class="font-medium text-white">
+                    Community Association Vote
+                  </h4>
+                  <p class="text-sm text-gray-400">September 18, 2025</p>
+                </div>
+                <span
+                  class="inline-block px-3 py-1 rounded-full bg-gray-700 bg-opacity-50 text-xs font-medium text-gray-300"
+                  >Not Started</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Password Change Modal -->
+    <div
+      id="passwordModal"
+      class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden"
+    >
+      <div class="glass rounded-lg p-6 w-full max-w-md mx-4">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-semibold text-white">Change Password</h3>
+          <button id="closeModal" class="text-gray-400 hover:text-white">
+            <div class="w-6 h-6 flex items-center justify-center">
+              <i class="ri-close-line ri-lg"></i>
+            </div>
+          </button>
+        </div>
+
+        <form>
+          <div class="space-y-4 mb-6">
+            <div class="flex flex-col">
+              <label for="currentPassword" class="text-sm text-gray-400 mb-1"
+                >Current Password</label
+              >
+              <div class="relative">
+                <input
+                  type="password"
+                  id="currentPassword"
+                  class="w-full bg-gray-800 bg-opacity-50 border border-gray-700 rounded text-white px-4 py-2 focus:border-primary transition-colors"
+                />
+                <button
+                  type="button"
+                  class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                >
+                  <div class="w-5 h-5 flex items-center justify-center">
+                    <i class="ri-eye-off-line"></i>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <div class="flex flex-col">
+              <label for="newPassword" class="text-sm text-gray-400 mb-1"
+                >New Password</label
+              >
+              <div class="relative">
+                <input
+                  type="password"
+                  id="newPassword"
+                  class="w-full bg-gray-800 bg-opacity-50 border border-gray-700 rounded text-white px-4 py-2 focus:border-primary transition-colors"
+                />
+                <button
+                  type="button"
+                  class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                >
+                  <div class="w-5 h-5 flex items-center justify-center">
+                    <i class="ri-eye-off-line"></i>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <div class="flex flex-col">
+              <label for="confirmPassword" class="text-sm text-gray-400 mb-1"
+                >Confirm New Password</label
+              >
+              <div class="relative">
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  class="w-full bg-gray-800 bg-opacity-50 border border-gray-700 rounded text-white px-4 py-2 focus:border-primary transition-colors"
+                />
+                <button
+                  type="button"
+                  class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                >
+                  <div class="w-5 h-5 flex items-center justify-center">
+                    <i class="ri-eye-off-line"></i>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-end space-x-3">
+            <button
+              type="button"
+              id="cancelPasswordChange"
+              class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 !rounded-button whitespace-nowrap"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="bg-primary hover:bg-opacity-90 text-white px-4 py-2 !rounded-button whitespace-nowrap"
+            >
+              Update Password
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script id="modalScript">
+      document.addEventListener("DOMContentLoaded", function () {
+        const passwordModal = document.getElementById("passwordModal");
+        const changePasswordButtons = document.querySelectorAll(
+          "button:not(#closeModal):not(#cancelPasswordChange)",
+        );
+        const closeModalButton = document.getElementById("closeModal");
+        const cancelButton = document.getElementById("cancelPasswordChange");
+
+        changePasswordButtons.forEach((button) => {
+          if (button.querySelector(".ri-lock-line")) {
+            button.addEventListener("click", function () {
+              passwordModal.classList.remove("hidden");
+            });
+          }
+        });
+
+        closeModalButton.addEventListener("click", function () {
+          passwordModal.classList.add("hidden");
+        });
+
+        cancelButton.addEventListener("click", function () {
+          passwordModal.classList.add("hidden");
+        });
+
+        // Close modal when clicking outside
+        passwordModal.addEventListener("click", function (e) {
+          if (e.target === passwordModal) {
+            passwordModal.classList.add("hidden");
+          }
+        });
+      });
+    </script>
+
+    <script id="passwordVisibilityScript">
+      document.addEventListener("DOMContentLoaded", function () {
+        const toggleButtons = document.querySelectorAll('button[type="button"]');
+
+        toggleButtons.forEach((button) => {
+          if (
+            button.querySelector(".ri-eye-off-line") ||
+            button.querySelector(".ri-eye-line")
+          ) {
+            button.addEventListener("click", function () {
+              const input = this.parentElement.querySelector("input");
+              const icon = this.querySelector("i");
+
+              if (input.type === "password") {
+                input.type = "text";
+                icon.className = "ri-eye-line";
+              } else {
+                input.type = "password";
+                icon.className = "ri-eye-off-line";
+              }
+            });
+          }
+        });
+      });
+    </script>
+
+    <script id="copyIdScript">
+      document.addEventListener("DOMContentLoaded", function () {
+        const copyButton = document.querySelector(".ri-file-copy-line").parentElement;
+
+        copyButton.addEventListener("click", function () {
+          const idText = this.previousElementSibling.textContent;
+          navigator.clipboard.writeText(idText).then(() => {
+            const icon = this.querySelector("i");
+            icon.className = "ri-check-line";
+            setTimeout(() => {
+              icon.className = "ri-file-copy-line";
+            }, 2000);
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

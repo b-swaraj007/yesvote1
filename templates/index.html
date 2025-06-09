@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digi-Vote - Secure Face-Recognition E-Voting Platform</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>tailwind.config={theme:{extend:{colors:{primary:'#10b981',secondary:'#064e3b'},borderRadius:{'none':'0px','sm':'8px',DEFAULT:'12px','md':'16px','lg':'20px','xl':'24px','2xl':'28px','3xl':'32px','full':'9999px','button':'12px'}}}}</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+    <style>
+        :where([class^="ri-"])::before { content: "\f3c2"; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #000000, #004d40);
+            background-attachment: fixed;
+            color: #fff;
+            min-height: 100vh;
+        }
+        
+        .glassmorphism {
+            background: rgba(0, 0, 0, 0.25);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(90deg, #10b981, #a5f3fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .nav-link {
+            position: relative;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background-color: #10b981;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .glow-on-hover:hover {
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.7);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .gallery-card {
+            overflow: hidden;
+        }
+        
+        .gallery-card img {
+            transition: transform 0.5s ease;
+        }
+        
+        .gallery-card:hover img {
+            transform: scale(1.05);
+        }
+        
+        .gallery-overlay {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .gallery-card:hover .gallery-overlay {
+            opacity: 1;
+        }
+        
+        input, select, textarea {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+        }
+        
+        .scroll-smooth {
+            scroll-behavior: smooth;
+        }
+        
+        .custom-checkbox {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            background: rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .custom-checkbox:checked {
+            background-color: #10b981;
+            border-color: #10b981;
+        }
+        
+        .custom-checkbox:checked::after {
+            content: '';
+            position: absolute;
+            left: 6px;
+            top: 2px;
+            width: 6px;
+            height: 12px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+    </style>
+</head>
+<body class="scroll-smooth">
+    <header class="fixed top-0 left-0 right-0 z-50 glassmorphism px-6 py-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <a href="#" class="text-2xl font-['Pacifico'] text-white">Digi-Vote</a>
+            
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="#home" class="nav-link text-white hover:text-primary transition-colors">Home</a>
+                <a href="#about" class="nav-link text-white hover:text-primary transition-colors">About</a>
+                <a href="#gallery" class="nav-link text-white hover:text-primary transition-colors">Gallery</a>
+                <a href="#contributors" class="nav-link text-white hover:text-primary transition-colors">Contributors</a>
+                <a href="#contact" class="nav-link text-white hover:text-primary transition-colors">Contact</a>
+                <a href="/login" class="ml-6 px-5 py-2 bg-primary text-white rounded-button font-medium hover:bg-opacity-90 transition-all">Login</a>
+                <a href="/register" class="ml-2 px-5 py-2 bg-secondary text-white rounded-button font-medium hover:bg-opacity-90 transition-all">Register</a>
+            </div>
+            
+            <button class="md:hidden w-10 h-10 flex items-center justify-center text-white" id="menuButton">
+                <i class="ri-menu-line ri-lg"></i>
+            </button>
+        </div>
+        
+        <div id="mobileMenu" class="hidden md:hidden absolute top-full left-0 right-0 glassmorphism py-4 px-6">
+            <div class="flex flex-col space-y-4">
+                <a href="#home" class="text-white hover:text-primary transition-colors">Home</a>
+                <a href="#about" class="text-white hover:text-primary transition-colors">About</a>
+                <a href="#gallery" class="text-white hover:text-primary transition-colors">Gallery</a>
+                <a href="#contributors" class="text-white hover:text-primary transition-colors">Contributors</a>
+                <a href="#contact" class="text-white hover:text-primary transition-colors">Contact</a>
+            </div>
+        </div>
+    </header>
+
+    <section id="home" class="min-h-screen pt-24 pb-16 flex items-center">
+        <div class="w-full max-w-7xl mx-auto px-6 md:px-8 lg:px-12">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="w-full md:w-1/2 mb-12 md:mb-0">
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+                        <span class="gradient-text">Secure Face-Recognition</span>
+                        <span class="block mt-2">E-Voting Platform</span>
+                    </h1>
+                    <p class="text-lg md:text-xl text-gray-300 mb-8 max-w-xl">
+                        Built by AIML Students for a Future-Ready Democracy. Transforming the voting experience with cutting-edge facial recognition technology and blockchain security.
+                    </p>
+                    <a href="#about" class="inline-block bg-primary text-white px-8 py-3 !rounded-button font-medium transition-all duration-300 hover:bg-opacity-90 glow-on-hover whitespace-nowrap">
+                        Learn More
+                    </a>
+                </div>
+                <div class="w-full md:w-1/2">
+                    <div class="relative rounded-lg overflow-hidden shadow-2xl">
+                        <img 
+                            src="https://readdy.ai/api/search-image?query=Futuristic%20face%20recognition%20voting%20system%20interface%20with%20digital%20scanning%20of%20a%20persons%20face%2C%20secure%20voting%20technology%20concept%2C%20dark%20background%20with%20glowing%20green%20elements%2C%20high-tech%20UI%20display%20showing%20biometric%20verification%20in%20process%2C%20cybersecurity%20visualization&width=600&height=400&seq=1&orientation=landscape" 
+                            alt="Face Recognition Voting System" 
+                            class="w-full h-auto object-cover"
+                        >
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="about" class="py-20">
+        <div class="max-w-7xl mx-auto px-6 md:px-8 lg:px-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-16">
+                <span class="gradient-text">About Our Project</span>
+            </h2>
+            
+            <div class="glassmorphism rounded-lg p-8 md:p-12">
+                <div class="max-w-3xl mx-auto">
+                    <p class="text-lg mb-6">
+                        Digi-Vote is a cutting-edge electronic voting platform developed by AIML students that integrates facial recognition technology with secure blockchain-based voting systems to ensure transparent, tamper-proof elections.
+                    </p>
+                    
+                    <p class="text-lg mb-6">
+                        Our system addresses critical challenges in traditional voting methods by eliminating voter fraud, reducing administrative costs, and making the voting process more accessible while maintaining the highest standards of security and privacy.
+                    </p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
+                        <div class="glassmorphism rounded-lg p-6 card-hover">
+                            <div class="w-12 h-12 flex items-center justify-center bg-primary/20 rounded-full mb-4">
+                                <i class="ri-face-recognition-line ri-xl text-primary"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-3">Facial Recognition</h3>
+                            <p class="text-gray-300">Advanced biometric verification ensures one-person-one-vote integrity and prevents identity fraud.</p>
+                        </div>
+                        
+                        <div class="glassmorphism rounded-lg p-6 card-hover">
+                            <div class="w-12 h-12 flex items-center justify-center bg-primary/20 rounded-full mb-4">
+                                <i class="ri-lock-password-line ri-xl text-primary"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-3">Blockchain Security</h3>
+                            <p class="text-gray-300">Immutable ledger technology ensures votes cannot be altered, deleted, or manipulated once cast.</p>
+                        </div>
+                        
+                        <div class="glassmorphism rounded-lg p-6 card-hover">
+                            <div class="w-12 h-12 flex items-center justify-center bg-primary/20 rounded-full mb-4">
+                                <i class="ri-user-voice-line ri-xl text-primary"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-3">Accessibility</h3>
+                            <p class="text-gray-300">Remote voting capabilities with multi-language support makes democracy more inclusive.</p>
+                        </div>
+                        
+                        <div class="glassmorphism rounded-lg p-6 card-hover">
+                            <div class="w-12 h-12 flex items-center justify-center bg-primary/20 rounded-full mb-4">
+                                <i class="ri-dashboard-3-line ri-xl text-primary"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-3">Real-time Analytics</h3>
+                            <p class="text-gray-300">Instant vote counting and result verification with comprehensive audit trails.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="gallery" class="py-20">
+        <div class="max-w-7xl mx-auto px-6 md:px-8 lg:px-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-16">
+                <span class="gradient-text">Our Project in Action</span>
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="glassmorphism rounded-lg overflow-hidden gallery-card card-hover">
+                    <div class="relative">
+                        <img 
+                            src="https://readdy.ai/api/search-image?query=Voter%20registration%20dashboard%20interface%20with%20facial%20recognition%20scanner%2C%20dark%20mode%20UI%20with%20green%20accents%2C%20high-tech%20voting%20system%2C%20digital%20identity%20verification%20screen%2C%20secure%20login%20portal%20with%20biometric%20authentication%2C%20futuristic%20voting%20technology&width=400&height=300&seq=2&orientation=landscape" 
+                            alt="Voter Registration Dashboard" 
+                            class="w-full h-64 object-cover object-top"
+                        >
+                        <div class="absolute inset-0 bg-black/60 gallery-overlay flex items-center justify-center">
+                            <div class="text-center p-4">
+                                <h3 class="text-xl font-semibold mb-2">Voter Registration</h3>
+                                <p class="text-gray-300">Secure biometric enrollment process</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="text-xl font-semibold mb-2">Voter Registration</h3>
+                        <p class="text-gray-300">Our streamlined registration process uses facial recognition to create a secure voter profile.</p>
+                    </div>
+                </div>
+                
+                <div class="glassmorphism rounded-lg overflow-hidden gallery-card card-hover">
+                    <div class="relative">
+                        <img 
+                            src="https://readdy.ai/api/search-image?query=Face%20verification%20process%20for%20e-voting%2C%20digital%20facial%20scan%20with%20green%20grid%20overlay%2C%20cybersecurity%20verification%20system%2C%20biometric%20authentication%20technology%2C%20dark%20UI%20with%20glowing%20elements%2C%20high-tech%20identity%20confirmation%20screen%20for%20secure%20voting&width=400&height=300&seq=3&orientation=landscape" 
+                            alt="Face Verification Process" 
+                            class="w-full h-64 object-cover object-top"
+                        >
+                        <div class="absolute inset-0 bg-black/60 gallery-overlay flex items-center justify-center">
+                            <div class="text-center p-4">
+                                <h3 class="text-xl font-semibold mb-2">Face Verification</h3>
+                                <p class="text-gray-300">Real-time biometric authentication</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="text-xl font-semibold mb-2">Face Verification</h3>
+                        <p class="text-gray-300">Advanced algorithms verify voter identity with 99.9% accuracy in seconds.</p>
+                    </div>
+                </div>
+                
+                <div class="glassmorphism rounded-lg overflow-hidden gallery-card card-hover">
+                    <div class="relative">
+                        <img 
+                            src="https://readdy.ai/api/search-image?query=Ballot%20casting%20interface%20for%20digital%20voting%2C%20dark%20mode%20UI%20with%20green%20accent%20buttons%2C%20electronic%20ballot%20selection%20screen%2C%20secure%20vote%20submission%20portal%2C%20touchscreen%20voting%20system%20with%20candidate%20selection%2C%20modern%20e-voting%20application%20interface&width=400&height=300&seq=4&orientation=landscape" 
+                            alt="Ballot Casting Interface" 
+                            class="w-full h-64 object-cover object-top"
+                        >
+                        <div class="absolute inset-0 bg-black/60 gallery-overlay flex items-center justify-center">
+                            <div class="text-center p-4">
+                                <h3 class="text-xl font-semibold mb-2">Ballot Casting</h3>
+                                <p class="text-gray-300">Intuitive voting interface</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="text-xl font-semibold mb-2">Ballot Casting</h3>
+                        <p class="text-gray-300">User-friendly interface makes selecting candidates and casting votes simple and error-free.</p>
+                    </div>
+                </div>
+                
+                <div class="glassmorphism rounded-lg overflow-hidden gallery-card card-hover">
+                    <div class="relative">
+                        <img 
+                            src="https://readdy.ai/api/search-image?query=Blockchain%20voting%20verification%20screen%2C%20vote%20confirmation%20with%20cryptographic%20hash%2C%20secure%20transaction%20ledger%20for%20e-voting%2C%20immutable%20vote%20record%20display%2C%20dark%20UI%20with%20green%20digital%20elements%2C%20decentralized%20voting%20system%20interface&width=400&height=300&seq=5&orientation=landscape" 
+                            alt="Blockchain Verification" 
+                            class="w-full h-64 object-cover object-top"
+                        >
+                        <div class="absolute inset-0 bg-black/60 gallery-overlay flex items-center justify-center">
+                            <div class="text-center p-4">
+                                <h3 class="text-xl font-semibold mb-2">Blockchain Verification</h3>
+                                <p class="text-gray-300">Immutable vote recording</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="text-xl font-semibold mb-2">Blockchain Verification</h3>
+                        <p class="text-gray-300">Each vote is cryptographically secured and added to an immutable blockchain ledger.</p>
+                    </div>
+                </div>
+                
+                <div class="glassmorphism rounded-lg overflow-hidden gallery-card card-hover">
+                    <div class="relative">
+                        <img 
+                            src="https://readdy.ai/api/search-image?query=Election%20results%20dashboard%20with%20real-time%20analytics%2C%20vote%20counting%20visualization%20with%20charts%20and%20graphs%2C%20dark%20mode%20UI%20with%20green%20data%20elements%2C%20election%20monitoring%20system%2C%20digital%20vote%20tallying%20interface%2C%20secure%20election%20results%20display&width=400&height=300&seq=6&orientation=landscape" 
+                            alt="Results Dashboard" 
+                            class="w-full h-64 object-cover object-top"
+                        >
+                        <div class="absolute inset-0 bg-black/60 gallery-overlay flex items-center justify-center">
+                            <div class="text-center p-4">
+                                <h3 class="text-xl font-semibold mb-2">Results Dashboard</h3>
+                                <p class="text-gray-300">Real-time election analytics</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="text-xl font-semibold mb-2">Results Dashboard</h3>
+                        <p class="text-gray-300">Comprehensive analytics and real-time results with detailed visualizations.</p>
+                    </div>
+                </div>
+                
+                <div class="glassmorphism rounded-lg overflow-hidden gallery-card card-hover">
+                    <div class="relative">
+                        <img 
+                            src="https://readdy.ai/api/search-image?query=Admin%20control%20panel%20for%20e-voting%20system%2C%20election%20management%20interface%20with%20security%20controls%2C%20dark%20UI%20with%20green%20functional%20elements%2C%20voting%20system%20administration%20dashboard%2C%20digital%20election%20oversight%20tools%2C%20secure%20voting%20platform%20management%20screen&width=400&height=300&seq=7&orientation=landscape" 
+                            alt="Admin Control Panel" 
+                            class="w-full h-64 object-cover object-top"
+                        >
+                        <div class="absolute inset-0 bg-black/60 gallery-overlay flex items-center justify-center">
+                            <div class="text-center p-4">
+                                <h3 class="text-xl font-semibold mb-2">Admin Control Panel</h3>
+                                <p class="text-gray-300">Comprehensive management tools</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="text-xl font-semibold mb-2">Admin Control Panel</h3>
+                        <p class="text-gray-300">Powerful tools for election officials to manage and monitor the entire voting process.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contributors" class="py-20">
+        <div class="max-w-7xl mx-auto px-6 md:px-8 lg:px-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-16">
+                <span class="gradient-text">Created by AIML Students</span>
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {% for member in team_members %}
+                <div class="glassmorphism rounded-lg p-6 flex flex-col items-center text-center card-hover">
+                    <div class="w-24 h-24 rounded-full bg-gradient-to-r from-primary to-secondary p-1 mb-4">
+                        <div class="w-full h-full rounded-full overflow-hidden bg-gray-800 flex items-center justify-center relative">
+                            <img src="{{ member.photo_url }}" alt="{{ member.name }}" width="96" height="96" class="object-cover w-full h-full absolute top-0 left-0" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                            <i class="ri-user-3-line ri-2x text-primary" style="display:none;position:relative;z-index:1;"></i>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">{{ member.name }}</h3>
+                    <span class="px-3 py-1 bg-primary/20 text-primary rounded-full text-sm">{{ member.role }}</span>
+                    <p class="mt-4 text-gray-300">{{ member.description }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="py-20">
+        <div class="max-w-7xl mx-auto px-6 md:px-8 lg:px-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-16">
+                <span class="gradient-text">Get in Touch</span>
+            </h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div class="glassmorphism rounded-lg p-8">
+                    <h3 class="text-2xl font-semibold mb-6">Contact Us</h3>
+                    <form class="space-y-6">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-300 mb-2">Your Name</label>
+                            <input 
+                                type="text" 
+                                id="name" 
+                                class="w-full px-4 py-3 rounded-lg border-none bg-black/20 text-white focus:ring-2 focus:ring-primary"
+                                placeholder="Enter your name"
+                            >
+                        </div>
+                        
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-300 mb-2">Email Address</label>
+                            <input 
+                                type="email" 
+                                id="email" 
+                                class="w-full px-4 py-3 rounded-lg border-none bg-black/20 text-white focus:ring-2 focus:ring-primary"
+                                placeholder="Enter your email"
+                            >
+                        </div>
+                        
+                        <div>
+                            <label for="message" class="block text-sm font-medium text-gray-300 mb-2">Message</label>
+                            <textarea 
+                                id="message" 
+                                rows="4" 
+                                class="w-full px-4 py-3 rounded-lg border-none bg-black/20 text-white focus:ring-2 focus:ring-primary"
+                                placeholder="Enter your message"
+                            ></textarea>
+                        </div>
+                        
+                        <div>
+                            <button 
+                                type="submit" 
+                                class="w-full bg-primary text-white px-6 py-3 !rounded-button font-medium transition-all duration-300 hover:bg-opacity-90 glow-on-hover whitespace-nowrap"
+                            >
+                                Send Message
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="glassmorphism rounded-lg p-8">
+                    <h3 class="text-2xl font-semibold mb-6">Project Information</h3>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <h4 class="text-lg font-medium text-primary mb-2">Institution</h4>
+                            <p class="text-gray-300">Department of Artificial Intelligence and Machine Learning</p>
+                            <p class="text-gray-300">College of Engineering, Pune</p>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-lg font-medium text-primary mb-2">Project Duration</h4>
+                            <p class="text-gray-300">January 2025 - June 2025</p>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-lg font-medium text-primary mb-2">Contact Email</h4>
+                            <p class="text-gray-300">digvote.project@college.edu</p>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-lg font-medium text-primary mb-2">Connect With Us</h4>
+                            <div class="flex space-x-4 mt-2">
+                                <a href="#" class="w-10 h-10 flex items-center justify-center bg-black/30 rounded-full hover:bg-primary/20 transition-colors">
+                                    <i class="ri-github-line ri-lg text-white"></i>
+                                </a>
+                                <a href="#" class="w-10 h-10 flex items-center justify-center bg-black/30 rounded-full hover:bg-primary/20 transition-colors">
+                                    <i class="ri-linkedin-line ri-lg text-white"></i>
+                                </a>
+                                <a href="#" class="w-10 h-10 flex items-center justify-center bg-black/30 rounded-full hover:bg-primary/20 transition-colors">
+                                    <i class="ri-twitter-x-line ri-lg text-white"></i>
+                                </a>
+                                <a href="#" class="w-10 h-10 flex items-center justify-center bg-black/30 rounded-full hover:bg-primary/20 transition-colors">
+                                    <i class="ri-mail-line ri-lg text-white"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-12 glassmorphism mt-12">
+        <div class="max-w-7xl mx-auto px-6 md:px-8 lg:px-12">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+                <div>
+                    <a href="#" class="text-2xl font-['Pacifico'] text-white mb-4 inline-block">Digi-Vote</a>
+                    <p class="text-gray-300 mt-4">
+                        A secure face-recognition e-voting platform built by AIML students for a future-ready democracy.
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#home" class="text-gray-300 hover:text-primary transition-colors">Home</a></li>
+                        <li><a href="#about" class="text-gray-300 hover:text-primary transition-colors">About</a></li>
+                        <li><a href="#gallery" class="text-gray-300 hover:text-primary transition-colors">Gallery</a></li>
+                        <li><a href="#contributors" class="text-gray-300 hover:text-primary transition-colors">Contributors</a></li>
+                        <li><a href="#contact" class="text-gray-300 hover:text-primary transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Legal</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-300 hover:text-primary transition-colors">Privacy Policy</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-primary transition-colors">Terms of Service</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-primary transition-colors">Data Protection</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-700 mt-12 pt-8 text-center">
+                <p class="text-gray-400">
+                    © 2025 Digi-Vote. All rights reserved. A student project from the Department of AIML.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script id="mobileMenuToggle">
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuButton = document.getElementById('menuButton');
+            const mobileMenu = document.getElementById('mobileMenu');
+            
+            menuButton.addEventListener('click', function() {
+                mobileMenu.classList.toggle('hidden');
+                
+                // Toggle icon
+                const icon = menuButton.querySelector('i');
+                if (mobileMenu.classList.contains('hidden')) {
+                    icon.classList.remove('ri-close-line');
+                    icon.classList.add('ri-menu-line');
+                } else {
+                    icon.classList.remove('ri-menu-line');
+                    icon.classList.add('ri-close-line');
+                }
+            });
+            
+            // Close menu when clicking on a link
+            const mobileLinks = mobileMenu.querySelectorAll('a');
+            mobileLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    mobileMenu.classList.add('hidden');
+                    const icon = menuButton.querySelector('i');
+                    icon.classList.remove('ri-close-line');
+                    icon.classList.add('ri-menu-line');
+                });
+            });
+        });
+    </script>
+    
+    <script id="scrollNavigation">
+        document.addEventListener('DOMContentLoaded', function() {
+            // Smooth scroll for navigation links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    
+                    if (targetElement) {
+                        const headerHeight = document.querySelector('header').offsetHeight;
+                        const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - headerHeight;
+                        
+                        window.scrollTo({
+                            top: targetPosition,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+            
+            // Highlight active nav item based on scroll position
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('header a');
+            
+            window.addEventListener('scroll', function() {
+                let current = '';
+                
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.clientHeight;
+                    const headerHeight = document.querySelector('header').offsetHeight;
+                    
+                    if (window.pageYOffset >= sectionTop - headerHeight - 100) {
+                        current = section.getAttribute('id');
+                    }
+                });
+                
+                navLinks.forEach(link => {
+                    link.classList.remove('text-primary');
+                    if (link.getAttribute('href') === `#${current}`) {
+                        link.classList.add('text-primary');
+                    }
+                });
+            });
+        });
+    </script>
+    
+    <script id="formValidation">
+        document.addEventListener('DOMContentLoaded', function() {
+            const contactForm = document.querySelector('#contact form');
+            
+            if (contactForm) {
+                contactForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const nameInput = document.getElementById('name');
+                    const emailInput = document.getElementById('email');
+                    const messageInput = document.getElementById('message');
+                    
+                    let isValid = true;
+                    
+                    // Simple validation
+                    if (!nameInput.value.trim()) {
+                        nameInput.classList.add('ring-2', 'ring-red-500');
+                        isValid = false;
+                    } else {
+                        nameInput.classList.remove('ring-2', 'ring-red-500');
+                    }
+                    
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailInput.value.trim() || !emailRegex.test(emailInput.value)) {
+                        emailInput.classList.add('ring-2', 'ring-red-500');
+                        isValid = false;
+                    } else {
+                        emailInput.classList.remove('ring-2', 'ring-red-500');
+                    }
+                    
+                    if (!messageInput.value.trim()) {
+                        messageInput.classList.add('ring-2', 'ring-red-500');
+                        isValid = false;
+                    } else {
+                        messageInput.classList.remove('ring-2', 'ring-red-500');
+                    }
+                    
+                    if (isValid) {
+                        // Simulate form submission
+                        const submitButton = contactForm.querySelector('button[type="submit"]');
+                        const originalText = submitButton.textContent;
+                        
+                        submitButton.disabled = true;
+                        submitButton.textContent = 'Sending...';
+                        
+                        setTimeout(() => {
+                            contactForm.reset();
+                            submitButton.textContent = 'Message Sent!';
+                            
+                            setTimeout(() => {
+                                submitButton.disabled = false;
+                                submitButton.textContent = originalText;
+                            }, 2000);
+                        }, 1500);
+                    }
+                });
+                
+                // Reset validation styling on input
+                const formInputs = contactForm.querySelectorAll('input, textarea');
+                formInputs.forEach(input => {
+                    input.addEventListener('input', function() {
+                        this.classList.remove('ring-2', 'ring-red-500');
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>

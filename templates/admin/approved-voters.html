@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Approved Voters - Digi-Vote</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: { primary: "#10b981", secondary: "#064e3b" },
+            borderRadius: {
+              none: "0px",
+              sm: "8px",
+              DEFAULT: "12px",
+              md: "16px",
+              lg: "20px",
+              xl: "24px",
+              "2xl": "28px",
+              "3xl": "32px",
+              full: "9999px",
+              button: "12px",
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
+    />
+    <style>
+      :where([class^="ri-"])::before { content: "\f3c2"; }
+      body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #000000, #004d40);
+      background-attachment: fixed;
+      color: #fff;
+      min-height: 100vh;
+      }
+      .glassmorphism {
+      background: rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      }
+      .gradient-text {
+      background: linear-gradient(90deg, #10b981, #a5f3fc);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      }
+      .card-hover {
+      transition: all 0.3s ease;
+      }
+      .card-hover:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      border-color: rgba(255, 255, 255, 0.2);
+      }
+      input, select {
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      input:focus, select:focus {
+      outline: none;
+      border-color: #10b981;
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+      }
+      .search-input::-webkit-search-cancel-button {
+      display: none;
+      }
+      .custom-dropdown {
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23ffffff'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.5rem center;
+      background-size: 1.5em 1.5em;
+      padding-right: 2.5rem;
+      }
+      .dropdown-menu {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(10px);
+      transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+      position: fixed;
+      z-index: 99999;
+      }
+      .dropdown-menu.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+      }
+      @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+      }
+      .fade-in {
+      animation: fadeIn 0.5s ease forwards;
+      }
+      .voter-card {
+      animation: fadeIn 0.5s ease forwards;
+      animation-delay: calc(var(--animation-order) * 0.1s);
+      opacity: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="fixed top-0 left-0 right-0 z-50 glassmorphism px-6 py-4">
+      <div class="max-w-7xl mx-auto flex justify-between items-center">
+        <a href="#" class="text-2xl font-['Pacifico'] text-white">Digi-Vote</a>
+        <h1 class="text-xl md:text-2xl font-semibold text-center">
+          Approved Voters
+        </h1>
+        <a
+          href="#"
+          class="px-4 py-2 !rounded-button bg-primary/20 hover:bg-primary/30 text-white transition-all duration-300 flex items-center gap-2 whitespace-nowrap"
+        >
+          <i class="ri-arrow-left-line"></i>
+          <span class="hidden md:inline">Back to Dashboard</span>
+        </a>
+      </div>
+    </header>
+    <main class="pt-24 pb-16 px-4 md:px-6 lg:px-8">
+      <div class="max-w-7xl mx-auto">
+        <div
+          class="glassmorphism rounded-lg p-6 mb-8 fade-in relative"
+          style="z-index: 1000;"
+        >
+          <div
+            class="flex flex-col md:flex-row gap-4 md:items-center justify-between"
+          >
+            <h2 class="text-2xl font-semibold">List of Approved Voters</h2>
+            <div class="flex flex-col sm:flex-row gap-4">
+              <div class="relative">
+                <input
+                  type="search"
+                  placeholder="Search voters..."
+                  class="w-full sm:w-64 px-4 py-2 pr-10 rounded-lg border-none bg-black/20 text-white search-input"
+                />
+                <div
+                  class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center text-gray-400"
+                >
+                  <i class="ri-search-line"></i>
+                </div>
+              </div>
+              <div class="relative" style="z-index: 1001;">
+                <button
+                  id="filterButton"
+                  class="w-full sm:w-auto px-4 py-2 !rounded-button bg-black/20 hover:bg-black/30 text-white border border-white/10 flex items-center justify-between gap-2 whitespace-nowrap relative"
+                >
+                  <span>Filter by</span>
+                  <i class="ri-arrow-down-s-line"></i>
+                </button>
+                <div
+                  id="filterMenu"
+                  class="dropdown-menu absolute right-0 mt-2 w-48 glassmorphism rounded-lg py-2"
+                  style="z-index: 99999; position: absolute; transform-origin: top right;"
+                >
+                  <button
+                    class="w-full text-left px-4 py-2 hover:bg-white/10 text-white transition-colors"
+                  >
+                    Name (A-Z)
+                  </button>
+                  <button
+                    class="w-full text-left px-4 py-2 hover:bg-white/10 text-white transition-colors"
+                  >
+                    Name (Z-A)
+                  </button>
+                  <button
+                    class="w-full text-left px-4 py-2 hover:bg-white/10 text-white transition-colors"
+                  >
+                    Voter ID
+                  </button>
+                  <button
+                    class="w-full text-left px-4 py-2 hover:bg-white/10 text-white transition-colors"
+                  >
+                    Recently Added
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div
+            class="glassmorphism rounded-lg p-6 voter-card card-hover"
+            style="--animation-order: 1"
+          >
+            <div class="flex flex-col items-center mb-4">
+              <div
+                class="w-20 h-20 rounded-full bg-gradient-to-r from-primary to-secondary p-0.5 mb-4"
+              >
+                <img
+                  src="https://readdy.ai/api/search-image?query=professional%2520headshot%2520of%2520a%2520young%2520indian%2520woman%2520with%2520short%2520black%2520hair%2520and%2520glasses%252C%2520neutral%2520expression%252C%2520plain%2520background%252C%2520high%2520quality%2520portrait%2520photo%252C%2520professional%2520lighting%252C%2520studio%2520quality&width=200&height=200&seq=1&orientation=squarish"
+                  alt="Priya Sharma"
+                  class="w-full h-full object-cover rounded-full"
+                />
+              </div>
+              <h3 class="text-xl font-semibold text-center">Priya Sharma</h3>
+              <span
+                class="px-3 py-1 bg-primary/20 text-primary rounded-full text-sm mt-2 font-mono"
+                >VOT-2025-1001</span
+              >
+            </div>
+            <div class="space-y-3 mt-4">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-8 h-8 flex items-center justify-center bg-black/20 rounded-full"
+                >
+                  <i class="ri-mail-line text-primary"></i>
+                </div>
+                <span class="text-gray-300 text-sm"
+                  >priya.sharma@university.edu</span
+                >
+              </div>
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-8 h-8 flex items-center justify-center bg-black/20 rounded-full"
+                >
+                  <i class="ri-smartphone-line text-primary"></i>
+                </div>
+                <span class="text-gray-300 text-sm">+91 9876543210</span>
+              </div>
+            </div>
+          </div>
+          <div
+            class="glassmorphism rounded-lg p-6 voter-card card-hover"
+            style="--animation-order: 2"
+          >
+            <div class="flex flex-col items-center mb-4">
+              <div
+                class="w-20 h-20 rounded-full bg-gradient-to-r from-primary to-secondary p-0.5 mb-4"
+              >
+                <img
+                  src="https://readdy.ai/api/search-image?query=professional%2520headshot%2520of%2520a%2520young%2520indian%2520man%2520with%2520short%2520black%2520hair%252C%2520neutral%2520expression%252C%2520plain%2520background%252C%2520high%2520quality%2520portrait%2520photo%252C%2520professional%2520lighting%252C%2520studio%2520quality&width=200&height=200&seq=2&orientation=squarish"
+                  alt="Rahul Patel"
+                  class="w-full h-full object-cover rounded-full"
+                />
+              </div>
+              <h3 class="text-xl font-semibold text-center">Rahul Patel</h3>
+              <span
+                class="px-3 py-1 bg-primary/20 text-primary rounded-full text-sm mt-2 font-mono"
+                >VOT-2025-1002</span
+              >
+            </div>
+            <div class="space-y-3 mt-4">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-8 h-8 flex items-center justify-center bg-black/20 rounded-full"
+                >
+                  <i class="ri-mail-line text-primary"></i>
+                </div>
+                <span class="text-gray-300 text-sm"
+                  >rahul.patel@university.edu</span
+                >
+              </div>
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-8 h-8 flex items-center justify-center bg-black/20 rounded-full"
+                >
+                  <i class="ri-smartphone-line text-primary"></i>
+                </div>
+                <span class="text-gray-300 text-sm">+91 9876543211</span>
+              </div>
+            </div>
+          </div>
+          <div
+            class="glassmorphism rounded-lg p-6 voter-card card-hover"
+            style="--animation-order: 3"
+          >
+            <div class="flex flex-col items-center mb-4">
+              <div
+                class="w-20 h-20 rounded-full bg-gradient-to-r from-primary to-secondary p-0.5 mb-4"
+              >
+                <img
+                  src="https://readdy.ai/api/search-image?query=professional%2520headshot%2520of%2520a%2520young%2520indian%2520woman%2520with%2520long%2520black%2520hair%252C%2520neutral%2520expression%252C%2520plain%2520background%252C%2520high%2520quality%2520portrait%2520photo%252C%2520professional%2520lighting%252C%2520studio%2520quality&width=200&height=200&seq=3&orientation=squarish"
+                  alt="Anjali Desai"
+                  class="w-full h-full object-cover rounded-full"
+                />
+              </div>
+              <h3 class="text-xl font-semibold text-center">Anjali Desai</h3>
+              <span
+                class="px-3 py-1 bg-primary/20 text-primary rounded-full text-sm mt-2 font-mono"
+                >VOT-2025-1003</span
+              >
+            </div>
+            <div class="space-y-3 mt-4">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-8 h-8 flex items-center justify-center bg-black/20 rounded-full"
+                >
+                  <i class="ri-mail-line text-primary"></i>
+                </div>
+                <span class="text-gray-300 text-sm"
+                  >anjali.desai@university.edu</span
+                >
+              </div>
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-8 h-8 flex items-center justify-center bg-black/20 rounded-full"
+                >
+                  <i class="ri-smartphone-line text-primary"></i>
+                </div>
+                <span class="text-gray-300 text-sm">+91 9876543212</span>
+              </div>
+            </div>
+          </div>
+          <div
+            class="glassmorphism rounded-lg p-6 voter-card card-hover"
+            style="--animation-order: 4"
+          >
+            <div class="flex flex-col items-center mb-4">
+              <div
+                class="w-20 h-20 rounded-full bg-gradient-to-r from-primary to-secondary p-0.5 mb-4"
+              >
+                <img
+                  src="https://readdy.ai/api/search-image?query=professional%2520headshot%2520of%2520a%2520young%2520indian%2520man%2520with%2520medium%2520length%2520black%2520hair%252C%2520neutral%2520expression%252C%2520plain%2520background%252C%2520high%2520quality%2520portrait%2520photo%252C%2520professional%2520lighting%252C%2520studio%2520quality&width=200&height=200&seq=4&orientation=squarish"
+                  alt="Vikram Singh"
+                  class="w-full h-full object-cover rounded-full"
+                />
+              </div>
+              <h3 class="text-xl font-semibold text-center">Vikram Singh</h3>
+              <span
+                class="px-3 py-1 bg-primary/20 text-primary rounded-full text-sm mt-2 font-mono"
+                >VOT-2025-1004</span
+              >
+            </div>
+            <div class="space-y-3 mt-4">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-8 h-8 flex items-center justify-center bg-black/20 rounded-full"
+                >
+                  <i class="ri-mail-line text-primary"></i>
+                </div>
+                <span class="text-gray-300 text-sm"
+                  >vikram.singh@university.edu</span
+                >
+              </div>
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-8 h-8 flex items-center justify-center bg-black/20 rounded-full"
+                >
+                  <i class="ri-smartphone-line text-primary"></i>
+                </div>
+                <span class="text-gray-300 text-sm">+91 9876543213</span>
+              </div>
+            </div>
+          </div>
+          <div
+            class="glassmorphism rounded-lg p-6 voter-card card-hover"
+            style="--animation-order: 5"
+          >
+            <div class="flex flex-col items-center mb-4">
+              <div
+                class="w-20 h-20 rounded-full bg-gradient-to-r from-primary to-secondary p-0.5 mb-4"
+              >
+                <img
+                  src="https://readdy.ai/api/search-image?query=professional%2520headshot%2520of%2520a%2520young%2520indian%2520woman%2520with%2520medium%2520length%2520black%2520hair%252C%2520neutral%2520expression%252C%2520plain%2520background%252C%2520high%2520quality%2520portrait%2520photo%252C%2520professional%2520lighting%252C%2520studio%2520quality&width=200&height=200&seq=5&orientation=squarish"
+                  alt="Meera Joshi"
+                  class="w-full h-full object-cover rounded-full"
+                />
+              </div>
+              <h3 class="text-xl font-semibold text-center">Meera Joshi</h3>
+              <span
+                class="px-3 py-1 bg-primary/20 text-primary rounded-full text-sm mt-2 font-mono"
+                >VOT-2025-1005</span
+              >
+            </div>
+            <div class="space-y-3 mt-4">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-8 h-8 flex items-center justify-center bg-black/20 rounded-full"
+                >
+                  <i class="ri-mail-line text-primary"></i>
+                </div>
+                <span class="text-gray-300 text-sm"
+                  >meera.joshi@university.edu</span
+                >
+              </div>
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-8 h-8 flex items-center justify-center bg-black/20 rounded-full"
+                >
+                  <i class="ri-smartphone-line text-primary"></i>
+                </div>
+                <span class="text-gray-300 text-sm">+91 9876543214</span>
+              </div>
+            </div>
+          </div>
+          <div
+            class="glassmorphism rounded-lg p-6 voter-card card-hover"
+            style="--animation-order: 6"
+          >
+            <div class="flex flex-col items-center mb-4">
+              <div
+                class="w-20 h-20 rounded-full bg-gradient-to-r from-primary to-secondary p-0.5 mb-4"
+              >
+                <img
+                  src="https://readdy.ai/api/search-image?query=professional%2520headshot%2520of%2520a%2520young%2520indian%2520man%2520with%2520short%2520black%2520hair%2520and%2520glasses%252C%2520neutral%2520expression%252C%2520plain%2520background%252C%2520high%2520quality%2520portrait%2520photo%252C%2520professional%2520lighting%252C%2520studio%2520quality&width=200&height=200&seq=6&orientation=squarish"
+                  alt="Arjun Mehta"
+                  class="w-full h-full object-cover rounded-full"
+                />
+              </div>
+              <h3 class="text-xl font-semibold text-center">Arjun Mehta</h3>
+              <span
+                class="px-3 py-1 bg-primary/20 text-primary rounded-full text-sm mt-2 font-mono"
+                >VOT-2025-1006</span
+              >
+            </div>
+            <div class="space-y-3 mt-4">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-8 h-8 flex items-center justify-center bg-black/20 rounded-full"
+                >
+                  <i class="ri-mail-line text-primary"></i>
+                </div>
+                <span class="text-gray-300 text-sm"
+                  >arjun.mehta@university.edu</span
+                >
+              </div>
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-8 h-8 flex items-center justify-center bg-black/20 rounded-full"
+                >
+                  <i class="ri-smartphone-line text-primary"></i>
+                </div>
+                <span class="text-gray-300 text-sm">+91 9876543215</span>
+              </div>
+            </div>
+          </div>
+          <div
+            class="glassmorphism rounded-lg p-6 voter-card card-hover"
+            style="--animation-order: 7"
+          >
+            <div class="flex flex-col items-center mb-4">
+              <div
+                class="w-20 h-20 rounded-full bg-gradient-to-r from-primary to-secondary p-0.5 mb-4"
+              >
+                <img
+                  src="https://readdy.ai/api/search-image?query=professional%2520headshot%2520of%2520a%2520young%2520indian%2520woman%2520with%2520short%2520black%2520hair%252C%2520neutral%2520expression%252C%2520plain%2520background%252C%2520high%2520quality%2520portrait%2520photo%252C%2520professional%2520lighting%252C%2520studio%2520quality&width=200&height=200&seq=7&orientation=squarish"
+                  alt="Neha Kapoor"
+                  class="w-full h-full object-cover rounded-full"
+                />
+              </div>
+              <h3 class="text-xl font-semibold text-center">Neha Kapoor</h3>
+              <span
+                class="px-3 py-1 bg-primary/20 text-primary rounded-full text-sm mt-2 font-mono"
+                >VOT-2025-1007</span
+              >
+            </div>
+            <div class="space-y-3 mt-4">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-8 h-8 flex items-center justify-center bg-black/20 rounded-full"
+                >
+                  <i class="ri-mail-line text-primary"></i>
+                </div>
+                <span class="text-gray-300 text-sm"
+                  >neha.kapoor@university.edu</span
+                >
+              </div>
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-8 h-8 flex items-center justify-center bg-black/20 rounded-full"
+                >
+                  <i class="ri-smartphone-line text-primary"></i>
+                </div>
+                <span class="text-gray-300 text-sm">+91 9876543216</span>
+              </div>
+            </div>
+          </div>
+          <div
+            class="glassmorphism rounded-lg p-6 voter-card card-hover"
+            style="--animation-order: 8"
+          >
+            <div class="flex flex-col items-center mb-4">
+              <div
+                class="w-20 h-20 rounded-full bg-gradient-to-r from-primary to-secondary p-0.5 mb-4"
+              >
+                <img
+                  src="https://readdy.ai/api/search-image?query=professional%2520headshot%2520of%2520a%2520young%2520indian%2520man%2520with%2520medium%2520length%2520black%2520hair%2520and%2520beard%252C%2520neutral%2520expression%252C%2520plain%2520background%252C%2520high%2520quality%2520portrait%2520photo%252C%2520professional%2520lighting%252C%2520studio%2520quality&width=200&height=200&seq=8&orientation=squarish"
+                  alt="Rohan Gupta"
+                  class="w-full h-full object-cover rounded-full"
+                />
+              </div>
+              <h3 class="text-xl font-semibold text-center">Rohan Gupta</h3>
+              <span
+                class="px-3 py-1 bg-primary/20 text-primary rounded-full text-sm mt-2 font-mono"
+                >VOT-2025-1008</span
+              >
+            </div>
+            <div class="space-y-3 mt-4">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-8 h-8 flex items-center justify-center bg-black/20 rounded-full"
+                >
+                  <i class="ri-mail-line text-primary"></i>
+                </div>
+                <span class="text-gray-300 text-sm"
+                  >rohan.gupta@university.edu</span
+                >
+              </div>
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-8 h-8 flex items-center justify-center bg-black/20 rounded-full"
+                >
+                  <i class="ri-smartphone-line text-primary"></i>
+                </div>
+                <span class="text-gray-300 text-sm">+91 9876543217</span>
+              </div>
+            </div>
+          </div>
+          <div
+            class="glassmorphism rounded-lg p-6 voter-card card-hover"
+            style="--animation-order: 9"
+          >
+            <div class="flex flex-col items-center mb-4">
+              <div
+                class="w-20 h-20 rounded-full bg-gradient-to-r from-primary to-secondary p-0.5 mb-4"
+              >
+                <img
+                  src="https://readdy.ai/api/search-image?query=professional%2520headshot%2520of%2520a%2520young%2520indian%2520woman%2520with%2520long%2520black%2520hair%2520and%2520glasses%252C%2520neutral%2520expression%252C%2520plain%2520background%252C%2520high%2520quality%2520portrait%2520photo%252C%2520professional%2520lighting%252C%2520studio%2520quality&width=200&height=200&seq=9&orientation=squarish"
+                  alt="Divya Malhotra"
+                  class="w-full h-full object-cover rounded-full"
+                />
+              </div>
+              <h3 class="text-xl font-semibold text-center">Divya Malhotra</h3>
+              <span
+                class="px-3 py-1 bg-primary/20 text-primary rounded-full text-sm mt-2 font-mono"
+                >VOT-2025-1009</span
+              >
+            </div>
+            <div class="space-y-3 mt-4">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-8 h-8 flex items-center justify-center bg-black/20 rounded-full"
+                >
+                  <i class="ri-mail-line text-primary"></i>
+                </div>
+                <span class="text-gray-300 text-sm"
+                  >divya.malhotra@university.edu</span
+                >
+              </div>
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-8 h-8 flex items-center justify-center bg-black/20 rounded-full"
+                >
+                  <i class="ri-smartphone-line text-primary"></i>
+                </div>
+                <span class="text-gray-300 text-sm">+91 9876543218</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mt-10 flex justify-center">
+          <div class="glassmorphism rounded-lg inline-flex p-1">
+            <button
+              class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 text-white transition-colors"
+            >
+              <i class="ri-arrow-left-s-line"></i>
+            </button>
+            <button
+              class="w-8 h-8 flex items-center justify-center rounded-full bg-primary text-white transition-colors"
+            >
+              1
+            </button>
+            <button
+              class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 text-white transition-colors"
+            >
+              2
+            </button>
+            <button
+              class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 text-white transition-colors"
+            >
+              3
+            </button>
+            <button
+              class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 text-white transition-colors"
+            >
+              <i class="ri-arrow-right-s-line"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+    <footer class="py-6 glassmorphism">
+      <div class="max-w-7xl mx-auto px-6 text-center">
+        <p class="text-gray-400">
+          © 2025 Digi-Vote. All rights reserved. A student project from the
+          Department of AIML.
+        </p>
+      </div>
+    </footer>
+    <script id="dropdownToggle">
+      document.addEventListener("DOMContentLoaded", function () {
+        const filterButton = document.getElementById("filterButton");
+        const filterMenu = document.getElementById("filterMenu");
+        filterButton.addEventListener("click", function (e) {
+          e.stopPropagation();
+          const buttonRect = filterButton.getBoundingClientRect();
+          filterMenu.style.top = "100%";
+          filterMenu.style.right = "0";
+          filterMenu.classList.toggle("active");
+        });
+        document.addEventListener("click", function (event) {
+          if (
+            !filterButton.contains(event.target) &&
+            !filterMenu.contains(event.target)
+          ) {
+            filterMenu.classList.remove("active");
+          }
+        });
+        const filterOptions = filterMenu.querySelectorAll("button");
+        filterOptions.forEach((option) => {
+          option.addEventListener("click", function () {
+            filterButton.querySelector("span").textContent = this.textContent.trim();
+            filterMenu.classList.remove("active");
+          });
+        });
+      });
+    </script>
+    <script id="searchFunctionality">
+      document.addEventListener("DOMContentLoaded", function () {
+        const searchInput = document.querySelector('input[type="search"]');
+        const voterCards = document.querySelectorAll(".voter-card");
+        searchInput.addEventListener("input", function () {
+          const searchTerm = this.value.toLowerCase().trim();
+          voterCards.forEach((card) => {
+            const voterName = card.querySelector("h3").textContent.toLowerCase();
+            const voterId = card
+              .querySelector(".font-mono")
+              .textContent.toLowerCase();
+            const voterEmail = card
+              .querySelector(".ri-mail-line")
+              .parentElement.nextElementSibling.textContent.toLowerCase();
+            if (
+              voterName.includes(searchTerm) ||
+              voterId.includes(searchTerm) ||
+              voterEmail.includes(searchTerm)
+            ) {
+              card.style.display = "block";
+            } else {
+              card.style.display = "none";
+            }
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

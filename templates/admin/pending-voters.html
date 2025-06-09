@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Voters Waiting for Approval - Digi-Vote</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: { primary: "#10B981", secondary: "#064E3B" },
+            borderRadius: {
+              none: "0px",
+              sm: "8px",
+              DEFAULT: "12px",
+              md: "16px",
+              lg: "20px",
+              xl: "24px",
+              "2xl": "28px",
+              "3xl": "32px",
+              full: "9999px",
+              button: "12px",
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
+    />
+    <style>
+      :where([class^="ri-"])::before { content: "\f3c2"; }
+      body {
+        background: linear-gradient(to bottom right, #000000, #042f2e);
+        min-height: 100vh;
+      }
+      .glassmorphism {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+      }
+      .text-glow {
+        text-shadow: 0 0 10px rgba(16, 185, 129, 0.7);
+      }
+      .card-hover {
+        transition: all 0.3s ease;
+      }
+      .card-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(16, 185, 129, 0.2);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+      }
+    </style>
+  </head>
+  <body class="text-gray-100 font-sans">
+    <header class="glassmorphism sticky top-0 z-50 w-full">
+      <div
+        class="container mx-auto px-4 py-3 flex items-center justify-between"
+      >
+        <a href="#" class="flex items-center">
+          <span class="text-2xl font-['Pacifico'] text-primary text-glow"
+            >Digi-Vote</span
+          >
+        </a>
+        <nav class="hidden md:flex items-center space-x-8">
+          <a
+            href="#"
+            class="text-white hover:text-primary transition-colors duration-300"
+            >Dashboard</a
+          >
+          <a
+            href="#"
+            class="text-white hover:text-primary transition-colors duration-300"
+            >Approved Voters</a
+          >
+          <a href="#" class="text-primary border-b-2 border-primary"
+            >Pending Approvals</a
+          >
+          <a
+            href="#"
+            class="text-white hover:text-primary transition-colors duration-300"
+            >Events</a
+          >
+        </nav>
+        <div class="flex items-center space-x-4">
+          <button
+            class="flex items-center space-x-2 text-white hover:text-primary transition-colors duration-300"
+          >
+            <div class="w-8 h-8 flex items-center justify-center">
+              <i class="ri-user-line ri-lg"></i>
+            </div>
+            <span class="hidden md:inline">Admin</span>
+          </button>
+          <button
+            class="bg-primary text-white px-4 py-2 !rounded-button hover:bg-opacity-80 transition-all duration-300 whitespace-nowrap flex items-center"
+          >
+            <div class="w-5 h-5 flex items-center justify-center mr-2">
+              <i class="ri-logout-box-line"></i>
+            </div>
+            <span>Logout</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+      <section class="mb-12">
+        <div
+          class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8"
+        >
+          <div>
+            <h1 class="text-3xl md:text-4xl font-bold mb-2 text-glow">
+              Pending Voter Approvals
+            </h1>
+            <p class="text-gray-300">
+              Review and approve newly registered voters
+            </p>
+          </div>
+          <div class="mt-4 md:mt-0 flex items-center space-x-4">
+            <div class="glassmorphism rounded-lg flex items-center px-3 py-2">
+              <div
+                class="w-5 h-5 flex items-center justify-center mr-2 text-primary"
+              >
+                <i class="ri-search-line"></i>
+              </div>
+              <input
+                type="text"
+                placeholder="Search voters..."
+                class="bg-transparent border-none outline-none text-sm w-full md:w-64"
+              />
+            </div>
+            <div class="glassmorphism rounded-lg px-3 py-2 flex items-center">
+              <div
+                class="w-5 h-5 flex items-center justify-center mr-2 text-primary"
+              >
+                <i class="ri-filter-3-line"></i>
+              </div>
+              <select
+                class="bg-transparent border-none outline-none text-sm appearance-none pr-8 cursor-pointer"
+              >
+                <option>All Departments</option>
+                <option>Computer Science</option>
+                <option>Electrical Engineering</option>
+                <option>Mechanical Engineering</option>
+                <option>Civil Engineering</option>
+                <option>Business Administration</option>
+              </select>
+              <div
+                class="w-5 h-5 flex items-center justify-center ml-2 pointer-events-none"
+              >
+                <i class="ri-arrow-down-s-line"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+        >
+          <!-- Voter Card 1 -->
+          <div class="glassmorphism rounded-lg overflow-hidden card-hover">
+            <div class="p-4 border-b border-white border-opacity-10">
+              <div class="flex items-center space-x-4">
+                <div
+                  class="w-16 h-16 rounded-full bg-primary bg-opacity-10 flex items-center justify-center overflow-hidden"
+                >
+                  <div
+                    class="w-8 h-8 flex items-center justify-center text-primary"
+                  >
+                    <i class="ri-user-3-line ri-2x"></i>
+                  </div>
+                </div>
+                <div>
+                  <h3 class="font-semibold text-lg">Michael Anderson</h3>
+                  <p class="text-sm text-gray-400">Computer Science, Year 3</p>
+                </div>
+              </div>
+            </div>
+            <div class="p-4 space-y-3">
+              <div class="flex items-center">
+                <div
+                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
+                >
+                  <i class="ri-mail-line"></i>
+                </div>
+                <span class="text-sm">michael.anderson@university.edu</span>
+              </div>
+              <div class="flex items-center">
+                <div
+                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
+                >
+                  <i class="ri-smartphone-line"></i>
+                </div>
+                <span class="text-sm">+1 (555) 234-5678</span>
+              </div>
+              <div class="flex items-center">
+                <div
+                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
+                >
+                  <i class="ri-id-card-line"></i>
+                </div>
+                <span class="text-sm">ID: CS2023456</span>
+              </div>
+              <div class="flex items-center">
+                <div
+                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
+                >
+                  <i class="ri-calendar-line"></i>
+                </div>
+                <span class="text-sm">Applied: June 5, 2025</span>
+              </div>
+            </div>
+            <div class="p-4 bg-black bg-opacity-20 flex space-x-3">
+              <button
+                class="flex-1 bg-primary text-white py-2 !rounded-button hover:bg-opacity-80 transition-all duration-300 whitespace-nowrap flex items-center justify-center"
+              >
+                <div class="w-5 h-5 flex items-center justify-center mr-1">
+                  <i class="ri-check-line"></i>
+                </div>
+                Approve
+              </button>
+              <button
+                class="flex-1 border border-red-500 text-red-400 py-2 !rounded-button hover:bg-red-500 hover:bg-opacity-20 transition-all duration-300 whitespace-nowrap flex items-center justify-center"
+              >
+                <div class="w-5 h-5 flex items-center justify-center mr-1">
+                  <i class="ri-close-line"></i>
+                </div>
+                Reject
+              </button>
+            </div>
+          </div>
+
+          <!-- Voter Card 2 -->
+          <div class="glassmorphism rounded-lg overflow-hidden card-hover">
+            <div class="p-4 border-b border-white border-opacity-10">
+              <div class="flex items-center space-x-4">
+                <div
+                  class="w-16 h-16 rounded-full bg-primary bg-opacity-10 flex items-center justify-center overflow-hidden"
+                >
+                  <div
+                    class="w-8 h-8 flex items-center justify-center text-primary"
+                  >
+                    <i class="ri-user-3-line ri-2x"></i>
+                  </div>
+                </div>
+                <div>
+                  <h3 class="font-semibold text-lg">Jessica Williams</h3>
+                  <p class="text-sm text-gray-400">
+                    Business Administration, Year 2
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="p-4 space-y-3">
+              <div class="flex items-center">
+                <div
+                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
+                >
+                  <i class="ri-mail-line"></i>
+                </div>
+                <span class="text-sm">jessica.williams@university.edu</span>
+              </div>
+              <div class="flex items-center">
+                <div
+                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
+                >
+                  <i class="ri-smartphone-line"></i>
+                </div>
+                <span class="text-sm">+1 (555) 876-5432</span>
+              </div>
+              <div class="flex items-center">
+                <div
+                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
+                >
+                  <i class="ri-id-card-line"></i>
+                </div>
+                <span class="text-sm">ID: BA2024789</span>
+              </div>
+              <div class="flex items-center">
+                <div
+                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
+                >
+                  <i class="ri-calendar-line"></i>
+                </div>
+                <span class="text-sm">Applied: June 6, 2025</span>
+              </div>
+            </div>
+            <div class="p-4 bg-black bg-opacity-20 flex space-x-3">
+              <button
+                class="flex-1 bg-primary text-white py-2 !rounded-button hover:bg-opacity-80 transition-all duration-300 whitespace-nowrap flex items-center justify-center"
+              >
+                <div class="w-5 h-5 flex items-center justify-center mr-1">
+                  <i class="ri-check-line"></i>
+                </div>
+                Approve
+              </button>
+              <button
+                class="flex-1 border border-red-500 text-red-400 py-2 !rounded-button hover:bg-red-500 hover:bg-opacity-20 transition-all duration-300 whitespace-nowrap flex items-center justify-center"
+              >
+                <div class="w-5 h-5 flex items-center justify-center mr-1">
+                  <i class="ri-close-line"></i>
+                </div>
+                Reject
+              </button>
+            </div>
+          </div>
+
+          <!-- Voter Card 3 -->
+          <div class="glassmorphism rounded-lg overflow-hidden card-hover">
+            <div class="p-4 border-b border-white border-opacity-10">
+              <div class="flex items-center space-x-4">
+                <div
+                  class="w-16 h-16 rounded-full bg-primary bg-opacity-10 flex items-center justify-center overflow-hidden"
+                >
+                  <div
+                    class="w-8 h-8 flex items-center justify-center text-primary"
+                  >
+                    <i class="ri-user-3-line ri-2x"></i>
+                  </div>
+                </div>
+                <div>
+                  <h3 class="font-semibold text-lg">David Thompson</h3>
+                  <p class="text-sm text-gray-400">
+                    Electrical Engineering, Year 4
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="p-4 space-y-3">
+              <div class="flex items-center">
+                <div
+                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
+                >
+                  <i class="ri-mail-line"></i>
+                </div>
+                <span class="text-sm">david.thompson@university.edu</span>
+              </div>
+              <div class="flex items-center">
+                <div
+                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
+                >
+                  <i class="ri-smartphone-line"></i>
+                </div>
+                <span class="text-sm">+1 (555) 345-6789</span>
+              </div>
+              <div class="flex items-center">
+                <div
+                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
+                >
+                  <i class="ri-id-card-line"></i>
+                </div>
+                <span class="text-sm">ID: EE2021123</span>
+              </div>
+              <div class="flex items-center">
+                <div
+                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
+                >
+                  <i class="ri-calendar-line"></i>
+                </div>
+                <span class="text-sm">Applied: June 5, 2025</span>
+              </div>
+            </div>
+            <div class="p-4 bg-black bg-opacity-20 flex space-x-3">
+              <button
+                class="flex-1 bg-primary text-white py-2 !rounded-button hover:bg-opacity-80 transition-all duration-300 whitespace-nowrap flex items-center justify-center"
+              >
+                <div class="w-5 h-5 flex items-center justify-center mr-1">
+                  <i class="ri-check-line"></i>
+                </div>
+                Approve
+              </button>
+              <button
+                class="flex-1 border border-red-500 text-red-400 py-2 !rounded-button hover:bg-red-500 hover:bg-opacity-20 transition-all duration-300 whitespace-nowrap flex items-center justify-center"
+              >
+                <div class="w-5 h-5 flex items-center justify-center mr-1">
+                  <i class="ri-close-line"></i>
+                </div>
+                Reject
+              </button>
+            </div>
+          </div>
+
+          <!-- Voter Card 4 -->
+          <div class="glassmorphism rounded-lg overflow-hidden card-hover">
+            <div class="p-4 border-b border-white border-opacity-10">
+              <div class="flex items-center space-x-4">
+                <div
+                  class="w-16 h-16 rounded-full bg-primary bg-opacity-10 flex items-center justify-center overflow-hidden"
+                >
+                  <div
+                    class="w-8 h-8 flex items-center justify-center text-primary"
+                  >
+                    <i class="ri-user-3-line ri-2x"></i>
+                  </div>
+                </div>
+                <div>
+                  <h3 class="font-semibold text-lg">Sophia Martinez</h3>
+                  <p class="text-sm text-gray-400">Civil Engineering, Year 3</p>
+                </div>
+              </div>
+            </div>
+            <div class="p-4 space-y-3">
+              <div class="flex items-center">
+                <div
+                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
+                >
+                  <i class="ri-mail-line"></i>
+                </div>
+                <span class="text-sm">sophia.martinez@university.edu</span>
+              </div>
+              <div class="flex items-center">
+                <div
+                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
+                >
+                  <i class="ri-smartphone-line"></i>
+                </div>
+                <span class="text-sm">+1 (555) 987-6543</span>
+              </div>
+              <div class="flex items-center">
+                <div
+                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
+                >
+                  <i class="ri-id-card-line"></i>
+                </div>
+                <span class="text-sm">ID: CE2022345</span>
+              </div>
+              <div class="flex items-center">
+                <div
+                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
+                >
+                  <i class="ri-calendar-line"></i>
+                </div>
+                <span class="text-sm">Applied: June 6, 2025</span>
+              </div>
+            </div>
+            <div class="p-4 bg-black bg-opacity-20 flex space-x-3">
+              <button
+                class="flex-1 bg-primary text-white py-2 !rounded-button hover:bg-opacity-80 transition-all duration-300 whitespace-nowrap flex items-center justify-center"
+              >
+                <div class="w-5 h-5 flex items-center justify-center mr-1">
+                  <i class="ri-check-line"></i>
+                </div>
+                Approve
+              </button>
+              <button
+                class="flex-1 border border-red-500 text-red-400 py-2 !rounded-button hover:bg-red-500 hover:bg-opacity-20 transition-all duration-300 whitespace-nowrap flex items-center justify-center"
+              >
+                <div class="w-5 h-5 flex items-center justify-center mr-1">
+                  <i class="ri-close-line"></i>
+                </div>
+                Reject
+              </button>
+            </div>
+          </div>
+
+          <!-- Voter Card 5 -->
+          <div class="glassmorphism rounded-lg overflow-hidden card-hover">
+            <div class="p-4 border-b border-white border-opacity-10">
+              <div class="flex items-center space-x-4">
+                <div
+                  class="w-16 h-16 rounded-full bg-primary bg-opacity-10 flex items-center justify-center overflow-hidden"
+                >
+                  <div
+                    class="w-8 h-8 flex items-center justify-center text-primary"
+                  >
+                    <i class="ri-user-3-line ri-2x"></i>
+                  </div>
+                </div>
+                <div>
+                  <h3 class="font-semibold text-lg">Alexander Johnson</h3>
+                  <p class="text-sm text-gray-400">
+                    Mechanical Engineering, Year 2
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="p-4 space-y-3">
+              <div class="flex items-center">
+                <div
+                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
+                >
+                  <i class="ri-mail-line"></i>
+                </div>
+                <span class="text-sm">alex.johnson@university.edu</span>
+              </div>
+              <div class="flex items-center">
+                <div
+                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
+                >
+                  <i class="ri-smartphone-line"></i>
+                </div>
+                <span class="text-sm">+1 (555) 456-7890</span>
+              </div>
+              <div class="flex items-center">
+                <div
+                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
+                >
+                  <i class="ri-id-card-line"></i>
+                </div>
+                <span class="text-sm">ID: ME2023789</span>
+              </div>
+              <div class="flex items-center">
+                <div
+                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
+                >
+                  <i class="ri-calendar-line"></i>
+                </div>
+                <span class="text-sm">Applied: June 7, 2025</span>
+              </div>
+            </div>
+            <div class="p-4 bg-black bg-opacity-20 flex space-x-3">
+              <button
+                class="flex-1 bg-primary text-white py-2 !rounded-button hover:bg-opacity-80 transition-all duration-300 whitespace-nowrap flex items-center justify-center"
+              >
+                <div class="w-5 h-5 flex items-center justify-center mr-1">
+                  <i class="ri-check-line"></i>
+                </div>
+                Approve
+              </button>
+              <button
+                class="flex-1 border border-red-500 text-red-400 py-2 !rounded-button hover:bg-red-500 hover:bg-opacity-20 transition-all duration-300 whitespace-nowrap flex items-center justify-center"
+              >
+                <div class="w-5 h-5 flex items-center justify-center mr-1">
+                  <i class="ri-close-line"></i>
+                </div>
+                Reject
+              </button>
+            </div>
+          </div>
+
+          <!-- Voter Card 6 -->
+          <div class="glassmorphism rounded-lg overflow-hidden card-hover">
+            <div class="p-4 border-b border-white border-opacity-10">
+              <div class="flex items-center space-x-4">
+                <div
+                  class="w-16 h-16 rounded-full bg-primary bg-opacity-10 flex items-center justify-center overflow-hidden"
+                >
+                  <div
+                    class="w-8 h-8 flex items-center justify-center text-primary"
+                  >
+                    <i class="ri-user-3-line ri-2x"></i>
+                  </div>
+                </div>
+                <div>
+                  <h3 class="font-semibold text-lg">Emily Rodriguez</h3>
+                  <p class="text-sm text-gray-400">Computer Science, Year 1</p>
+                </div>
+              </div>
+            </div>
+            <div class="p-4 space-y-3">
+              <div class="flex items-center">
+                <div
+                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
+                >
+                  <i class="ri-mail-line"></i>
+                </div>
+                <span class="text-sm">emily.rodriguez@university.edu</span>
+              </div>
+              <div class="flex items-center">
+                <div
+                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
+                >
+                  <i class="ri-smartphone-line"></i>
+                </div>
+                <span class="text-sm">+1 (555) 567-8901</span>
+              </div>
+              <div class="flex items-center">
+                <div
+                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
+                >
+                  <i class="ri-id-card-line"></i>
+                </div>
+                <span class="text-sm">ID: CS2024567</span>
+              </div>
+              <div class="flex items-center">
+                <div
+                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
+                >
+                  <i class="ri-calendar-line"></i>
+                </div>
+                <span class="text-sm">Applied: June 7, 2025</span>
+              </div>
+            </div>
+            <div class="p-4 bg-black bg-opacity-20 flex space-x-3">
+              <button
+                class="flex-1 bg-primary text-white py-2 !rounded-button hover:bg-opacity-80 transition-all duration-300 whitespace-nowrap flex items-center justify-center"
+              >
+                <div class="w-5 h-5 flex items-center justify-center mr-1">
+                  <i class="ri-check-line"></i>
+                </div>
+                Approve
+              </button>
+              <button
+                class="flex-1 border border-red-500 text-red-400 py-2 !rounded-button hover:bg-red-500 hover:bg-opacity-20 transition-all duration-300 whitespace-nowrap flex items-center justify-center"
+              >
+                <div class="w-5 h-5 flex items-center justify-center mr-1">
+                  <i class="ri-close-line"></i>
+                </div>
+                Reject
+              </button>
+            </div>
+          </div>
+
+          <!-- Voter Card 7 -->
+          <div class="glassmorphism rounded-lg overflow-hidden card-hover">
+            <div class="p-4 border-b border-white border-opacity-10">
+              <div class="flex items-center space-x-4">
+                <div
+                  class="w-16 h-16 rounded-full bg-primary bg-opacity-10 flex items-center justify-center overflow-hidden"
+                >
+                  <div
+                    class="w-8 h-8 flex items-center justify-center text-primary"
+                  >
+                    <i class="ri-user-3-line ri-2x"></i>
+                  </div>
+                </div>
+                <div>
+                  <h3 class="font-semibold text-lg">Daniel Wilson</h3>
+                  <p class="text-sm text-gray-400">
+                    Business Administration, Year 3
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="p-4 space-y-3">
+              <div class="flex items-center">
+                <div
+                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
+                >
+                  <i class="ri-mail-line"></i>
+                </div>
+                <span class="text-sm">daniel.wilson@university.edu</span>
+              </div>
+              <div class="flex items-center">
+                <div
+                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
+                >
+                  <i class="ri-smartphone-line"></i>
+                </div>
+                <span class="text-sm">+1 (555) 678-9012</span>
+              </div>
+              <div class="flex items-center">
+                <div
+                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
+                >
+                  <i class="ri-id-card-line"></i>
+                </div>
+                <span class="text-sm">ID: BA2022678</span>
+              </div>
+              <div class="flex items-center">
+                <div
+                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
+                >
+                  <i class="ri-calendar-line"></i>
+                </div>
+                <span class="text-sm">Applied: June 6, 2025</span>
+              </div>
+            </div>
+            <div class="p-4 bg-black bg-opacity-20 flex space-x-3">
+              <button
+                class="flex-1 bg-primary text-white py-2 !rounded-button hover:bg-opacity-80 transition-all duration-300 whitespace-nowrap flex items-center justify-center"
+              >
+                <div class="w-5 h-5 flex items-center justify-center mr-1">
+                  <i class="ri-check-line"></i>
+                </div>
+                Approve
+              </button>
+              <button
+                class="flex-1 border border-red-500 text-red-400 py-2 !rounded-button hover:bg-red-500 hover:bg-opacity-20 transition-all duration-300 whitespace-nowrap flex items-center justify-center"
+              >
+                <div class="w-5 h-5 flex items-center justify-center mr-1">
+                  <i class="ri-close-line"></i>
+                </div>
+                Reject
+              </button>
+            </div>
+          </div>
+
+          <!-- Voter Card 8 -->
+          <div class="glassmorphism rounded-lg overflow-hidden card-hover">
+            <div class="p-4 border-b border-white border-opacity-10">
+              <div class="flex items-center space-x-4">
+                <div
+                  class="w-16 h-16 rounded-full bg-primary bg-opacity-10 flex items-center justify-center overflow-hidden"
+                >
+                  <div
+                    class="w-8 h-8 flex items-center justify-center text-primary"
+                  >
+                    <i class="ri-user-3-line ri-2x"></i>
+                  </div>
+                </div>
+                <div>
+                  <h3 class="font-semibold text-lg">Olivia Taylor</h3>
+                  <p class="text-sm text-gray-400">
+                    Electrical Engineering, Year 2
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="p-4 space-y-3">
+              <div class="flex items-center">
+                <div
+                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
+                >
+                  <i class="ri-mail-line"></i>
+                </div>
+                <span class="text-sm">olivia.taylor@university.edu</span>
+              </div>
+              <div class="flex items-center">
+                <div
+                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
+                >
+                  <i class="ri-smartphone-line"></i>
+                </div>
+                <span class="text-sm">+1 (555) 789-0123</span>
+              </div>
+              <div class="flex items-center">
+                <div
+                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
+                >
+                  <i class="ri-id-card-line"></i>
+                </div>
+                <span class="text-sm">ID: EE2023890</span>
+              </div>
+              <div class="flex items-center">
+                <div
+                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
+                >
+                  <i class="ri-calendar-line"></i>
+                </div>
+                <span class="text-sm">Applied: June 5, 2025</span>
+              </div>
+            </div>
+            <div class="p-4 bg-black bg-opacity-20 flex space-x-3">
+              <button
+                class="flex-1 bg-primary text-white py-2 !rounded-button hover:bg-opacity-80 transition-all duration-300 whitespace-nowrap flex items-center justify-center"
+              >
+                <div class="w-5 h-5 flex items-center justify-center mr-1">
+                  <i class="ri-check-line"></i>
+                </div>
+                Approve
+              </button>
+              <button
+                class="flex-1 border border-red-500 text-red-400 py-2 !rounded-button hover:bg-red-500 hover:bg-opacity-20 transition-all duration-300 whitespace-nowrap flex items-center justify-center"
+              >
+                <div class="w-5 h-5 flex items-center justify-center mr-1">
+                  <i class="ri-close-line"></i>
+                </div>
+                Reject
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-8 flex justify-between items-center">
+          <div class="glassmorphism rounded-lg px-4 py-2 text-sm">
+            Showing <span class="text-primary">8</span> of
+            <span class="text-primary">24</span> pending voters
+          </div>
+          <div class="flex space-x-2">
+            <button
+              class="glassmorphism rounded-lg w-10 h-10 flex items-center justify-center hover:bg-primary hover:bg-opacity-20 transition-colors"
+            >
+              <div class="w-5 h-5 flex items-center justify-center">
+                <i class="ri-arrow-left-s-line"></i>
+              </div>
+            </button>
+            <button
+              class="glassmorphism rounded-lg w-10 h-10 flex items-center justify-center bg-primary bg-opacity-20 text-primary"
+            >
+              1
+            </button>
+            <button
+              class="glassmorphism rounded-lg w-10 h-10 flex items-center justify-center hover:bg-primary hover:bg-opacity-20 transition-colors"
+            >
+              2
+            </button>
+            <button
+              class="glassmorphism rounded-lg w-10 h-10 flex items-center justify-center hover:bg-primary hover:bg-opacity-20 transition-colors"
+            >
+              3
+            </button>
+            <button
+              class="glassmorphism rounded-lg w-10 h-10 flex items-center justify-center hover:bg-primary hover:bg-opacity-20 transition-colors"
+            >
+              <div class="w-5 h-5 flex items-center justify-center">
+                <i class="ri-arrow-right-s-line"></i>
+              </div>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="mb-8">
+        <div class="glassmorphism rounded-lg p-6">
+          <h2 class="text-xl font-bold mb-4 flex items-center">
+            <div
+              class="w-6 h-6 flex items-center justify-center mr-2 text-primary"
+            >
+              <i class="ri-information-line"></i>
+            </div>
+            Approval Guidelines
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="space-y-2">
+              <div class="flex items-start">
+                <div
+                  class="w-5 h-5 flex items-center justify-center mt-0.5 mr-2 text-primary"
+                >
+                  <i class="ri-check-line"></i>
+                </div>
+                <p class="text-sm text-gray-300">
+                  Verify student ID matches university records
+                </p>
+              </div>
+              <div class="flex items-start">
+                <div
+                  class="w-5 h-5 flex items-center justify-center mt-0.5 mr-2 text-primary"
+                >
+                  <i class="ri-check-line"></i>
+                </div>
+                <p class="text-sm text-gray-300">
+                  Confirm email address uses university domain
+                </p>
+              </div>
+            </div>
+            <div class="space-y-2">
+              <div class="flex items-start">
+                <div
+                  class="w-5 h-5 flex items-center justify-center mt-0.5 mr-2 text-primary"
+                >
+                  <i class="ri-check-line"></i>
+                </div>
+                <p class="text-sm text-gray-300">
+                  Check that student is currently enrolled
+                </p>
+              </div>
+              <div class="flex items-start">
+                <div
+                  class="w-5 h-5 flex items-center justify-center mt-0.5 mr-2 text-primary"
+                >
+                  <i class="ri-check-line"></i>
+                </div>
+                <p class="text-sm text-gray-300">
+                  Ensure mobile number format is valid
+                </p>
+              </div>
+            </div>
+            <div class="space-y-2">
+              <div class="flex items-start">
+                <div
+                  class="w-5 h-5 flex items-center justify-center mt-0.5 mr-2 text-red-400"
+                >
+                  <i class="ri-close-line"></i>
+                </div>
+                <p class="text-sm text-gray-300">
+                  Reject if information is incomplete or suspicious
+                </p>
+              </div>
+              <div class="flex items-start">
+                <div
+                  class="w-5 h-5 flex items-center justify-center mt-0.5 mr-2 text-red-400"
+                >
+                  <i class="ri-close-line"></i>
+                </div>
+                <p class="text-sm text-gray-300">
+                  Reject if student has graduated or is on academic leave
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="glassmorphism rounded-lg p-6">
+          <div class="flex flex-col md:flex-row justify-between items-center">
+            <div class="mb-4 md:mb-0">
+              <h2 class="text-xl font-bold mb-1 flex items-center">
+                <div
+                  class="w-6 h-6 flex items-center justify-center mr-2 text-primary"
+                >
+                  <i class="ri-speed-up-line"></i>
+                </div>
+                Bulk Actions
+              </h2>
+              <p class="text-sm text-gray-400">
+                Process multiple voters at once
+              </p>
+            </div>
+            <div class="flex space-x-4">
+              <button
+                class="bg-primary text-white px-4 py-2 !rounded-button hover:bg-opacity-80 transition-all duration-300 whitespace-nowrap flex items-center"
+              >
+                <div class="w-5 h-5 flex items-center justify-center mr-2">
+                  <i class="ri-check-double-line"></i>
+                </div>
+                Approve Selected
+              </button>
+              <button
+                class="border border-red-500 text-red-400 px-4 py-2 !rounded-button hover:bg-red-500 hover:bg-opacity-20 transition-all duration-300 whitespace-nowrap flex items-center"
+              >
+                <div class="w-5 h-5 flex items-center justify-center mr-2">
+                  <i class="ri-close-circle-line"></i>
+                </div>
+                Reject Selected
+              </button>
+              <button
+                class="glassmorphism rounded-lg px-4 py-2 hover:bg-white hover:bg-opacity-10 transition-all duration-300 whitespace-nowrap flex items-center"
+              >
+                <div class="w-5 h-5 flex items-center justify-center mr-2">
+                  <i class="ri-download-2-line"></i>
+                </div>
+                Export List
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="glassmorphism mt-12 py-6">
+      <div class="container mx-auto px-4">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+          <div class="mb-4 md:mb-0">
+            <span class="text-xl font-['Pacifico'] text-primary text-glow"
+              >Digi-Vote</span
+            >
+            <p class="text-sm text-gray-400 mt-1">
+              © 2025 AIML Student Project. All rights reserved.
+            </p>
+          </div>
+          <div class="flex space-x-4">
+            <a
+              href="#"
+              class="w-8 h-8 flex items-center justify-center rounded-full bg-white bg-opacity-10 hover:bg-primary hover:bg-opacity-20 transition-colors"
+            >
+              <div class="w-4 h-4 flex items-center justify-center">
+                <i class="ri-twitter-x-line"></i>
+              </div>
+            </a>
+            <a
+              href="#"
+              class="w-8 h-8 flex items-center justify-center rounded-full bg-white bg-opacity-10 hover:bg-primary hover:bg-opacity-20 transition-colors"
+            >
+              <div class="w-4 h-4 flex items-center justify-center">
+                <i class="ri-instagram-line"></i>
+              </div>
+            </a>
+            <a
+              href="#"
+              class="w-8 h-8 flex items-center justify-center rounded-full bg-white bg-opacity-10 hover:bg-primary hover:bg-opacity-20 transition-colors"
+            >
+              <div class="w-4 h-4 flex items-center justify-center">
+                <i class="ri-github-line"></i>
+              </div>
+            </a>
+            <a
+              href="#"
+              class="w-8 h-8 flex items-center justify-center rounded-full bg-white bg-opacity-10 hover:bg-primary hover:bg-opacity-20 transition-colors"
+            >
+              <div class="w-4 h-4 flex items-center justify-center">
+                <i class="ri-linkedin-line"></i>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script id="mobileMenuScript">
+      document.addEventListener("DOMContentLoaded", function () {
+        // Mobile menu functionality would go here
+      });
+    </script>
+
+    <script id="approvalButtonsScript">
+      document.addEventListener("DOMContentLoaded", function () {
+        // Approval and rejection button functionality
+        const approveButtons = document.querySelectorAll(
+          "button:has(.ri-check-line)",
+        );
+        const rejectButtons = document.querySelectorAll("button:has(.ri-close-line)");
+
+        approveButtons.forEach((button) => {
+          button.addEventListener("click", function () {
+            const card = this.closest(".card-hover");
+            if (card) {
+              card.style.opacity = "0.5";
+              card.style.transform = "scale(0.95)";
+              setTimeout(() => {
+                card.style.display = "none";
+              }, 500);
+            }
+          });
+        });
+
+        rejectButtons.forEach((button) => {
+          button.addEventListener("click", function () {
+            const card = this.closest(".card-hover");
+            if (card) {
+              card.style.opacity = "0.5";
+              card.style.transform = "scale(0.95)";
+              setTimeout(() => {
+                card.style.display = "none";
+              }, 500);
+            }
+          });
+        });
+      });
+    </script>
+
+    <script id="searchFilterScript">
+      document.addEventListener("DOMContentLoaded", function () {
+        // Search and filter functionality
+        const searchInput = document.querySelector(
+          'input[placeholder="Search voters..."]',
+        );
+
+        if (searchInput) {
+          searchInput.addEventListener("input", function () {
+            // Search functionality would go here
+          });
+        }
+      });
+    </script>
+  </body>
+</html>

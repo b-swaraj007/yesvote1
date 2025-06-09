@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Digi-Vote - Secure Electronic Voting Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
+    />
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <style>
+      :where([class^="ri-"])::before { content: "\f3c2"; }
+      body {
+      background: linear-gradient(to bottom right, #0a0a0a, #064e3b);
+      min-height: 100vh;
+      color: #e2e8f0;
+      }
+      .glassmorphism {
+      background: rgba(16, 24, 39, 0.25);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      }
+      .candidate-card {
+      transition: all 0.3s ease;
+      }
+      .candidate-card:hover {
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+      transform: translateY(-2px);
+      }
+      .webcam-container {
+      aspect-ratio: 4/3;
+      }
+      input[type="radio"] {
+      appearance: none;
+      width: 1.25rem;
+      height: 1.25rem;
+      border: 2px solid #10b981;
+      border-radius: 50%;
+      position: relative;
+      }
+      input[type="radio"]:checked::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 0.75rem;
+      height: 0.75rem;
+      background-color: #10b981;
+      border-radius: 50%;
+      }
+    </style>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: { primary: "#10b981", secondary: "#064e3b" },
+            borderRadius: {
+              none: "0px",
+              sm: "8px",
+              DEFAULT: "12px",
+              md: "16px",
+              lg: "20px",
+              xl: "24px",
+              "2xl": "28px",
+              "3xl": "32px",
+              full: "9999px",
+              button: "12px",
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="text-gray-100">
+    <header
+      class="w-full bg-black bg-opacity-40 backdrop-blur-md border-b border-gray-800"
+    >
+      <div
+        class="container mx-auto px-4 py-3 flex justify-between items-center"
+      >
+        <a href="#" class="text-2xl font-['Pacifico'] text-primary"
+          >Digi-Vote</a
+        >
+        <nav class="hidden md:flex space-x-6">
+          <a href="#" class="hover:text-primary transition-colors">Home</a>
+          <a href="#" class="hover:text-primary transition-colors">About</a>
+          <a href="#" class="hover:text-primary transition-colors">Gallery</a>
+          <a href="#" class="hover:text-primary transition-colors"
+            >Contributors</a
+          >
+          <a href="#" class="hover:text-primary transition-colors">Contact</a>
+        </nav>
+        <div class="flex items-center space-x-4">
+          <a
+            href="#"
+            class="flex items-center hover:text-primary transition-colors"
+          >
+            <span class="w-8 h-8 flex items-center justify-center mr-1">
+              <i class="ri-user-line"></i>
+            </span>
+            <span class="hidden md:inline">My Profile</span>
+          </a>
+          <button
+            class="bg-primary text-white px-4 py-2 !rounded-button whitespace-nowrap hover:bg-opacity-90 transition-colors"
+          >
+            Logout
+          </button>
+        </div>
+      </div>
+    </header>
+    <main class="container mx-auto px-4 py-8">
+      <!-- Welcome Section -->
+      <section class="glassmorphism rounded-lg p-6 mb-8">
+        <div
+          class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6"
+        >
+          <div>
+            <h1 class="text-3xl font-bold mb-2">Welcome, Sarah Johnson!</h1>
+            <p class="text-gray-300">Your secure voting dashboard is ready.</p>
+          </div>
+          <div class="glassmorphism rounded-lg p-4 flex items-center gap-4">
+            <div
+              class="w-12 h-12 flex items-center justify-center bg-primary bg-opacity-20 rounded-full"
+            >
+              <i class="ri-user-line ri-lg"></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="w-5 h-5 flex items-center justify-center">
+                  <i class="ri-vip-crown-line text-primary"></i>
+                </span>
+                <span
+                  >Voter ID: <span class="text-primary">SJ78945612</span></span
+                >
+              </div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="w-5 h-5 flex items-center justify-center">
+                  <i class="ri-mail-line text-primary"></i>
+                </span>
+                <span
+                  >Email:
+                  <a
+                    href="mailto:sarah.johnson@email.com"
+                    class="text-primary hover:underline"
+                    >sarah.johnson@email.com</a
+                  ></span
+                >
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="w-5 h-5 flex items-center justify-center">
+                  <i class="ri-smartphone-line text-primary"></i>
+                </span>
+                <span
+                  >Mobile:
+                  <span class="text-primary">+1 (555) 123-4567</span></span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- Select Your Candidate -->
+      <section class="mb-8">
+        <div class="flex items-center gap-2 mb-6">
+          <span class="w-6 h-6 flex items-center justify-center">
+            <i class="ri-user-search-line text-primary ri-lg"></i>
+          </span>
+          <h2 class="text-2xl font-bold">Select Your Candidate</h2>
+        </div>
+        <div class="space-y-4">
+          <!-- Candidate 1 -->
+          <label
+            class="glassmorphism rounded-lg p-4 flex flex-col md:flex-row items-center gap-4 cursor-pointer candidate-card"
+          >
+            <div class="w-24 h-24 rounded-full overflow-hidden flex-shrink-0">
+              <img
+                src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20young%20Asian%20male%20student%20with%20short%20black%20hair%2C%20wearing%20a%20blue%20blazer%2C%20confident%20smile%2C%20university%20campus%20background%2C%20professional%20lighting&width=200&height=200&seq=1&orientation=squarish"
+                alt="Michael Chen"
+                class="w-full h-full object-cover"
+              />
+            </div>
+            <div class="flex-grow text-center md:text-left">
+              <h3 class="text-xl font-bold">Michael Chen</h3>
+              <p class="text-primary mb-1">Progressive Student Alliance</p>
+              <p class="text-gray-300">
+                "Building a campus that works for everyone"
+              </p>
+            </div>
+            <div class="flex items-center justify-center w-8 h-8">
+              <input type="radio" name="candidate" class="cursor-pointer" />
+            </div>
+          </label>
+          <!-- Candidate 2 -->
+          <label
+            class="glassmorphism rounded-lg p-4 flex flex-col md:flex-row items-center gap-4 cursor-pointer candidate-card"
+          >
+            <div class="w-24 h-24 rounded-full overflow-hidden flex-shrink-0">
+              <img
+                src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20young%20Black%20female%20student%20with%20natural%20curly%20hair%2C%20wearing%20a%20red%20blazer%2C%20confident%20smile%2C%20university%20campus%20background%2C%20professional%20lighting&width=200&height=200&seq=2&orientation=squarish"
+                alt="Amara Washington"
+                class="w-full h-full object-cover"
+              />
+            </div>
+            <div class="flex-grow text-center md:text-left">
+              <h3 class="text-xl font-bold">Amara Washington</h3>
+              <p class="text-primary mb-1">Student Innovation Coalition</p>
+              <p class="text-gray-300">
+                "Innovative solutions for tomorrow's challenges"
+              </p>
+            </div>
+            <div class="flex items-center justify-center w-8 h-8">
+              <input type="radio" name="candidate" class="cursor-pointer" />
+            </div>
+          </label>
+          <!-- Candidate 3 -->
+          <label
+            class="glassmorphism rounded-lg p-4 flex flex-col md:flex-row items-center gap-4 cursor-pointer candidate-card"
+          >
+            <div class="w-24 h-24 rounded-full overflow-hidden flex-shrink-0">
+              <img
+                src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20young%20Latino%20male%20student%20with%20short%20brown%20hair%2C%20wearing%20a%20green%20blazer%2C%20confident%20smile%2C%20university%20campus%20background%2C%20professional%20lighting&width=200&height=200&seq=3&orientation=squarish"
+                alt="Carlos Rodriguez"
+                class="w-full h-full object-cover"
+              />
+            </div>
+            <div class="flex-grow text-center md:text-left">
+              <h3 class="text-xl font-bold">Carlos Rodriguez</h3>
+              <p class="text-primary mb-1">Campus Unity Party</p>
+              <p class="text-gray-300">
+                "Uniting students across all backgrounds"
+              </p>
+            </div>
+            <div class="flex items-center justify-center w-8 h-8">
+              <input type="radio" name="candidate" class="cursor-pointer" />
+            </div>
+          </label>
+          <!-- Candidate 4 -->
+          <label
+            class="glassmorphism rounded-lg p-4 flex flex-col md:flex-row items-center gap-4 cursor-pointer candidate-card"
+          >
+            <div class="w-24 h-24 rounded-full overflow-hidden flex-shrink-0">
+              <img
+                src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20young%20Indian%20female%20student%20with%20long%20black%20hair%2C%20wearing%20a%20purple%20blazer%2C%20confident%20smile%2C%20university%20campus%20background%2C%20professional%20lighting&width=200&height=200&seq=4&orientation=squarish"
+                alt="Priya Patel"
+                class="w-full h-full object-cover"
+              />
+            </div>
+            <div class="flex-grow text-center md:text-left">
+              <h3 class="text-xl font-bold">Priya Patel</h3>
+              <p class="text-primary mb-1">Academic Excellence Movement</p>
+              <p class="text-gray-300">
+                "Prioritizing education and academic resources"
+              </p>
+            </div>
+            <div class="flex items-center justify-center w-8 h-8">
+              <input type="radio" name="candidate" class="cursor-pointer" />
+            </div>
+          </label>
+        </div>
+      </section>
+      <!-- Face Verification -->
+      <section class="mb-8">
+        <div class="flex items-center gap-2 mb-6">
+          <span class="w-6 h-6 flex items-center justify-center">
+            <i class="ri-camera-line text-primary ri-lg"></i>
+          </span>
+          <h2 class="text-2xl font-bold">Verify Your Identity</h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="glassmorphism rounded-lg p-5">
+            <h3 class="text-lg font-semibold mb-3">Webcam Preview</h3>
+            <div
+              class="webcam-container bg-black bg-opacity-50 rounded-lg mb-4 flex items-center justify-center"
+            >
+              <div class="text-center py-16">
+                <div
+                  class="w-16 h-16 mx-auto flex items-center justify-center mb-4"
+                >
+                  <i class="ri-camera-line ri-3x text-gray-400"></i>
+                </div>
+                <p class="text-gray-400">Camera access required</p>
+                <button
+                  class="mt-4 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 !rounded-button whitespace-nowrap transition-colors"
+                >
+                  Enable Camera
+                </button>
+              </div>
+            </div>
+            <button
+              class="w-full bg-primary hover:bg-opacity-90 text-white py-3 !rounded-button whitespace-nowrap transition-colors flex items-center justify-center gap-2"
+            >
+              <span class="w-5 h-5 flex items-center justify-center">
+                <i class="ri-camera-line"></i>
+              </span>
+              Capture Face
+            </button>
+          </div>
+          <div class="glassmorphism rounded-lg p-5">
+            <h3 class="text-lg font-semibold mb-3">Verification Status</h3>
+            <div class="bg-black bg-opacity-50 rounded-lg p-4 mb-4">
+              <div class="flex items-center justify-center h-full">
+                <div class="text-center">
+                  <div
+                    class="w-16 h-16 mx-auto flex items-center justify-center mb-2"
+                  >
+                    <i class="ri-face-recognition-line ri-3x text-gray-400"></i>
+                  </div>
+                  <p class="text-gray-300 mb-2">No image captured yet</p>
+                  <p class="text-xs text-gray-400">
+                    Please capture your face to continue
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div
+              class="flex items-center p-3 bg-gray-800 bg-opacity-50 rounded-lg"
+            >
+              <span class="w-6 h-6 flex items-center justify-center mr-2">
+                <i class="ri-information-line text-yellow-400"></i>
+              </span>
+              <p class="text-sm text-gray-300">
+                Your face image will be used only for verification purposes and
+                will be deleted after voting.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- Submit Vote -->
+      <section class="mb-8">
+        <div class="glassmorphism rounded-lg p-6 text-center">
+          <h2 class="text-2xl font-bold mb-4">Ready to Submit Your Vote?</h2>
+          <p class="text-gray-300 mb-6 max-w-2xl mx-auto">
+            Please ensure you have selected a candidate and completed the face
+            verification process before submitting your vote.
+          </p>
+          <button
+            disabled
+            class="bg-gray-700 text-gray-400 px-8 py-4 !rounded-button whitespace-nowrap transition-colors text-lg font-semibold flex items-center justify-center gap-2 mx-auto cursor-not-allowed"
+          >
+            <span class="w-6 h-6 flex items-center justify-center">
+              <i class="ri-check-line"></i>
+            </span>
+            Submit Vote
+          </button>
+          <p
+            class="text-yellow-400 text-sm mt-4 flex items-center justify-center gap-1"
+          >
+            <span class="w-4 h-4 flex items-center justify-center">
+              <i class="ri-error-warning-line"></i>
+            </span>
+            Please complete all required steps to enable submission
+          </p>
+        </div>
+      </section>
+      <!-- Past Votes -->
+      <section>
+        <div class="flex items-center gap-2 mb-6">
+          <span class="w-6 h-6 flex items-center justify-center">
+            <i class="ri-history-line text-primary ri-lg"></i>
+          </span>
+          <h2 class="text-2xl font-bold">Your Past Votes</h2>
+        </div>
+        <div class="glassmorphism rounded-lg overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b border-gray-700">
+                  <th class="text-left p-4">Event Name</th>
+                  <th class="text-left p-4">Date</th>
+                  <th class="text-left p-4">Status</th>
+                  <th class="text-left p-4">Result</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-b border-gray-800">
+                  <td class="p-4">Department Representative Election</td>
+                  <td class="p-4">May 15, 2025</td>
+                  <td class="p-4">
+                    <span
+                      class="bg-green-600 text-white text-xs px-2 py-1 rounded-full"
+                      >Voted</span
+                    >
+                  </td>
+                  <td class="p-4">
+                    <a
+                      href="#"
+                      class="text-primary hover:underline flex items-center gap-1"
+                    >
+                      <span class="w-4 h-4 flex items-center justify-center">
+                        <i class="ri-external-link-line"></i>
+                      </span>
+                      View Results
+                    </a>
+                  </td>
+                </tr>
+                <tr class="border-b border-gray-800">
+                  <td class="p-4">Library Renovation Proposal</td>
+                  <td class="p-4">April 22, 2025</td>
+                  <td class="p-4">
+                    <span
+                      class="bg-green-600 text-white text-xs px-2 py-1 rounded-full"
+                      >Voted</span
+                    >
+                  </td>
+                  <td class="p-4">
+                    <a
+                      href="#"
+                      class="text-primary hover:underline flex items-center gap-1"
+                    >
+                      <span class="w-4 h-4 flex items-center justify-center">
+                        <i class="ri-external-link-line"></i>
+                      </span>
+                      View Results
+                    </a>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="p-4">Student Activity Fee Allocation</td>
+                  <td class="p-4">March 10, 2025</td>
+                  <td class="p-4">
+                    <span
+                      class="bg-green-600 text-white text-xs px-2 py-1 rounded-full"
+                      >Voted</span
+                    >
+                  </td>
+                  <td class="p-4">
+                    <a
+                      href="#"
+                      class="text-primary hover:underline flex items-center gap-1"
+                    >
+                      <span class="w-4 h-4 flex items-center justify-center">
+                        <i class="ri-external-link-line"></i>
+                      </span>
+                      View Results
+                    </a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer
+      class="mt-12 bg-black bg-opacity-60 backdrop-blur-md border-t border-gray-800 py-6"
+    >
+      <div class="container mx-auto px-4">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+          <div class="mb-4 md:mb-0">
+            <a href="#" class="text-xl font-['Pacifico'] text-primary"
+              >Digi-Vote</a
+            >
+            <p class="text-sm text-gray-400 mt-1">
+              Secure Electronic Voting Platform
+            </p>
+          </div>
+          <div class="flex flex-wrap justify-center gap-4">
+            <a
+              href="#"
+              class="text-gray-400 hover:text-primary transition-colors"
+              >Privacy Policy</a
+            >
+            <a
+              href="#"
+              class="text-gray-400 hover:text-primary transition-colors"
+              >Terms of Service</a
+            >
+            <a
+              href="#"
+              class="text-gray-400 hover:text-primary transition-colors"
+              >Help & Support</a
+            >
+            <a
+              href="#"
+              class="text-gray-400 hover:text-primary transition-colors"
+              >Contact</a
+            >
+          </div>
+        </div>
+        <div
+          class="mt-6 pt-6 border-t border-gray-800 text-center text-sm text-gray-500"
+        >
+          <p>
+            © 2025 Digi-Vote. All rights reserved. Developed by Student
+            Technology Team.
+          </p>
+        </div>
+      </div>
+    </footer>
+    <script id="candidateSelection">
+      document.addEventListener("DOMContentLoaded", function () {
+        const candidateCards = document.querySelectorAll('input[name="candidate"]');
+        const submitButton = document.querySelector("button[disabled]");
+        const captureButton = document.querySelector(
+          "button:not([disabled]):not(.bg-gray-700)",
+        );
+        let candidateSelected = false;
+        let faceVerified = false;
+        candidateCards.forEach((card) => {
+          card.addEventListener("change", function () {
+            candidateSelected = true;
+            updateSubmitButton();
+          });
+        });
+        captureButton.addEventListener("click", function () {
+          // Simulate face capture
+          const webcamContainer = document.querySelector(".webcam-container");
+          const verificationStatus = document.querySelector(
+            ".bg-black.bg-opacity-50.rounded-lg.p-4",
+          );
+          webcamContainer.innerHTML = `
+      <img src="https://readdy.ai/api/search-image?query=close%20up%20portrait%20of%20a%20young%20person%20looking%20directly%20at%20camera%20with%20neutral%20expression%2C%20clear%20face%2C%20simple%20background%2C%20verification%20photo%20style&width=400&height=300&seq=5&orientation=landscape" alt="Captured face" class="w-full h-full object-cover rounded-lg">
+      `;
+          verificationStatus.innerHTML = `
+      <div class="flex flex-col items-center justify-center h-full">
+      <div class="w-16 h-16 mx-auto flex items-center justify-center mb-2 text-green-500">
+      <i class="ri-checkbox-circle-line ri-3x"></i>
+      </div>
+      <p class="text-green-400 font-semibold mb-2">Face successfully captured</p>
+      <p class="text-xs text-gray-400">Verification complete</p>
+      </div>
+      `;
+          faceVerified = true;
+          updateSubmitButton();
+        });
+        function updateSubmitButton() {
+          if (candidateSelected && faceVerified) {
+            submitButton.disabled = false;
+            submitButton.classList.remove(
+              "bg-gray-700",
+              "text-gray-400",
+              "cursor-not-allowed",
+            );
+            submitButton.classList.add(
+              "bg-primary",
+              "text-white",
+              "hover:bg-opacity-90",
+            );
+            const warningText = document.querySelector(".text-yellow-400.text-sm");
+            warningText.classList.add("hidden");
+          }
+        }
+        submitButton.addEventListener("click", function () {
+          if (!submitButton.disabled) {
+            // Show confirmation message
+            const mainContent = document.querySelector("main");
+            const confirmationMessage = document.createElement("div");
+            confirmationMessage.className =
+              "fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50";
+            confirmationMessage.innerHTML = `
+      <div class="glassmorphism rounded-lg p-8 max-w-md text-center">
+      <div class="w-20 h-20 mx-auto flex items-center justify-center mb-4 text-green-500">
+      <i class="ri-check-double-line ri-3x"></i>
+      </div>
+      <h2 class="text-2xl font-bold mb-2">Vote Successfully Submitted!</h2>
+      <p class="text-gray-300 mb-6">Your vote has been securely recorded. Thank you for participating in the democratic process.</p>
+      <button class="bg-primary hover:bg-opacity-90 text-white px-6 py-3 !rounded-button whitespace-nowrap transition-colors">
+      Return to Dashboard
+      </button>
+      </div>
+      `;
+            document.body.appendChild(confirmationMessage);
+            confirmationMessage
+              .querySelector("button")
+              .addEventListener("click", function () {
+                confirmationMessage.remove();
+              });
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

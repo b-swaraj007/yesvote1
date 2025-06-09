@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Digi-Vote - Login</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: { primary: "#10B981", secondary: "#064E3B" },
+            borderRadius: {
+              none: "0px",
+              sm: "8px",
+              DEFAULT: "12px",
+              md: "16px",
+              lg: "20px",
+              xl: "24px",
+              "2xl": "28px",
+              "3xl": "32px",
+              full: "9999px",
+              button: "12px",
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
+    />
+    <style>
+      :where([class^="ri-"])::before { content: "\f3c2"; }
+      body {
+          background: linear-gradient(to bottom right, #000, #064E3B);
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+      }
+      .glassmorphism {
+          background: rgba(255, 255, 255, 0.05);
+          backdrop-filter: blur(8px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      }
+      input:focus {
+          outline: none;
+          border-color: #10B981;
+      }
+      .input-icon {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          color: rgba(255, 255, 255, 0.5);
+      }
+      .password-toggle {
+          position: absolute;
+          right: 1rem;
+          top: 50%;
+          transform: translateY(-50%);
+          cursor: pointer;
+          color: rgba(255, 255, 255, 0.5);
+      }
+      .password-toggle:hover {
+          color: rgba(255, 255, 255, 0.8);
+      }
+    </style>
+  </head>
+  <body class="text-white px-4">
+    <div class="glassmorphism rounded-lg w-full max-w-md p-8 md:p-10">
+      <div id="error-message" class="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2 animate-bounce hidden">
+        <i class="ri-error-warning-line text-2xl"></i>
+        <span id="error-text"></span>
+      </div>
+      <div class="text-center mb-8">
+        <div class="inline-block mb-4">
+          <div
+            class="w-16 h-16 rounded-full bg-primary bg-opacity-20 flex items-center justify-center mx-auto"
+          >
+            <i class="ri-fingerprint-line text-3xl text-primary"></i>
+          </div>
+        </div>
+        <h1 class="font-['Pacifico'] text-3xl text-primary mb-2">Digi-Vote</h1>
+        <p class="text-gray-400">Welcome back! Please login to your account.</p>
+      </div>
+
+      <form id="login-form" class="space-y-6">
+        <div class="space-y-2">
+          <label for="email" class="block text-sm font-medium text-gray-300"
+            >Email</label
+          >
+          <div class="relative">
+            <div
+              class="input-icon left-3 w-5 h-5 flex items-center justify-center"
+            >
+              <i class="ri-mail-line"></i>
+            </div>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              class="w-full bg-black bg-opacity-30 border border-gray-700 rounded-button py-3 pl-10 pr-3 text-sm placeholder-gray-500 focus:ring-2 focus:ring-primary focus:ring-opacity-50 transition-all"
+              placeholder="your@email.com"
+              required
+            />
+            <div
+              class="absolute right-3 top-1/2 transform -translate-y-1/2 hidden"
+              id="email-error-icon"
+            >
+              <i class="ri-error-warning-line text-red-500"></i>
+            </div>
+          </div>
+          <p class="text-red-500 text-xs hidden" id="email-error">
+            Please enter a valid email address
+          </p>
+        </div>
+
+        <div class="space-y-2">
+          <div class="flex justify-between items-center">
+            <label
+              for="password"
+              class="block text-sm font-medium text-gray-300"
+              >Password</label
+            >
+            <a
+              href="#"
+              class="text-xs text-primary hover:text-primary hover:underline transition-all"
+              >Forgot Password?</a
+            >
+          </div>
+          <div class="relative">
+            <div
+              class="input-icon left-3 w-5 h-5 flex items-center justify-center"
+            >
+              <i class="ri-lock-line"></i>
+            </div>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              class="w-full bg-black bg-opacity-30 border border-gray-700 rounded-button py-3 pl-10 pr-10 text-sm placeholder-gray-500 focus:ring-2 focus:ring-primary focus:ring-opacity-50 transition-all"
+              placeholder="••••••••"
+              required
+            />
+            <div class="password-toggle" id="password-toggle">
+              <i class="ri-eye-off-line"></i>
+            </div>
+            <div
+              class="absolute right-10 top-1/2 transform -translate-y-1/2 hidden"
+              id="password-error-icon"
+            >
+              <i class="ri-error-warning-line text-red-500"></i>
+            </div>
+          </div>
+          <p class="text-red-500 text-xs hidden" id="password-error">
+            Password is required
+          </p>
+        </div>
+
+        <div class="flex items-center">
+          <div class="relative inline-block w-10 mr-2 align-middle select-none">
+            <input
+              type="checkbox"
+              id="remember-me"
+              name="remember-me"
+              class="absolute opacity-0 w-0 h-0"
+            />
+            <label
+              for="remember-me"
+              class="block overflow-hidden h-6 rounded-full bg-gray-700 cursor-pointer"
+            >
+              <span
+                class="block h-6 w-6 rounded-full bg-gray-400 transform transition-transform duration-200 ease-in-out"
+                id="toggle-dot"
+              ></span>
+            </label>
+          </div>
+          <label for="remember-me" class="text-sm text-gray-300 cursor-pointer"
+            >Remember me</label
+          >
+        </div>
+
+        <button
+          type="submit"
+          class="w-full bg-primary hover:bg-opacity-90 text-white py-3 rounded-button font-medium transition-all duration-200 flex items-center justify-center space-x-2 !rounded-button whitespace-nowrap"
+          id="login-button"
+        >
+          <span>Login</span>
+          <i class="ri-arrow-right-line"></i>
+        </button>
+
+        <div class="text-center mt-6">
+          <p class="text-sm text-gray-400">
+            New user?
+            <a href="/register" class="text-primary hover:underline transition-all">Register here</a>
+          </p>
+        </div>
+      </form>
+    </div>
+
+    <script type="module">
+      import { auth, signInWithEmailAndPassword } from '/static/js/firebase-config.js';
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("login-form");
+        const emailInput = document.getElementById("email");
+        const passwordInput = document.getElementById("password");
+        const emailError = document.getElementById("email-error");
+        const passwordError = document.getElementById("password-error");
+        const emailErrorIcon = document.getElementById("email-error-icon");
+        const passwordErrorIcon = document.getElementById("password-error-icon");
+        const loginButton = document.getElementById("login-button");
+        const errorMessage = document.getElementById("error-message");
+        const errorText = document.getElementById("error-text");
+
+        function showError(message) {
+          errorText.textContent = message;
+          errorMessage.classList.remove("hidden");
+          setTimeout(() => {
+            errorMessage.classList.add("hidden");
+          }, 5000);
+        }
+
+        form.addEventListener("submit", async function (e) {
+          e.preventDefault();
+          let isValid = true;
+
+          // Email validation
+          if (!emailInput.value.trim() || !isValidEmail(emailInput.value)) {
+            emailError.classList.remove("hidden");
+            emailErrorIcon.classList.remove("hidden");
+            emailInput.classList.add("border-red-500");
+            isValid = false;
+          } else {
+            emailError.classList.add("hidden");
+            emailErrorIcon.classList.add("hidden");
+            emailInput.classList.remove("border-red-500");
+          }
+
+          // Password validation
+          if (!passwordInput.value.trim()) {
+            passwordError.classList.remove("hidden");
+            passwordErrorIcon.classList.remove("hidden");
+            passwordInput.classList.add("border-red-500");
+            isValid = false;
+          } else {
+            passwordError.classList.add("hidden");
+            passwordErrorIcon.classList.add("hidden");
+            passwordInput.classList.remove("border-red-500");
+          }
+
+          if (isValid) {
+            // Show loading state
+            loginButton.innerHTML =
+              '<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Logging in...';
+            loginButton.disabled = true;
+
+            try {
+              // Sign in with Firebase
+              const userCredential = await signInWithEmailAndPassword(
+                auth,
+                emailInput.value,
+                passwordInput.value
+              );
+              
+              // Get the ID token
+              const idToken = await userCredential.user.getIdToken();
+              
+              // Send the token to your backend
+              const response = await fetch('/verify-token', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ idToken }),
+              });
+
+              if (response.ok) {
+                const data = await response.json();
+                // Redirect based on user role
+                if (data.role === 'superadmin') {
+                  window.location.href = '/superadmin/dashboard';
+                } else if (data.role === 'admin') {
+                  window.location.href = '/admin/dashboard';
+                } else {
+                  window.location.href = '/voter/dashboard';
+                }
+              } else {
+                const error = await response.json();
+                showError(error.message || 'Login failed');
+              }
+            } catch (error) {
+              console.error('Login error:', error);
+              showError(error.message || 'Invalid email or password');
+            } finally {
+              // Reset button state
+              loginButton.innerHTML = '<span>Login</span><i class="ri-arrow-right-line"></i>';
+              loginButton.disabled = false;
+            }
+          }
+        });
+
+        function isValidEmail(email) {
+          const re =
+            /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+          return re.test(String(email).toLowerCase());
+        }
+      });
+    </script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const passwordInput = document.getElementById("password");
+        const passwordToggle = document.getElementById("password-toggle");
+
+        passwordToggle.addEventListener("click", function () {
+          const type =
+            passwordInput.getAttribute("type") === "password" ? "text" : "password";
+          passwordInput.setAttribute("type", type);
+
+          // Toggle icon
+          const icon = passwordToggle.querySelector("i");
+          if (type === "password") {
+            icon.classList.remove("ri-eye-line");
+            icon.classList.add("ri-eye-off-line");
+          } else {
+            icon.classList.remove("ri-eye-off-line");
+            icon.classList.add("ri-eye-line");
+          }
+        });
+      });
+    </script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const checkbox = document.getElementById("remember-me");
+        const toggleDot = document.getElementById("toggle-dot");
+
+        checkbox.addEventListener("change", function () {
+          if (this.checked) {
+            toggleDot.classList.add("translate-x-4", "bg-primary");
+            toggleDot.classList.remove("bg-gray-400");
+          } else {
+            toggleDot.classList.remove("translate-x-4", "bg-primary");
+            toggleDot.classList.add("bg-gray-400");
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

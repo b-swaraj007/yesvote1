@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create Voting Event - Digi-Vote Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
+    />
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <style>
+      :where([class^="ri-"])::before { content: "\f3c2"; }
+      body {
+        background: linear-gradient(to bottom right, #0a0a0a, #064e3b);
+        min-height: 100vh;
+        color: #e2e8f0;
+      }
+      .glassmorphism {
+        background: rgba(16, 24, 39, 0.25);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      }
+      .candidate-card {
+        transition: all 0.3s ease;
+      }
+      .candidate-card:hover {
+        box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+        transform: translateY(-2px);
+      }
+      .image-upload-container {
+        aspect-ratio: 1/1;
+      }
+      input[type="file"] {
+        display: none;
+      }
+      input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+      }
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: rgba(16, 24, 39, 0.1);
+        border-radius: 10px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(16, 185, 129, 0.5);
+        border-radius: 10px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(16, 185, 129, 0.7);
+      }
+    </style>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: { primary: "#10b981", secondary: "#064e3b" },
+            borderRadius: {
+              none: "0px",
+              sm: "8px",
+              DEFAULT: "12px",
+              md: "16px",
+              lg: "20px",
+              xl: "24px",
+              "2xl": "28px",
+              "3xl": "32px",
+              full: "9999px",
+              button: "12px",
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="text-gray-100">
+    <header
+      class="w-full bg-black bg-opacity-40 backdrop-blur-md border-b border-gray-800"
+    >
+      <div
+        class="container mx-auto px-4 py-3 flex justify-between items-center"
+      >
+        <a href="#" class="text-2xl font-['Pacifico'] text-primary"
+          >Digi-Vote</a
+        >
+        <nav class="hidden md:flex space-x-6">
+          <a href="#" class="hover:text-primary transition-colors">Dashboard</a>
+          <a href="#" class="text-primary transition-colors">Events</a>
+          <a href="#" class="hover:text-primary transition-colors">Users</a>
+          <a href="#" class="hover:text-primary transition-colors">Reports</a>
+          <a href="#" class="hover:text-primary transition-colors">Settings</a>
+        </nav>
+        <div class="flex items-center space-x-4">
+          <a
+            href="#"
+            class="flex items-center hover:text-primary transition-colors"
+          >
+            <span class="w-8 h-8 flex items-center justify-center mr-1">
+              <i class="ri-user-line"></i>
+            </span>
+            <span class="hidden md:inline">Admin</span>
+          </a>
+          <button
+            class="bg-primary text-white px-4 py-2 !rounded-button whitespace-nowrap hover:bg-opacity-90 transition-colors"
+          >
+            Logout
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+      <!-- Page Header -->
+      <section class="mb-8">
+        <div class="flex items-center gap-3 mb-4">
+          <span
+            class="w-10 h-10 flex items-center justify-center bg-primary bg-opacity-20 rounded-full"
+          >
+            <i class="ri-add-line ri-lg text-primary"></i>
+          </span>
+          <h1 class="text-3xl font-bold">Create Voting Event</h1>
+        </div>
+        <p class="text-gray-300 max-w-3xl">
+          Create a new voting event by filling out the details below. You'll
+          need to provide event information and add at least one candidate. All
+          fields are required for successful submission.
+        </p>
+      </section>
+
+      <!-- Form Container -->
+      <form id="createEventForm">
+        <!-- Event Details Section -->
+        <section class="mb-8">
+          <div class="flex items-center gap-2 mb-6">
+            <span class="w-6 h-6 flex items-center justify-center">
+              <i class="ri-calendar-event-line text-primary ri-lg"></i>
+            </span>
+            <h2 class="text-2xl font-bold">Event Details</h2>
+          </div>
+
+          <div class="glassmorphism rounded-lg p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div>
+                <label
+                  for="eventTitle"
+                  class="block text-sm font-medium text-gray-300 mb-2"
+                  >Event Title</label
+                >
+                <input
+                  type="text"
+                  id="eventTitle"
+                  required
+                  class="w-full bg-black bg-opacity-50 border border-gray-700 focus:border-primary focus:ring-1 focus:ring-primary rounded-lg px-4 py-3 text-white placeholder-gray-500 transition-colors"
+                  placeholder="Enter event title"
+                />
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label
+                    for="startDate"
+                    class="block text-sm font-medium text-gray-300 mb-2"
+                    >Start Date & Time</label
+                  >
+                  <input
+                    type="datetime-local"
+                    id="startDate"
+                    required
+                    class="w-full bg-black bg-opacity-50 border border-gray-700 focus:border-primary focus:ring-1 focus:ring-primary rounded-lg px-4 py-3 text-white transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    for="endDate"
+                    class="block text-sm font-medium text-gray-300 mb-2"
+                    >End Date & Time</label
+                  >
+                  <input
+                    type="datetime-local"
+                    id="endDate"
+                    required
+                    class="w-full bg-black bg-opacity-50 border border-gray-700 focus:border-primary focus:ring-1 focus:ring-primary rounded-lg px-4 py-3 text-white transition-colors"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label
+                for="eventDescription"
+                class="block text-sm font-medium text-gray-300 mb-2"
+                >Event Description</label
+              >
+              <textarea
+                id="eventDescription"
+                rows="4"
+                required
+                class="w-full bg-black bg-opacity-50 border border-gray-700 focus:border-primary focus:ring-1 focus:ring-primary rounded-lg px-4 py-3 text-white placeholder-gray-500 transition-colors"
+                placeholder="Describe the purpose and details of this voting event"
+              ></textarea>
+            </div>
+          </div>
+        </section>
+
+        <!-- Candidates Section -->
+        <section class="mb-8">
+          <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 flex items-center justify-center">
+                <i class="ri-user-add-line text-primary ri-lg"></i>
+              </span>
+              <h2 class="text-2xl font-bold">Add Candidates</h2>
+            </div>
+            <div class="flex items-center text-sm text-gray-300">
+              <span class="w-5 h-5 flex items-center justify-center mr-1">
+                <i class="ri-information-line"></i>
+              </span>
+              <span id="candidateCount">1 candidate added</span>
+            </div>
+          </div>
+
+          <div
+            id="candidatesContainer"
+            class="max-h-[600px] overflow-y-auto custom-scrollbar pr-2"
+          >
+            <!-- Candidate Card Template -->
+            <div class="candidate-card glassmorphism rounded-lg p-6 mb-4">
+              <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold flex items-center">
+                  <span class="w-5 h-5 flex items-center justify-center mr-2">
+                    <i class="ri-user-line text-primary"></i>
+                  </span>
+                  Candidate 1
+                </h3>
+                <!-- Hidden for first candidate -->
+                <button
+                  type="button"
+                  class="remove-candidate hidden text-gray-400 hover:text-red-400 transition-colors"
+                >
+                  <span class="w-8 h-8 flex items-center justify-center">
+                    <i class="ri-delete-bin-line"></i>
+                  </span>
+                </button>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-2"
+                    >Photo</label
+                  >
+                  <div
+                    class="image-upload-container bg-black bg-opacity-50 border border-gray-700 rounded-lg overflow-hidden flex items-center justify-center cursor-pointer hover:border-primary transition-colors"
+                  >
+                    <input
+                      type="file"
+                      class="candidate-photo"
+                      accept="image/*"
+                    />
+                    <div class="photo-placeholder text-center p-4">
+                      <div
+                        class="w-16 h-16 mx-auto flex items-center justify-center mb-2"
+                      >
+                        <i class="ri-image-add-line ri-2x text-gray-500"></i>
+                      </div>
+                      <p class="text-gray-400 text-sm">Click to upload photo</p>
+                      <p class="text-gray-500 text-xs mt-1">
+                        Recommended: Square, min 300x300px
+                      </p>
+                    </div>
+                    <img
+                      class="photo-preview hidden w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+
+                <div class="md:col-span-2 grid grid-cols-1 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2"
+                      >Full Name</label
+                    >
+                    <input
+                      type="text"
+                      class="candidate-name w-full bg-black bg-opacity-50 border border-gray-700 focus:border-primary focus:ring-1 focus:ring-primary rounded-lg px-4 py-3 text-white placeholder-gray-500 transition-colors"
+                      placeholder="Enter candidate's full name"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2"
+                      >Party Name</label
+                    >
+                    <input
+                      type="text"
+                      class="candidate-party w-full bg-black bg-opacity-50 border border-gray-700 focus:border-primary focus:ring-1 focus:ring-primary rounded-lg px-4 py-3 text-white placeholder-gray-500 transition-colors"
+                      placeholder="Enter party or affiliation name"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2"
+                      >Slogan</label
+                    >
+                    <input
+                      type="text"
+                      class="candidate-slogan w-full bg-black bg-opacity-50 border border-gray-700 focus:border-primary focus:ring-1 focus:ring-primary rounded-lg px-4 py-3 text-white placeholder-gray-500 transition-colors"
+                      placeholder="Enter campaign slogan"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            id="addCandidateBtn"
+            class="mt-4 bg-black bg-opacity-50 border border-primary text-primary px-6 py-3 !rounded-button whitespace-nowrap hover:bg-primary hover:text-white transition-all flex items-center justify-center gap-2"
+          >
+            <span class="w-5 h-5 flex items-center justify-center">
+              <i class="ri-add-line"></i>
+            </span>
+            Add Another Candidate
+          </button>
+        </section>
+
+        <!-- Submission Section -->
+        <section class="mb-8">
+          <div class="glassmorphism rounded-lg p-6 text-center">
+            <h2 class="text-2xl font-bold mb-4">Ready to Create This Event?</h2>
+            <p class="text-gray-300 mb-6 max-w-2xl mx-auto">
+              Please ensure all required information has been filled out
+              correctly. Once submitted, the event will be available for voters
+              to participate.
+            </p>
+
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+              <button
+                type="button"
+                id="cancelBtn"
+                class="bg-gray-800 text-white px-8 py-4 !rounded-button whitespace-nowrap hover:bg-gray-700 transition-colors text-lg font-semibold flex items-center justify-center gap-2"
+              >
+                <span class="w-5 h-5 flex items-center justify-center">
+                  <i class="ri-close-line"></i>
+                </span>
+                Cancel
+              </button>
+
+              <button
+                type="submit"
+                id="submitBtn"
+                class="bg-primary text-white px-8 py-4 !rounded-button whitespace-nowrap hover:bg-opacity-90 transition-colors text-lg font-semibold flex items-center justify-center gap-2"
+              >
+                <span class="w-5 h-5 flex items-center justify-center">
+                  <i class="ri-check-line"></i>
+                </span>
+                Create Voting Event
+              </button>
+            </div>
+
+            <div
+              id="formErrors"
+              class="text-red-400 text-sm mt-4 hidden flex items-center justify-center gap-1"
+            >
+              <span class="w-4 h-4 flex items-center justify-center">
+                <i class="ri-error-warning-line"></i>
+              </span>
+              <span id="errorMessage">Please complete all required fields</span>
+            </div>
+          </div>
+        </section>
+      </form>
+    </main>
+
+    <footer
+      class="mt-12 bg-black bg-opacity-60 backdrop-blur-md border-t border-gray-800 py-6"
+    >
+      <div class="container mx-auto px-4">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+          <div class="mb-4 md:mb-0">
+            <a href="#" class="text-xl font-['Pacifico'] text-primary"
+              >Digi-Vote</a
+            >
+            <p class="text-sm text-gray-400 mt-1">
+              Secure Electronic Voting Platform
+            </p>
+          </div>
+          <div class="flex flex-wrap justify-center gap-4">
+            <a
+              href="#"
+              class="text-gray-400 hover:text-primary transition-colors"
+              >Admin Guide</a
+            >
+            <a
+              href="#"
+              class="text-gray-400 hover:text-primary transition-colors"
+              >API Documentation</a
+            >
+            <a
+              href="#"
+              class="text-gray-400 hover:text-primary transition-colors"
+              >Help & Support</a
+            >
+            <a
+              href="#"
+              class="text-gray-400 hover:text-primary transition-colors"
+              >Contact</a
+            >
+          </div>
+        </div>
+        <div
+          class="mt-6 pt-6 border-t border-gray-800 text-center text-sm text-gray-500"
+        >
+          <p>
+            © 2025 Digi-Vote. All rights reserved. Developed by Student
+            Technology Team.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <script id="candidateManagement">
+      document.addEventListener("DOMContentLoaded", function () {
+        const candidatesContainer = document.getElementById("candidatesContainer");
+        const addCandidateBtn = document.getElementById("addCandidateBtn");
+        const candidateCountDisplay = document.getElementById("candidateCount");
+        let candidateCount = 1;
+
+        // Handle image uploads
+        candidatesContainer.addEventListener("click", function (e) {
+          const container = e.target.closest(".image-upload-container");
+          if (container) {
+            const fileInput = container.querySelector('input[type="file"]');
+            fileInput.click();
+          }
+        });
+        // Handle file selection
+        candidatesContainer.addEventListener("change", function (e) {
+          if (e.target.classList.contains("candidate-photo")) {
+            const container = e.target.closest(".image-upload-container");
+            const preview = container.querySelector(".photo-preview");
+            const placeholder = container.querySelector(".photo-placeholder");
+
+            if (e.target.files && e.target.files[0]) {
+              const reader = new FileReader();
+
+              reader.onload = function (e) {
+                preview.src = e.target.result;
+                preview.classList.remove("hidden");
+                placeholder.classList.add("hidden");
+              };
+
+              reader.readAsDataURL(e.target.files[0]);
+            }
+          }
+        });
+
+        // Add new candidate
+        addCandidateBtn.addEventListener("click", function () {
+          candidateCount++;
+
+          const newCandidate = document.createElement("div");
+          newCandidate.className = "candidate-card glassmorphism rounded-lg p-6 mb-4";
+          newCandidate.innerHTML = `
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-xl font-semibold flex items-center">
+                <span class="w-5 h-5 flex items-center justify-center mr-2">
+                  <i class="ri-user-line text-primary"></i>
+                </span>
+                Candidate ${candidateCount}
+              </h3>
+              <button type="button" class="remove-candidate text-gray-400 hover:text-red-400 transition-colors">
+                <span class="w-8 h-8 flex items-center justify-center">
+                  <i class="ri-delete-bin-line"></i>
+                </span>
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Photo</label>
+                <div class="image-upload-container bg-black bg-opacity-50 border border-gray-700 rounded-lg overflow-hidden flex items-center justify-center cursor-pointer hover:border-primary transition-colors">
+                  <input type="file" class="candidate-photo" accept="image/*">
+                  <div class="photo-placeholder text-center p-4">
+                    <div class="w-16 h-16 mx-auto flex items-center justify-center mb-2">
+                      <i class="ri-image-add-line ri-2x text-gray-500"></i>
+                    </div>
+                    <p class="text-gray-400 text-sm">Click to upload photo</p>
+                    <p class="text-gray-500 text-xs mt-1">Recommended: Square, min 300x300px</p>
+                  </div>
+                  <img class="photo-preview hidden w-full h-full object-cover">
+                </div>
+              </div>
+
+              <div class="md:col-span-2 grid grid-cols-1 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-2">Full Name</label>
+                  <input type="text" class="candidate-name w-full bg-black bg-opacity-50 border border-gray-700 focus:border-primary focus:ring-1 focus:ring-primary rounded-lg px-4 py-3 text-white placeholder-gray-500 transition-colors" placeholder="Enter candidate's full name" required>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-2">Party Name</label>
+                  <input type="text" class="candidate-party w-full bg-black bg-opacity-50 border border-gray-700 focus:border-primary focus:ring-1 focus:ring-primary rounded-lg px-4 py-3 text-white placeholder-gray-500 transition-colors" placeholder="Enter party or affiliation name" required>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-2">Slogan</label>
+                  <input type="text" class="candidate-slogan w-full bg-black bg-opacity-50 border border-gray-700 focus:border-primary focus:ring-1 focus:ring-primary rounded-lg px-4 py-3 text-white placeholder-gray-500 transition-colors" placeholder="Enter campaign slogan" required>
+                </div>
+              </div>
+            </div>
+          `;
+
+          candidatesContainer.appendChild(newCandidate);
+          updateCandidateCount();
+        });
+
+        // Remove candidate
+        candidatesContainer.addEventListener("click", function (e) {
+          if (e.target.closest(".remove-candidate")) {
+            const card = e.target.closest(".candidate-card");
+            card.remove();
+            candidateCount--;
+
+            // Update candidate numbers
+            const candidateCards =
+              candidatesContainer.querySelectorAll(".candidate-card");
+            candidateCards.forEach((card, index) => {
+              card.querySelector("h3").innerHTML = `
+                <span class="w-5 h-5 flex items-center justify-center mr-2">
+                  <i class="ri-user-line text-primary"></i>
+                </span>
+                Candidate ${index + 1}
+              `;
+            });
+
+            updateCandidateCount();
+          }
+        });
+
+        function updateCandidateCount() {
+          candidateCountDisplay.textContent = `${candidateCount} candidate${candidateCount !== 1 ? "s" : ""} added`;
+        }
+      });
+    </script>
+    <script id="formValidation">
+      document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("createEventForm");
+        const formErrors = document.getElementById("formErrors");
+        const errorMessage = document.getElementById("errorMessage");
+        const cancelBtn = document.getElementById("cancelBtn");
+
+        form.addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          // Basic validation
+          const eventTitle = document.getElementById("eventTitle").value.trim();
+          const eventDescription = document
+            .getElementById("eventDescription")
+            .value.trim();
+          const startDate = document.getElementById("startDate").value;
+          const endDate = document.getElementById("endDate").value;
+
+          // Check if any candidate is missing required fields
+          const candidateCards = document.querySelectorAll(".candidate-card");
+          let candidatesValid = true;
+          let missingFields = [];
+
+          if (!eventTitle) missingFields.push("Event Title");
+          if (!eventDescription) missingFields.push("Event Description");
+          if (!startDate) missingFields.push("Start Date");
+          if (!endDate) missingFields.push("End Date");
+
+          candidateCards.forEach((card, index) => {
+            const name = card.querySelector(".candidate-name").value.trim();
+            const party = card.querySelector(".candidate-party").value.trim();
+            const slogan = card.querySelector(".candidate-slogan").value.trim();
+
+            if (!name || !party || !slogan) {
+              candidatesValid = false;
+              card.classList.add("border-red-500");
+              setTimeout(() => card.classList.remove("border-red-500"), 2000);
+            }
+          });
+
+          if (!candidatesValid) {
+            missingFields.push("Candidate information");
+          }
+
+          if (missingFields.length > 0) {
+            formErrors.classList.remove("hidden");
+            errorMessage.textContent = `Please complete the following: ${missingFields.join(", ")}`;
+            return;
+          }
+
+          // Date validation
+          const start = new Date(startDate);
+          const end = new Date(endDate);
+
+          if (end <= start) {
+            formErrors.classList.remove("hidden");
+            errorMessage.textContent = "End date must be after start date";
+            return;
+          }
+
+          // If all validation passes, show success message
+          showSuccessMessage();
+        });
+
+        // Cancel button
+        cancelBtn.addEventListener("click", function () {
+          if (
+            confirm("Are you sure you want to cancel? All entered data will be lost.")
+          ) {
+            // REMOVE or REPLACE this line:
+            // window.location.href = "dashboard.html";
+          }
+        });
+
+        function showSuccessMessage() {
+          // Create success modal
+          const successModal = document.createElement("div");
+          successModal.className =
+            "fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50";
+          successModal.innerHTML = `
+            <div class="glassmorphism rounded-lg p-8 max-w-md text-center">
+              <div class="w-20 h-20 mx-auto flex items-center justify-center mb-4 text-primary">
+                <i class="ri-check-double-line ri-3x"></i>
+              </div>
+              <h2 class="text-2xl font-bold mb-2">Voting Event Created!</h2>
+              <p class="text-gray-300 mb-6">Your voting event has been successfully created and is now available for voters to participate.</p>
+              <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button id="viewEventBtn" class="bg-primary hover:bg-opacity-90 text-white px-6 py-3 !rounded-button whitespace-nowrap transition-colors">
+                  View Event
+                </button>
+                <button id="createAnotherBtn" class="bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 !rounded-button whitespace-nowrap transition-colors">
+                  Create Another
+                </button>
+              </div>
+            </div>
+          `;
+
+          document.body.appendChild(successModal);
+
+          // Add event listeners to modal buttons
+          document
+            .getElementById("viewEventBtn")
+            .addEventListener("click", function () {
+              window.location.href = "event-details.html";
+            });
+
+          document
+            .getElementById("createAnotherBtn")
+            .addEventListener("click", function () {
+              successModal.remove();
+              form.reset();
+
+              // Reset candidate cards to just one
+              const candidatesContainer = document.getElementById(
+                "candidatesContainer",
+              );
+              const candidateCards =
+                candidatesContainer.querySelectorAll(".candidate-card");
+
+              // Keep only the first card and reset it
+              for (let i = 1; i < candidateCards.length; i++) {
+                candidateCards[i].remove();
+              }
+
+              const firstCard = candidateCards[0];
+              const photoPreview = firstCard.querySelector(".photo-preview");
+              const photoPlaceholder = firstCard.querySelector(".photo-placeholder");
+
+              photoPreview.classList.add("hidden");
+              photoPlaceholder.classList.remove("hidden");
+              firstCard.querySelector(".candidate-name").value = "";
+              firstCard.querySelector(".candidate-party").value = "";
+              firstCard.querySelector(".candidate-slogan").value = "";
+
+              // Reset candidate count
+              document.getElementById("candidateCount").textContent =
+                "1 candidate added";
+            });
+        }
+      });
+    </script>
+  </body>
+</html>

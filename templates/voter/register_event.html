@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Register for Event: {{ event.event_name }}</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data" id="voterForm">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_number" class="form-label">ID Number</label>
+                            <input type="text" class="form-control" id="id_number" name="id_number" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="phone" name="phone" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Live Photo</label>
+                            <div id="photoSection">
+                                <div id="camera" style="display: block;">
+                                    <video id="video" width="320" height="240" autoplay></video>
+                                    <button type="button" class="btn btn-primary mt-2" id="captureBtn">Capture Photo</button>
+                                </div>
+                                <canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
+                                <img id="photoPreview" src="#" alt="Photo Preview" class="img-thumbnail mb-2" style="display:none; max-width:200px;">
+                                <input type="hidden" id="photoData" name="photoData">
+                                <div>
+                                    <button type="button" class="btn btn-secondary" id="retakeBtn" style="display:none;">Recapture Photo</button>
+                                </div>
+                            </div>
+                        </div>
+                        {% if error %}
+                        <div class="alert alert-danger">{{ error }}</div>
+                        {% endif %}
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success">Submit Registration</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+const video = document.getElementById('video');
+const canvas = document.getElementById('canvas');
+const photoPreview = document.getElementById('photoPreview');
+const captureBtn = document.getElementById('captureBtn');
+const retakeBtn = document.getElementById('retakeBtn');
+const photoData = document.getElementById('photoData');
+const camera = document.getElementById('camera');
+
+// Access webcam
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    navigator.mediaDevices.getUserMedia({ video: true }).then(function(stream) {
+        video.srcObject = stream;
+        video.play();
+    });
+}
+
+captureBtn.addEventListener('click', function() {
+    canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+    const dataUrl = canvas.toDataURL('image/jpeg');
+    photoPreview.src = dataUrl;
+    photoPreview.style.display = 'block';
+    photoData.value = dataUrl;
+    canvas.style.display = 'none';
+    video.style.display = 'none';
+    captureBtn.style.display = 'none';
+    retakeBtn.style.display = 'inline-block';
+});
+
+retakeBtn.addEventListener('click', function() {
+    photoPreview.style.display = 'none';
+    photoData.value = '';
+    video.style.display = 'block';
+    captureBtn.style.display = 'inline-block';
+    retakeBtn.style.display = 'none';
+});
+
+// On form submit, convert base64 to file and append to form
+const voterForm = document.getElementById('voterForm');
+voterForm.addEventListener('submit', function(e) {
+    if (!photoData.value) {
+        e.preventDefault();
+        alert('Please capture a photo before submitting.');
+        return false;
+    }
+    // Convert base64 to Blob and append as file input
+    const dataUrl = photoData.value;
+    const arr = dataUrl.split(','), mime = arr[0].match(/:(.*?);/)[1], bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+    for (let i = 0; i < n; i++) {
+        u8arr[i] = bstr.charCodeAt(i);
+    }
+    const file = new File([u8arr], 'photo.jpg', {type:mime});
+    // Create a DataTransfer to add the file to the form
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    // Remove any existing file input
+    let fileInput = document.getElementById('photoInput');
+    if (fileInput) fileInput.remove();
+    // Create a new file input and append to form
+    fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.name = 'photo';
+    fileInput.id = 'photoInput';
+    fileInput.files = dt.files;
+    fileInput.style.display = 'none';
+    voterForm.appendChild(fileInput);
+});
+</script>
+{% endblock %} 

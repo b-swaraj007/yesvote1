@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manage Voting Events - Digi-Vote</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
+    />
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: { primary: "#10b981", secondary: "#1f2937" },
+            borderRadius: {
+              none: "0px",
+              sm: "8px",
+              DEFAULT: "12px",
+              md: "16px",
+              lg: "20px",
+              xl: "24px",
+              "2xl": "28px",
+              "3xl": "32px",
+              full: "9999px",
+              button: "12px",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      :where([class^="ri-"])::before { content: "\f3c2"; }
+      body {
+      background-color: #001a11;
+      color: #e2e8f0;
+      }
+      .glassmorphism {
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      }
+      .event-card {
+      transition: all 0.3s ease;
+      }
+      .event-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.1);
+      }
+      .action-button {
+      transition: all 0.2s ease;
+      }
+      .action-button:hover {
+      transform: translateY(-2px);
+      }
+      input[type="text"], input[type="date"], input[type="datetime-local"], textarea, select {
+      background-color: rgba(17, 24, 39, 0.8);
+      border: 1px solid rgba(75, 85, 99, 0.4);
+      }
+      input[type="text"]:focus, input[type="date"]:focus, input[type="datetime-local"]:focus, textarea:focus, select:focus {
+      border-color: #10b981;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+      }
+      .status-badge {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 9999px;
+      }
+      .status-draft {
+      background-color: rgba(107, 114, 128, 0.2);
+      color: #d1d5db;
+      }
+      .status-published {
+      background-color: rgba(16, 185, 129, 0.2);
+      color: #10b981;
+      }
+      .status-ongoing {
+      background-color: rgba(59, 130, 246, 0.2);
+      color: #60a5fa;
+      }
+      .status-ended {
+      background-color: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+      }
+    </style>
+  </head>
+  <body
+    class="min-h-screen bg-gradient-to-br from-black via-[#003322] to-[#001a11]"
+  >
+    <!-- Navigation Bar -->
+    <nav class="bg-black bg-opacity-60 border-b border-gray-800">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <div class="flex-shrink-0 flex items-center">
+            <span class="text-primary text-2xl font-['Pacifico']"
+              >Digi-Vote</span
+            >
+          </div>
+          <div class="hidden md:block">
+            <div class="flex items-center space-x-4">
+              <a
+                href="#"
+                class="px-3 py-2 rounded-button text-gray-300 hover:text-white"
+                >Dashboard</a
+              >
+              <a
+                href="#"
+                class="px-3 py-2 rounded-button bg-primary bg-opacity-20 text-primary"
+                >Events</a
+              >
+              <a
+                href="#"
+                class="px-3 py-2 rounded-button text-gray-300 hover:text-white"
+                >Users</a
+              >
+              <a
+                href="#"
+                class="px-3 py-2 rounded-button text-gray-300 hover:text-white"
+                >Reports</a
+              >
+              <a
+                href="#"
+                class="px-3 py-2 rounded-button text-gray-300 hover:text-white"
+                >Settings</a
+              >
+            </div>
+          </div>
+          <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-2">
+              <div
+                class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-800"
+              >
+                <i class="ri-user-line text-white"></i>
+              </div>
+              <span class="text-gray-300">Admin</span>
+            </div>
+            <button
+              class="bg-primary hover:bg-opacity-90 text-white px-4 py-2 rounded-button whitespace-nowrap"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Page Header -->
+      <div
+        class="flex flex-col md:flex-row md:items-center justify-between mb-8"
+      >
+        <div>
+          <h1 class="text-3xl font-bold text-white">Manage Voting Events</h1>
+          <p class="mt-2 text-gray-400">
+            View and manage all your voting events in one place
+          </p>
+        </div>
+        <button
+          class="mt-4 md:mt-0 bg-primary hover:bg-opacity-90 text-white px-4 py-2 rounded-button flex items-center whitespace-nowrap"
+        >
+          <div class="w-5 h-5 flex items-center justify-center mr-2">
+            <i class="ri-add-line"></i>
+          </div>
+          Create New Event
+        </button>
+      </div>
+      <!-- Filters and Search -->
+      <div class="glassmorphism rounded-lg p-4 mb-8">
+        <div
+          class="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4"
+        >
+          <div class="relative flex-grow">
+            <div
+              class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+            >
+              <div
+                class="w-5 h-5 flex items-center justify-center text-gray-400"
+              >
+                <i class="ri-search-line"></i>
+              </div>
+            </div>
+            <input
+              type="text"
+              placeholder="Search events by name or ID"
+              class="w-full pl-10 pr-4 py-2 rounded-lg border-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+          <div class="flex space-x-4">
+            <div class="relative">
+              <select
+                class="appearance-none bg-gray-800 border border-gray-700 text-white py-2 pl-4 pr-10 rounded-lg"
+              >
+                <option value="all">All Events</option>
+                <option value="draft">Draft</option>
+                <option value="published">Published</option>
+                <option value="ongoing">Ongoing</option>
+                <option value="ended">Ended</option>
+              </select>
+              <div
+                class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none"
+              >
+                <div
+                  class="w-5 h-5 flex items-center justify-center text-gray-400"
+                >
+                  <i class="ri-arrow-down-s-line"></i>
+                </div>
+              </div>
+            </div>
+            <div class="relative">
+              <select
+                class="appearance-none bg-gray-800 border border-gray-700 text-white py-2 pl-4 pr-10 rounded-lg"
+              >
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="name-asc">Name (A-Z)</option>
+                <option value="name-desc">Name (Z-A)</option>
+              </select>
+              <div
+                class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none"
+              >
+                <div
+                  class="w-5 h-5 flex items-center justify-center text-gray-400"
+                >
+                  <i class="ri-arrow-down-s-line"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Events List -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Event Card 1 -->
+        <div class="glassmorphism rounded-lg overflow-hidden event-card">
+          <div class="p-6">
+            <div class="flex justify-between items-start mb-4">
+              <h3 class="text-xl font-semibold text-white">
+                Student Council Elections 2025
+              </h3>
+              <span class="status-badge status-ongoing">Ongoing</span>
+            </div>
+            <div class="space-y-2 mb-4">
+              <div class="flex items-center text-gray-400">
+                <div class="w-5 h-5 flex items-center justify-center mr-2">
+                  <i class="ri-fingerprint-line"></i>
+                </div>
+                <span>Event ID: EVT-25062</span>
+              </div>
+              <div class="flex items-center text-gray-400">
+                <div class="w-5 h-5 flex items-center justify-center mr-2">
+                  <i class="ri-calendar-line"></i>
+                </div>
+                <span>Jun 05, 2025 - Jun 12, 2025</span>
+              </div>
+              <div class="flex items-center text-gray-400">
+                <div class="w-5 h-5 flex items-center justify-center mr-2">
+                  <i class="ri-time-line"></i>
+                </div>
+                <span>Created: Jun 01, 2025</span>
+              </div>
+              <div class="flex items-center text-gray-400">
+                <div class="w-5 h-5 flex items-center justify-center mr-2">
+                  <i class="ri-user-line"></i>
+                </div>
+                <span>Voters: 342 / 500</span>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button
+                class="action-button bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-button flex items-center whitespace-nowrap"
+              >
+                <div class="w-4 h-4 flex items-center justify-center mr-1">
+                  <i class="ri-edit-line"></i>
+                </div>
+                Edit
+              </button>
+              <button
+                class="action-button bg-yellow-600 hover:bg-yellow-500 text-white px-3 py-1.5 rounded-button flex items-center whitespace-nowrap"
+              >
+                <div class="w-4 h-4 flex items-center justify-center mr-1">
+                  <i class="ri-user-add-line"></i>
+                </div>
+                Manage Voters
+              </button>
+              <button
+                class="action-button bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-button flex items-center whitespace-nowrap"
+              >
+                <div class="w-4 h-4 flex items-center justify-center mr-1">
+                  <i class="ri-group-line"></i>
+                </div>
+                View Candidates
+              </button>
+              <button
+                class="action-button bg-gray-600 hover:bg-gray-500 text-white px-3 py-1.5 rounded-button flex items-center whitespace-nowrap"
+              >
+                <div class="w-4 h-4 flex items-center justify-center mr-1">
+                  <i class="ri-file-list-line"></i>
+                </div>
+                Audit Log
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- Event Card 2 -->
+        <div class="glassmorphism rounded-lg overflow-hidden event-card">
+          <div class="p-6">
+            <div class="flex justify-between items-start mb-4">
+              <h3 class="text-xl font-semibold text-white">
+                Board of Directors Election
+              </h3>
+              <span class="status-badge status-published">Published</span>
+            </div>
+            <div class="space-y-2 mb-4">
+              <div class="flex items-center text-gray-400">
+                <div class="w-5 h-5 flex items-center justify-center mr-2">
+                  <i class="ri-fingerprint-line"></i>
+                </div>
+                <span>Event ID: EVT-25073</span>
+              </div>
+              <div class="flex items-center text-gray-400">
+                <div class="w-5 h-5 flex items-center justify-center mr-2">
+                  <i class="ri-calendar-line"></i>
+                </div>
+                <span>Jun 15, 2025 - Jun 22, 2025</span>
+              </div>
+              <div class="flex items-center text-gray-400">
+                <div class="w-5 h-5 flex items-center justify-center mr-2">
+                  <i class="ri-time-line"></i>
+                </div>
+                <span>Created: Jun 03, 2025</span>
+              </div>
+              <div class="flex items-center text-gray-400">
+                <div class="w-5 h-5 flex items-center justify-center mr-2">
+                  <i class="ri-user-line"></i>
+                </div>
+                <span>Voters: 0 / 25</span>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button
+                class="action-button bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-button flex items-center whitespace-nowrap"
+              >
+                <div class="w-4 h-4 flex items-center justify-center mr-1">
+                  <i class="ri-edit-line"></i>
+                </div>
+                Edit
+              </button>
+              <button
+                class="action-button bg-red-600 hover:bg-red-500 text-white px-3 py-1.5 rounded-button flex items-center whitespace-nowrap"
+              >
+                <div class="w-4 h-4 flex items-center justify-center mr-1">
+                  <i class="ri-eye-off-line"></i>
+                </div>
+                Unpublish
+              </button>
+              <button
+                class="action-button bg-yellow-600 hover:bg-yellow-500 text-white px-3 py-1.5 rounded-button flex items-center whitespace-nowrap"
+              >
+                <div class="w-4 h-4 flex items-center justify-center mr-1">
+                  <i class="ri-user-add-line"></i>
+                </div>
+                Manage Voters
+              </button>
+              <button
+                class="action-button bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-button flex items-center whitespace-nowrap"
+              >
+                <div class="w-4 h-4 flex items-center justify-center mr-1">
+                  <i class="ri-group-line"></i>
+                </div>
+                View Candidates
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- Event Card 3 -->
+        <div class="glassmorphism rounded-lg overflow-hidden event-card">
+          <div class="p-6">
+            <div class="flex justify-between items-start mb-4">
+              <h3 class="text-xl font-semibold text-white">
+                Annual Shareholders Meeting
+              </h3>
+              <span class="status-badge status-ended">Ended</span>
+            </div>
+            <div class="space-y-2 mb-4">
+              <div class="flex items-center text-gray-400">
+                <div class="w-5 h-5 flex items-center justify-center mr-2">
+                  <i class="ri-fingerprint-line"></i>
+                </div>
+                <span>Event ID: EVT-25048</span>
+              </div>
+              <div class="flex items-center text-gray-400">
+                <div class="w-5 h-5 flex items-center justify-center mr-2">
+                  <i class="ri-calendar-line"></i>
+                </div>
+                <span>May 20, 2025 - May 27, 2025</span>
+              </div>
+              <div class="flex items-center text-gray-400">
+                <div class="w-5 h-5 flex items-center justify-center mr-2">
+                  <i class="ri-time-line"></i>
+                </div>
+                <span>Created: May 10, 2025</span>
+              </div>
+              <div class="flex items-center text-gray-400">
+                <div class="w-5 h-5 flex items-center justify-center mr-2">
+                  <i class="ri-user-line"></i>
+                </div>
+                <span>Voters: 187 / 200</span>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button
+                class="action-button bg-green-600 hover:bg-green-500 text-white px-3 py-1.5 rounded-button flex items-center whitespace-nowrap"
+              >
+                <div class="w-4 h-4 flex items-center justify-center mr-1">
+                  <i class="ri-bar-chart-line"></i>
+                </div>
+                View Results
+              </button>
+              <button
+                class="action-button bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-button flex items-center whitespace-nowrap"
+              >
+                <div class="w-4 h-4 flex items-center justify-center mr-1">
+                  <i class="ri-group-line"></i>
+                </div>
+                View Candidates
+              </button>
+              <button
+                class="action-button bg-gray-600 hover:bg-gray-500 text-white px-3 py-1.5 rounded-button flex items-center whitespace-nowrap"
+              >
+                <div class="w-4 h-4 flex items-center justify-center mr-1">
+                  <i class="ri-file-list-line"></i>
+                </div>
+                Audit Log
+              </button>
+              <button
+                class="action-button bg-purple-600 hover:bg-purple-500 text-white px-3 py-1.5 rounded-button flex items-center whitespace-nowrap"
+              >
+                <div class="w-4 h-4 flex items-center justify-center mr-1">
+                  <i class="ri-archive-line"></i>
+                </div>
+                Archive
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- Event Card 4 -->
+        <div class="glassmorphism rounded-lg overflow-hidden event-card">
+          <div class="p-6">
+            <div class="flex justify-between items-start mb-4">
+              <h3 class="text-xl font-semibold text-white">
+                Faculty Senate Elections
+              </h3>
+              <span class="status-badge status-draft">Draft</span>
+            </div>
+            <div class="space-y-2 mb-4">
+              <div class="flex items-center text-gray-400">
+                <div class="w-5 h-5 flex items-center justify-center mr-2">
+                  <i class="ri-fingerprint-line"></i>
+                </div>
+                <span>Event ID: EVT-25081</span>
+              </div>
+              <div class="flex items-center text-gray-400">
+                <div class="w-5 h-5 flex items-center justify-center mr-2">
+                  <i class="ri-calendar-line"></i>
+                </div>
+                <span>Not scheduled yet</span>
+              </div>
+              <div class="flex items-center text-gray-400">
+                <div class="w-5 h-5 flex items-center justify-center mr-2">
+                  <i class="ri-time-line"></i>
+                </div>
+                <span>Created: Jun 07, 2025</span>
+              </div>
+              <div class="flex items-center text-gray-400">
+                <div class="w-5 h-5 flex items-center justify-center mr-2">
+                  <i class="ri-user-line"></i>
+                </div>
+                <span>Voters: 0 / 0</span>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button
+                class="action-button bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-button flex items-center whitespace-nowrap"
+              >
+                <div class="w-4 h-4 flex items-center justify-center mr-1">
+                  <i class="ri-edit-line"></i>
+                </div>
+                Edit
+              </button>
+              <button
+                class="action-button bg-green-600 hover:bg-green-500 text-white px-3 py-1.5 rounded-button flex items-center whitespace-nowrap"
+              >
+                <div class="w-4 h-4 flex items-center justify-center mr-1">
+                  <i class="ri-rocket-line"></i>
+                </div>
+                Publish
+              </button>
+              <button
+                class="action-button bg-red-600 hover:bg-red-500 text-white px-3 py-1.5 rounded-button flex items-center whitespace-nowrap"
+              >
+                <div class="w-4 h-4 flex items-center justify-center mr-1">
+                  <i class="ri-delete-bin-line"></i>
+                </div>
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- Event Card 5 -->
+        <div class="glassmorphism rounded-lg overflow-hidden event-card">
+          <div class="p-6">
+            <div class="flex justify-between items-start mb-4">
+              <h3 class="text-xl font-semibold text-white">
+                City Council Representative Vote
+              </h3>
+              <span class="status-badge status-ongoing">Ongoing</span>
+            </div>
+            <div class="space-y-2 mb-4">
+              <div class="flex items-center text-gray-400">
+                <div class="w-5 h-5 flex items-center justify-center mr-2">
+                  <i class="ri-fingerprint-line"></i>
+                </div>
+                <span>Event ID: EVT-25059</span>
+              </div>
+              <div class="flex items-center text-gray-400">
+                <div class="w-5 h-5 flex items-center justify-center mr-2">
+                  <i class="ri-calendar-line"></i>
+                </div>
+                <span>Jun 01, 2025 - Jun 15, 2025</span>
+              </div>
+              <div class="flex items-center text-gray-400">
+                <div class="w-5 h-5 flex items-center justify-center mr-2">
+                  <i class="ri-time-line"></i>
+                </div>
+                <span>Created: May 25, 2025</span>
+              </div>
+              <div class="flex items-center text-gray-400">
+                <div class="w-5 h-5 flex items-center justify-center mr-2">
+                  <i class="ri-user-line"></i>
+                </div>
+                <span>Voters: 1,245 / 3,500</span>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button
+                class="action-button bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded-button flex items-center whitespace-nowrap"
+              >
+                <div class="w-4 h-4 flex items-center justify-center mr-1">
+                  <i class="ri-edit-line"></i>
+                </div>
+                Edit
+              </button>
+              <button
+                class="action-button bg-yellow-600 hover:bg-yellow-500 text-white px-3 py-1.5 rounded-button flex items-center whitespace-nowrap"
+              >
+                <div class="w-4 h-4 flex items-center justify-center mr-1">
+                  <i class="ri-user-add-line"></i>
+                </div>
+                Manage Voters
+              </button>
+              <button
+                class="action-button bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-button flex items-center whitespace-nowrap"
+              >
+                <div class="w-4 h-4 flex items-center justify-center mr-1">
+                  <i class="ri-group-line"></i>
+                </div>
+                View Candidates
+              </button>
+              <button
+                class="action-button bg-gray-600 hover:bg-gray-500 text-white px-3 py-1.5 rounded-button flex items-center whitespace-nowrap"
+              >
+                <div class="w-4 h-4 flex items-center justify-center mr-1">
+                  <i class="ri-file-list-line"></i>
+                </div>
+                Audit Log
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- Event Card 6 -->
+        <div class="glassmorphism rounded-lg overflow-hidden event-card">
+          <div class="p-6">
+            <div class="flex justify-between items-start mb-4">
+              <h3 class="text-xl font-semibold text-white">
+                Employee of the Year Award
+              </h3>
+              <span class="status-badge status-ended">Ended</span>
+            </div>
+            <div class="space-y-2 mb-4">
+              <div class="flex items-center text-gray-400">
+                <div class="w-5 h-5 flex items-center justify-center mr-2">
+                  <i class="ri-fingerprint-line"></i>
+                </div>
+                <span>Event ID: EVT-25037</span>
+              </div>
+              <div class="flex items-center text-gray-400">
+                <div class="w-5 h-5 flex items-center justify-center mr-2">
+                  <i class="ri-calendar-line"></i>
+                </div>
+                <span>May 10, 2025 - May 17, 2025</span>
+              </div>
+              <div class="flex items-center text-gray-400">
+                <div class="w-5 h-5 flex items-center justify-center mr-2">
+                  <i class="ri-time-line"></i>
+                </div>
+                <span>Created: May 01, 2025</span>
+              </div>
+              <div class="flex items-center text-gray-400">
+                <div class="w-5 h-5 flex items-center justify-center mr-2">
+                  <i class="ri-user-line"></i>
+                </div>
+                <span>Voters: 98 / 120</span>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button
+                class="action-button bg-green-600 hover:bg-green-500 text-white px-3 py-1.5 rounded-button flex items-center whitespace-nowrap"
+              >
+                <div class="w-4 h-4 flex items-center justify-center mr-1">
+                  <i class="ri-bar-chart-line"></i>
+                </div>
+                View Results
+              </button>
+              <button
+                class="action-button bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-button flex items-center whitespace-nowrap"
+              >
+                <div class="w-4 h-4 flex items-center justify-center mr-1">
+                  <i class="ri-group-line"></i>
+                </div>
+                View Candidates
+              </button>
+              <button
+                class="action-button bg-gray-600 hover:bg-gray-500 text-white px-3 py-1.5 rounded-button flex items-center whitespace-nowrap"
+              >
+                <div class="w-4 h-4 flex items-center justify-center mr-1">
+                  <i class="ri-file-list-line"></i>
+                </div>
+                Audit Log
+              </button>
+              <button
+                class="action-button bg-purple-600 hover:bg-purple-500 text-white px-3 py-1.5 rounded-button flex items-center whitespace-nowrap"
+              >
+                <div class="w-4 h-4 flex items-center justify-center mr-1">
+                  <i class="ri-archive-line"></i>
+                </div>
+                Archive
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Pagination -->
+      <div class="mt-8 flex justify-center">
+        <nav class="flex items-center space-x-2">
+          <button
+            class="w-10 h-10 flex items-center justify-center rounded-full border border-gray-700 text-gray-400 hover:border-primary hover:text-primary"
+          >
+            <i class="ri-arrow-left-s-line"></i>
+          </button>
+          <button
+            class="w-10 h-10 flex items-center justify-center rounded-full bg-primary text-white"
+          >
+            1
+          </button>
+          <button
+            class="w-10 h-10 flex items-center justify-center rounded-full border border-gray-700 text-gray-400 hover:border-primary hover:text-primary"
+          >
+            2
+          </button>
+          <button
+            class="w-10 h-10 flex items-center justify-center rounded-full border border-gray-700 text-gray-400 hover:border-primary hover:text-primary"
+          >
+            3
+          </button>
+          <span class="text-gray-500">...</span>
+          <button
+            class="w-10 h-10 flex items-center justify-center rounded-full border border-gray-700 text-gray-400 hover:border-primary hover:text-primary"
+          >
+            8
+          </button>
+          <button
+            class="w-10 h-10 flex items-center justify-center rounded-full border border-gray-700 text-gray-400 hover:border-primary hover:text-primary"
+          >
+            <i class="ri-arrow-right-s-line"></i>
+          </button>
+        </nav>
+      </div>
+    </main>
+    <script id="filterEvents">
+      document.addEventListener("DOMContentLoaded", function () {
+        const searchInput = document.querySelector('input[type="text"]');
+        const statusFilter = document.querySelector("select:first-of-type");
+        const sortFilter = document.querySelector("select:last-of-type");
+        // Placeholder for filter functionality
+        searchInput.addEventListener("input", function () {
+          console.log("Searching for:", this.value);
+          // Implement search functionality
+        });
+        statusFilter.addEventListener("change", function () {
+          console.log("Filter by status:", this.value);
+          // Implement status filter
+        });
+        sortFilter.addEventListener("change", function () {
+          console.log("Sort by:", this.value);
+          // Implement sort functionality
+        });
+      });
+    </script>
+    <script id="eventCardInteractions">
+      document.addEventListener("DOMContentLoaded", function () {
+        const actionButtons = document.querySelectorAll(".action-button");
+        actionButtons.forEach((button) => {
+          button.addEventListener("click", function () {
+            const action = this.textContent.trim();
+            const eventName =
+              this.closest(".event-card").querySelector("h3").textContent;
+            console.log(`Action "${action}" triggered for event "${eventName}"`);
+            // Add specific action handlers here
+            if (action.includes("Delete")) {
+              if (
+                confirm(`Are you sure you want to delete the event "${eventName}"?`)
+              ) {
+                console.log(`Deleting event: ${eventName}`);
+                // Implement delete functionality
+              }
+            }
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

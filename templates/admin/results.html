@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Event Results - Digi-Vote Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
+    />
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+    <style>
+      :where([class^="ri-"])::before { content: "\f3c2"; }
+      body {
+        background: linear-gradient(to bottom right, #0a0a0a, #064e3b);
+        min-height: 100vh;
+        color: #e2e8f0;
+      }
+      .glassmorphism {
+        background: rgba(16, 24, 39, 0.25);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      }
+      .result-card {
+        transition: all 0.3s ease;
+      }
+      .result-card:hover {
+        box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+        transform: translateY(-2px);
+      }
+      .winner-badge {
+        background: linear-gradient(135deg, #10b981, #064e3b);
+      }
+      .chart-toggle-btn.active {
+        background-color: rgba(16, 185, 129, 0.2);
+        color: #10b981;
+        border-color: #10b981;
+      }
+      .publish-btn {
+        transition: all 0.3s ease;
+      }
+      .publish-btn:hover {
+        box-shadow: 0 0 20px rgba(16, 185, 129, 0.6);
+      }
+      .toast {
+        animation: slideIn 0.3s ease forwards, fadeOut 0.5s ease 3s forwards;
+        transform: translateY(100px);
+        opacity: 0;
+      }
+      @keyframes slideIn {
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+      @keyframes fadeOut {
+        to {
+          opacity: 0;
+          visibility: hidden;
+        }
+      }
+    </style>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: { primary: "#10b981", secondary: "#064e3b" },
+            borderRadius: {
+              none: "0px",
+              sm: "8px",
+              DEFAULT: "12px",
+              md: "16px",
+              lg: "20px",
+              xl: "24px",
+              "2xl": "28px",
+              "3xl": "32px",
+              full: "9999px",
+              button: "12px",
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="text-gray-100">
+    <header
+      class="w-full bg-black bg-opacity-40 backdrop-blur-md border-b border-gray-800"
+    >
+      <div
+        class="container mx-auto px-4 py-3 flex justify-between items-center"
+      >
+        <a href="#" class="text-2xl font-['Pacifico'] text-primary"
+          >Digi-Vote</a
+        >
+        <nav class="hidden md:flex space-x-6">
+          <a href="#" class="hover:text-primary transition-colors">Dashboard</a>
+          <a href="#" class="hover:text-primary transition-colors"
+            >Voter List</a
+          >
+          <a href="#" class="hover:text-primary transition-colors"
+            >Create Event</a
+          >
+          <a href="#" class="text-primary transition-colors">Results</a>
+        </nav>
+        <div class="flex items-center space-x-4">
+          <a
+            href="#"
+            class="flex items-center hover:text-primary transition-colors"
+          >
+            <span class="w-8 h-8 flex items-center justify-center mr-1">
+              <i class="ri-user-line"></i>
+            </span>
+            <span class="hidden md:inline">Admin</span>
+          </a>
+          <button
+            class="bg-primary text-white px-4 py-2 !rounded-button whitespace-nowrap hover:bg-opacity-90 transition-colors"
+          >
+            Logout
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+      <!-- Page Header -->
+      <section class="mb-8">
+        <div class="flex items-center gap-3 mb-4">
+          <span
+            class="w-10 h-10 flex items-center justify-center bg-primary bg-opacity-20 rounded-full"
+          >
+            <i class="ri-bar-chart-line ri-lg text-primary"></i>
+          </span>
+          <h1 class="text-3xl font-bold">Event Results</h1>
+        </div>
+        <p class="text-gray-300 max-w-3xl">
+          View and publish the results of the completed voting event. The
+          results will be visible to voters only after you publish them.
+        </p>
+      </section>
+
+      <!-- Event Information Card -->
+      <section class="mb-8">
+        <div class="glassmorphism rounded-lg p-6">
+          <div
+            class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6"
+          >
+            <h2 class="text-2xl font-bold text-white">
+              Student Council Presidential Election
+            </h2>
+            <div class="flex items-center gap-2 text-gray-300 text-sm">
+              <span class="w-5 h-5 flex items-center justify-center">
+                <i class="ri-time-line text-primary"></i>
+              </span>
+              <span>June 1, 2025 - June 5, 2025</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="glassmorphism rounded-lg p-4 flex items-center gap-4">
+              <div
+                class="w-12 h-12 flex items-center justify-center bg-primary bg-opacity-20 rounded-full"
+              >
+                <i class="ri-user-line ri-lg text-primary"></i>
+              </div>
+              <div>
+                <p class="text-gray-400 text-sm">Total Voters</p>
+                <p class="text-xl font-bold">200</p>
+              </div>
+            </div>
+
+            <div class="glassmorphism rounded-lg p-4 flex items-center gap-4">
+              <div
+                class="w-12 h-12 flex items-center justify-center bg-primary bg-opacity-20 rounded-full"
+              >
+                <i class="ri-check-double-line ri-lg text-primary"></i>
+              </div>
+              <div>
+                <p class="text-gray-400 text-sm">Votes Cast</p>
+                <p class="text-xl font-bold">130</p>
+              </div>
+            </div>
+
+            <div class="glassmorphism rounded-lg p-4 flex items-center gap-4">
+              <div
+                class="w-12 h-12 flex items-center justify-center bg-primary bg-opacity-20 rounded-full"
+              >
+                <i class="ri-percent-line ri-lg text-primary"></i>
+              </div>
+              <div>
+                <p class="text-gray-400 text-sm">Turnout</p>
+                <p class="text-xl font-bold">65%</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Results Overview Section -->
+      <section class="mb-8">
+        <div class="flex items-center justify-between mb-6">
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 flex items-center justify-center">
+              <i class="ri-trophy-line text-primary ri-lg"></i>
+            </span>
+            <h2 class="text-2xl font-bold">Results Overview</h2>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Candidate 1 (Winner) -->
+          <div class="result-card glassmorphism rounded-lg p-6 relative">
+            <div class="absolute top-4 right-4">
+              <span
+                class="winner-badge text-xs font-semibold px-3 py-1 rounded-full text-white"
+                >Winner</span
+              >
+            </div>
+
+            <div class="flex flex-col items-center mb-4">
+              <div
+                class="w-24 h-24 rounded-full overflow-hidden mb-4 border-2 border-primary"
+              >
+                <img
+                  src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20young%20female%20student%20with%20short%20dark%20hair%2C%20confident%20smile%2C%20neutral%20background%2C%20high%20quality%20portrait&width=200&height=200&seq=1&orientation=squarish"
+                  alt="Candidate"
+                  class="w-full h-full object-cover object-top"
+                />
+              </div>
+              <h3 class="text-xl font-bold text-center">Sophia Reynolds</h3>
+              <p class="text-primary text-sm font-medium">
+                Progressive Student Alliance
+              </p>
+            </div>
+
+            <div class="text-center mb-4">
+              <p class="text-gray-300 text-sm italic">
+                "Building a better campus together"
+              </p>
+            </div>
+
+            <div class="flex flex-col items-center">
+              <div class="w-full bg-black bg-opacity-30 rounded-full h-2 mb-2">
+                <div
+                  class="bg-primary h-2 rounded-full"
+                  style="width: 42%"
+                ></div>
+              </div>
+              <div class="flex justify-between w-full text-sm">
+                <span class="text-gray-300">Votes:</span>
+                <span class="font-bold">55 (42%)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Candidate 2 -->
+          <div class="result-card glassmorphism rounded-lg p-6">
+            <div class="flex flex-col items-center mb-4">
+              <div
+                class="w-24 h-24 rounded-full overflow-hidden mb-4 border-2 border-gray-600"
+              >
+                <img
+                  src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20young%20male%20student%20with%20glasses%2C%20neat%20appearance%2C%20neutral%20background%2C%20high%20quality%20portrait&width=200&height=200&seq=2&orientation=squarish"
+                  alt="Candidate"
+                  class="w-full h-full object-cover object-top"
+                />
+              </div>
+              <h3 class="text-xl font-bold text-center">Marcus Chen</h3>
+              <p class="text-primary text-sm font-medium">
+                Student Innovation Party
+              </p>
+            </div>
+
+            <div class="text-center mb-4">
+              <p class="text-gray-300 text-sm italic">
+                "Innovation for all students"
+              </p>
+            </div>
+
+            <div class="flex flex-col items-center">
+              <div class="w-full bg-black bg-opacity-30 rounded-full h-2 mb-2">
+                <div
+                  class="bg-gray-400 h-2 rounded-full"
+                  style="width: 35%"
+                ></div>
+              </div>
+              <div class="flex justify-between w-full text-sm">
+                <span class="text-gray-300">Votes:</span>
+                <span class="font-bold">45 (35%)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Candidate 3 -->
+          <div class="result-card glassmorphism rounded-lg p-6">
+            <div class="flex flex-col items-center mb-4">
+              <div
+                class="w-24 h-24 rounded-full overflow-hidden mb-4 border-2 border-gray-600"
+              >
+                <img
+                  src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20young%20female%20student%20with%20long%20blonde%20hair%2C%20friendly%20smile%2C%20neutral%20background%2C%20high%20quality%20portrait&width=200&height=200&seq=3&orientation=squarish"
+                  alt="Candidate"
+                  class="w-full h-full object-cover object-top"
+                />
+              </div>
+              <h3 class="text-xl font-bold text-center">Emma Thompson</h3>
+              <p class="text-primary text-sm font-medium">
+                Campus Unity Coalition
+              </p>
+            </div>
+
+            <div class="text-center mb-4">
+              <p class="text-gray-300 text-sm italic">
+                "United campus, stronger future"
+              </p>
+            </div>
+
+            <div class="flex flex-col items-center">
+              <div class="w-full bg-black bg-opacity-30 rounded-full h-2 mb-2">
+                <div
+                  class="bg-gray-400 h-2 rounded-full"
+                  style="width: 23%"
+                ></div>
+              </div>
+              <div class="flex justify-between w-full text-sm">
+                <span class="text-gray-300">Votes:</span>
+                <span class="font-bold">30 (23%)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Vote Distribution Chart -->
+      <section class="mb-8">
+        <div class="glassmorphism rounded-lg p-6">
+          <div
+            class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6"
+          >
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 flex items-center justify-center">
+                <i class="ri-pie-chart-line text-primary ri-lg"></i>
+              </span>
+              <h2 class="text-2xl font-bold">Vote Distribution</h2>
+            </div>
+
+            <div class="flex gap-2">
+              <button
+                id="barChartBtn"
+                class="chart-toggle-btn active px-4 py-2 !rounded-button whitespace-nowrap border border-gray-700 bg-black bg-opacity-30 hover:bg-opacity-50 transition-colors flex items-center gap-2"
+              >
+                <span class="w-5 h-5 flex items-center justify-center">
+                  <i class="ri-bar-chart-horizontal-line"></i>
+                </span>
+                Bar Chart
+              </button>
+              <button
+                id="pieChartBtn"
+                class="chart-toggle-btn px-4 py-2 !rounded-button whitespace-nowrap border border-gray-700 bg-black bg-opacity-30 hover:bg-opacity-50 transition-colors flex items-center gap-2"
+              >
+                <span class="w-5 h-5 flex items-center justify-center">
+                  <i class="ri-pie-chart-line"></i>
+                </span>
+                Pie Chart
+              </button>
+            </div>
+          </div>
+
+          <div class="h-80">
+            <div id="barChart" class="w-full h-full"></div>
+            <div id="pieChart" class="w-full h-full hidden"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Publish Section -->
+      <section class="mb-8">
+        <div class="glassmorphism rounded-lg p-6 text-center">
+          <h2 class="text-2xl font-bold mb-4">Publish Results</h2>
+          <p class="text-gray-300 mb-6 max-w-2xl mx-auto" id="publishStatus">
+            Results are currently
+            <span class="font-bold text-yellow-400">Unpublished</span>. Voters
+            cannot see the results until you publish them.
+          </p>
+
+          <button
+            id="publishBtn"
+            class="publish-btn bg-primary text-white px-8 py-4 !rounded-button whitespace-nowrap hover:bg-opacity-90 transition-colors text-lg font-semibold flex items-center justify-center gap-2 mx-auto"
+          >
+            <span class="w-5 h-5 flex items-center justify-center">
+              <i class="ri-send-plane-line"></i>
+            </span>
+            Publish Results
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <footer
+      class="mt-12 bg-black bg-opacity-60 backdrop-blur-md border-t border-gray-800 py-6"
+    >
+      <div class="container mx-auto px-4">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+          <div class="mb-4 md:mb-0">
+            <a href="#" class="text-xl font-['Pacifico'] text-primary"
+              >Digi-Vote</a
+            >
+            <p class="text-sm text-gray-400 mt-1">
+              Secure Electronic Voting Platform
+            </p>
+          </div>
+          <div class="flex flex-wrap justify-center gap-4">
+            <a
+              href="#"
+              class="text-gray-400 hover:text-primary transition-colors"
+              >Admin Guide</a
+            >
+            <a
+              href="#"
+              class="text-gray-400 hover:text-primary transition-colors"
+              >API Documentation</a
+            >
+            <a
+              href="#"
+              class="text-gray-400 hover:text-primary transition-colors"
+              >Help & Support</a
+            >
+            <a
+              href="#"
+              class="text-gray-400 hover:text-primary transition-colors"
+              >Contact</a
+            >
+          </div>
+        </div>
+        <div
+          class="mt-6 pt-6 border-t border-gray-800 text-center text-sm text-gray-500"
+        >
+          <p>
+            © 2025 Digi-Vote. All rights reserved. Developed by Student
+            Technology Team.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div
+      id="toast"
+      class="toast fixed bottom-4 right-4 glassmorphism p-4 rounded-lg max-w-xs hidden"
+    >
+      <div class="flex items-center gap-3">
+        <div
+          class="w-8 h-8 flex items-center justify-center bg-primary bg-opacity-20 rounded-full"
+        >
+          <i class="ri-check-line text-primary"></i>
+        </div>
+        <div>
+          <p class="font-medium" id="toastMessage">
+            Results published successfully!
+          </p>
+          <p class="text-xs text-gray-400">Voters can now view the results</p>
+        </div>
+      </div>
+    </div>
+
+    <script id="chartManagement">
+      document.addEventListener("DOMContentLoaded", function () {
+        // Chart data
+        const candidates = ["Sophia Reynolds", "Marcus Chen", "Emma Thompson"];
+        const votes = [55, 45, 30];
+        const percentages = ["42%", "35%", "23%"];
+
+        // Chart colors
+        const colors = [
+          "rgba(87, 181, 231, 1)",
+          "rgba(141, 211, 199, 1)",
+          "rgba(251, 191, 114, 1)",
+        ];
+
+        // Initialize charts
+        const barChart = echarts.init(document.getElementById("barChart"));
+        const pieChart = echarts.init(document.getElementById("pieChart"));
+
+        // Bar chart options
+        const barOption = {
+          animation: false,
+          tooltip: {
+            trigger: "axis",
+            axisPointer: {
+              type: "shadow",
+            },
+            backgroundColor: "rgba(255, 255, 255, 0.8)",
+            textStyle: {
+              color: "#1f2937",
+            },
+            formatter: function (params) {
+              return `${params[0].name}: ${params[0].value} votes (${percentages[params[0].dataIndex]})`;
+            },
+          },
+          grid: {
+            left: "3%",
+            right: "4%",
+            bottom: "3%",
+            top: "3%",
+            containLabel: true,
+          },
+          xAxis: {
+            type: "category",
+            data: candidates,
+            axisLabel: {
+              color: "#e2e8f0",
+              interval: 0,
+              rotate: 30,
+            },
+            axisLine: {
+              lineStyle: {
+                color: "rgba(255, 255, 255, 0.1)",
+              },
+            },
+          },
+          yAxis: {
+            type: "value",
+            axisLabel: {
+              color: "#e2e8f0",
+            },
+            splitLine: {
+              lineStyle: {
+                color: "rgba(255, 255, 255, 0.1)",
+              },
+            },
+          },
+          series: [
+            {
+              name: "Votes",
+              type: "bar",
+              data: votes,
+              itemStyle: {
+                color: function (params) {
+                  return colors[params.dataIndex];
+                },
+                borderRadius: 6,
+              },
+              emphasis: {
+                itemStyle: {
+                  opacity: 0.8,
+                },
+              },
+            },
+          ],
+        };
+
+        // Pie chart options
+        const pieOption = {
+          animation: false,
+          tooltip: {
+            trigger: "item",
+            backgroundColor: "rgba(255, 255, 255, 0.8)",
+            textStyle: {
+              color: "#1f2937",
+            },
+            formatter: function (params) {
+              return `${params.name}: ${params.value} votes (${params.percent}%)`;
+            },
+          },
+          legend: {
+            orient: "vertical",
+            right: "5%",
+            top: "center",
+            textStyle: {
+              color: "#e2e8f0",
+            },
+          },
+          series: [
+            {
+              name: "Votes",
+              type: "pie",
+              radius: ["40%", "70%"],
+              center: ["40%", "50%"],
+              avoidLabelOverlap: false,
+              itemStyle: {
+                borderRadius: 6,
+                borderColor: "rgba(0, 0, 0, 0.2)",
+                borderWidth: 2,
+              },
+              label: {
+                show: false,
+              },
+              emphasis: {
+                itemStyle: {
+                  shadowBlur: 10,
+                  shadowOffsetX: 0,
+                  shadowColor: "rgba(0, 0, 0, 0.5)",
+                },
+              },
+              data: candidates.map((name, index) => {
+                return {
+                  name: name,
+                  value: votes[index],
+                  itemStyle: {
+                    color: colors[index],
+                  },
+                };
+              }),
+            },
+          ],
+        };
+
+        // Render initial charts
+        barChart.setOption(barOption);
+
+        // Chart toggle buttons
+        const barChartBtn = document.getElementById("barChartBtn");
+        const pieChartBtn = document.getElementById("pieChartBtn");
+        const barChartDiv = document.getElementById("barChart");
+        const pieChartDiv = document.getElementById("pieChart");
+
+        barChartBtn.addEventListener("click", function () {
+          barChartBtn.classList.add("active");
+          pieChartBtn.classList.remove("active");
+          barChartDiv.classList.remove("hidden");
+          pieChartDiv.classList.add("hidden");
+          barChart.resize();
+        });
+
+        pieChartBtn.addEventListener("click", function () {
+          pieChartBtn.classList.add("active");
+          barChartBtn.classList.remove("active");
+          pieChartDiv.classList.remove("hidden");
+          barChartDiv.classList.add("hidden");
+          pieChart.setOption(pieOption);
+          pieChart.resize();
+        });
+
+        // Handle window resize
+        window.addEventListener("resize", function () {
+          barChart.resize();
+          pieChart.resize();
+        });
+      });
+    </script>
+
+    <script id="publishResults">
+      document.addEventListener("DOMContentLoaded", function () {
+        const publishBtn = document.getElementById("publishBtn");
+        const publishStatus = document.getElementById("publishStatus");
+        const toast = document.getElementById("toast");
+        const toastMessage = document.getElementById("toastMessage");
+        let isPublished = false;
+
+        publishBtn.addEventListener("click", function () {
+          if (!isPublished) {
+            // Update status
+            isPublished = true;
+            publishStatus.innerHTML =
+              'Results are currently <span class="font-bold text-green-400">Published</span>. Voters can now see the results.';
+
+            // Update button
+            publishBtn.innerHTML = `
+              <span class="w-5 h-5 flex items-center justify-center">
+                <i class="ri-eye-off-line"></i>
+              </span>
+              Unpublish Results
+            `;
+            publishBtn.classList.remove("bg-primary");
+            publishBtn.classList.add("bg-gray-600");
+
+            // Show toast
+            toastMessage.textContent = "Results published successfully!";
+            toast.classList.remove("hidden");
+
+            // Auto hide toast after animation
+            setTimeout(() => {
+              toast.classList.add("hidden");
+            }, 4000);
+          } else {
+            // Update status
+            isPublished = false;
+            publishStatus.innerHTML =
+              'Results are currently <span class="font-bold text-yellow-400">Unpublished</span>. Voters cannot see the results until you publish them.';
+
+            // Update button
+            publishBtn.innerHTML = `
+              <span class="w-5 h-5 flex items-center justify-center">
+                <i class="ri-send-plane-line"></i>
+              </span>
+              Publish Results
+            `;
+            publishBtn.classList.add("bg-primary");
+            publishBtn.classList.remove("bg-gray-600");
+
+            // Show toast
+            toastMessage.textContent = "Results unpublished successfully!";
+            toast.classList.remove("hidden");
+
+            // Auto hide toast after animation
+            setTimeout(() => {
+              toast.classList.add("hidden");
+            }, 4000);
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

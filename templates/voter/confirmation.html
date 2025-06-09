@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Digi-Vote - Vote Confirmation</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: { primary: "#10b981", secondary: "#064e3b" },
+            borderRadius: {
+              none: "0px",
+              sm: "8px",
+              DEFAULT: "12px",
+              md: "16px",
+              lg: "20px",
+              xl: "24px",
+              "2xl": "28px",
+              "3xl": "32px",
+              full: "9999px",
+              button: "12px",
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
+    />
+    <style>
+      :where([class^="ri-"])::before { content: "\f3c2"; }
+      body {
+          background: linear-gradient(to bottom right, #000, #064e3b);
+          min-height: 100vh;
+          color: #fff;
+      }
+      .glassmorphism {
+          background: rgba(6, 78, 59, 0.2);
+          backdrop-filter: blur(8px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes pulse {
+          0% { transform: scale(1); }
+          50% { transform: scale(1.1); }
+          100% { transform: scale(1); }
+      }
+      @keyframes confetti {
+          0% { transform: translateY(0) rotate(0); opacity: 1; }
+          100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+      }
+      .confetti {
+          position: fixed;
+          width: 10px;
+          height: 10px;
+          background-color: #10b981;
+          animation: confetti 4s ease-out forwards;
+          z-index: 999;
+      }
+      .fade-in {
+          animation: fadeIn 0.8s ease-out forwards;
+      }
+      .pulse {
+          animation: pulse 2s infinite;
+      }
+    </style>
+  </head>
+  <body class="antialiased">
+    <div id="confetti-container"></div>
+
+    <header class="w-full py-4 px-6 flex items-center justify-between">
+      <a href="#" class="text-2xl font-['Pacifico'] text-white">Digi-Vote</a>
+      <nav class="flex items-center space-x-8">
+        <a href="#" class="text-white hover:text-primary transition-colors"
+          >Dashboard</a
+        >
+        <a href="#" class="text-white hover:text-primary transition-colors"
+          >Logout</a
+        >
+      </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-8 max-w-4xl">
+      <div
+        class="glassmorphism rounded p-8 mb-8 text-center fade-in"
+        style="animation-delay: 0.2s"
+      >
+        <div
+          class="w-20 h-20 mx-auto mb-4 bg-primary/20 rounded-full flex items-center justify-center pulse"
+        >
+          <i class="ri-check-line ri-2x text-primary"></i>
+        </div>
+        <h1 class="text-3xl md:text-4xl font-bold mb-6 text-primary">
+          Your Vote Has Been Successfully Cast!
+        </h1>
+        <p class="text-gray-300 mb-8">
+          Thank you for participating in the democratic process. Your vote has
+          been securely recorded.
+        </p>
+
+        <div class="glassmorphism rounded-lg p-6 max-w-2xl mx-auto mb-8">
+          <div class="flex flex-col md:flex-row gap-8">
+            <div class="flex-1">
+              <h2 class="text-xl font-semibold mb-4 text-left">
+                Voter Information
+              </h2>
+              <div class="space-y-3 text-left">
+                <div>
+                  <p class="text-sm text-gray-400">Voter Name</p>
+                  <p class="font-medium">Emily Richardson</p>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-400">Voter ID</p>
+                  <p class="font-medium">DV-2025-78943</p>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-400">Voting Date & Time</p>
+                  <p class="font-medium">June 7, 2025 • 14:32:45</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex-1">
+              <h2 class="text-xl font-semibold mb-4 text-left">
+                Election Details
+              </h2>
+              <div class="space-y-3 text-left">
+                <div>
+                  <p class="text-sm text-gray-400">Event Title</p>
+                  <p class="font-medium">National Election 2025</p>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-400">Ballot ID</p>
+                  <p class="font-medium">NE2025-B-10472</p>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-400">Confirmation Code</p>
+                  <p class="font-medium text-primary">DVNE-7842-9631-5208</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="glassmorphism rounded-lg p-6 max-w-2xl mx-auto">
+          <h2
+            class="text-xl font-semibold mb-4 flex items-center justify-center"
+          >
+            <span
+              class="w-6 h-6 flex items-center justify-center mr-2 text-primary"
+            >
+              <i class="ri-user-star-line"></i>
+            </span>
+            Your Selected Candidate
+          </h2>
+
+          <div class="flex items-center gap-4 p-4 bg-black/20 rounded-lg">
+            <div
+              class="w-16 h-16 rounded-full overflow-hidden flex-shrink-0 border-2 border-primary"
+            >
+              <img
+                src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20female%20politician%20with%20short%20brown%20hair%2C%20confident%20smile%2C%20business%20attire%2C%20neutral%20background%2C%20high%20quality%2C%20photorealistic&width=200&height=200&seq=candidate1&orientation=squarish"
+                alt="Candidate Photo"
+                class="w-full h-full object-cover"
+              />
+            </div>
+            <div class="flex-1">
+              <h3 class="font-medium text-lg">Dr. Alexandra Mercer</h3>
+              <p class="text-gray-400 text-sm">Progressive Party</p>
+              <div
+                class="mt-1 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/20 text-primary"
+              >
+                <span class="w-3 h-3 flex items-center justify-center mr-1">
+                  <i class="ri-check-line"></i>
+                </span>
+                Confirmed
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="glassmorphism rounded p-6 mb-8 flex items-start gap-4 fade-in"
+        style="animation-delay: 0.4s"
+      >
+        <div
+          class="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-yellow-500/20 rounded-full"
+        >
+          <i class="ri-information-line text-yellow-400"></i>
+        </div>
+        <div>
+          <h2 class="text-lg font-medium mb-2">Important Information</h2>
+          <p class="text-gray-300 mb-2">
+            You cannot vote again for this event. Your vote has been securely
+            recorded and cannot be changed.
+          </p>
+          <p class="text-gray-400">
+            There are 2 other active events where you can still cast your vote.
+            Return to dashboard to participate in other events.
+          </p>
+        </div>
+      </div>
+
+      <div
+        class="flex flex-col sm:flex-row gap-4 justify-center items-center fade-in"
+        style="animation-delay: 0.6s"
+      >
+        <a
+          href="#"
+          class="px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white font-medium rounded-button whitespace-nowrap transition-all hover:shadow-lg hover:shadow-primary/20 flex items-center justify-center w-full sm:w-auto"
+        >
+          <span class="w-5 h-5 flex items-center justify-center mr-2">
+            <i class="ri-dashboard-line"></i>
+          </span>
+          Go to Dashboard
+        </a>
+        <a
+          href="#"
+          class="px-6 py-3 bg-white/10 hover:bg-white/15 text-white font-medium rounded-button whitespace-nowrap transition-all flex items-center justify-center w-full sm:w-auto"
+        >
+          <span class="w-5 h-5 flex items-center justify-center mr-2">
+            <i class="ri-calendar-event-line"></i>
+          </span>
+          View Event Info
+        </a>
+      </div>
+
+      <div
+        class="glassmorphism rounded p-6 mt-12 fade-in"
+        style="animation-delay: 0.8s"
+      >
+        <h2 class="text-xl font-semibold mb-4 flex items-center">
+          <span
+            class="w-6 h-6 flex items-center justify-center mr-2 text-primary"
+          >
+            <i class="ri-calendar-event-line"></i>
+          </span>
+          Upcoming Events
+        </h2>
+        <div class="flex flex-col md:flex-row gap-8">
+          <div class="flex-1">
+            <h3 class="text-primary font-medium mb-2">
+              Local Council Election
+            </h3>
+            <p class="text-gray-300 mb-4">
+              The upcoming Local Council Election will be held on August 10,
+              2025. All registered voters can participate in this important
+              local governance event.
+            </p>
+            <div class="flex items-center text-sm text-gray-400">
+              <span class="w-5 h-5 flex items-center justify-center mr-2">
+                <i class="ri-time-line"></i>
+              </span>
+              Voting opens: August 10, 2025
+            </div>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-primary font-medium mb-2">
+              University Board Election
+            </h3>
+            <p class="text-gray-300">
+              Eligible university alumni can vote for the new board members in
+              the upcoming University Board Election starting July 22, 2025.
+            </p>
+            <div class="flex items-center text-sm text-gray-400 mt-4">
+              <span class="w-5 h-5 flex items-center justify-center mr-2">
+                <i class="ri-time-line"></i>
+              </span>
+              Voting opens: July 22, 2025
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="mt-16 py-8 border-t border-gray-800">
+      <div class="container mx-auto px-6">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+          <div class="mb-6 md:mb-0">
+            <a href="#" class="text-xl font-['Pacifico'] text-white"
+              >Digi-Vote</a
+            >
+            <p class="mt-2 text-sm text-gray-400">
+              Secure Digital Voting Platform
+            </p>
+          </div>
+          <div class="flex space-x-6">
+            <a
+              href="#"
+              class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-800 hover:bg-primary transition-colors"
+            >
+              <i class="ri-github-fill text-white"></i>
+            </a>
+            <a
+              href="#"
+              class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-800 hover:bg-primary transition-colors"
+            >
+              <i class="ri-linkedin-fill text-white"></i>
+            </a>
+            <a
+              href="#"
+              class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-800 hover:bg-primary transition-colors"
+            >
+              <i class="ri-twitter-x-fill text-white"></i>
+            </a>
+            <a
+              href="#"
+              class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-800 hover:bg-primary transition-colors"
+            >
+              <i class="ri-mail-fill text-white"></i>
+            </a>
+          </div>
+        </div>
+        <div
+          class="mt-8 pt-6 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center"
+        >
+          <p class="text-sm text-gray-400">
+            © 2025 Digi-Vote. All rights reserved.
+          </p>
+          <div class="mt-4 md:mt-0 flex space-x-6">
+            <a
+              href="#"
+              class="text-sm text-gray-400 hover:text-primary transition-colors"
+              >Privacy Policy</a
+            >
+            <a
+              href="#"
+              class="text-sm text-gray-400 hover:text-primary transition-colors"
+              >Terms of Service</a
+            >
+            <a
+              href="#"
+              class="text-sm text-gray-400 hover:text-primary transition-colors"
+              >Support</a
+            >
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script id="confetti-animation">
+      document.addEventListener("DOMContentLoaded", function () {
+        const confettiContainer = document.getElementById("confetti-container");
+        const colors = ["#10b981", "#059669", "#34d399", "#a7f3d0", "#d1fae5"];
+
+        function createConfetti() {
+          for (let i = 0; i < 100; i++) {
+            setTimeout(() => {
+              const confetti = document.createElement("div");
+              confetti.classList.add("confetti");
+
+              // Random position
+              confetti.style.left = Math.random() * 100 + "vw";
+              confetti.style.top = -20 + "px";
+
+              // Random size
+              const size = Math.floor(Math.random() * 10) + 5;
+              confetti.style.width = size + "px";
+              confetti.style.height = size + "px";
+
+              // Random color
+              confetti.style.backgroundColor =
+                colors[Math.floor(Math.random() * colors.length)];
+
+              // Random shape
+              if (Math.random() > 0.5) {
+                confetti.style.borderRadius = "50%";
+              }
+
+              // Random animation duration
+              confetti.style.animationDuration = Math.random() * 3 + 2 + "s";
+
+              confettiContainer.appendChild(confetti);
+
+              // Remove confetti after animation
+              setTimeout(() => {
+                confetti.remove();
+              }, 5000);
+            }, i * 20);
+          }
+        }
+
+        // Start confetti animation
+        createConfetti();
+      });
+    </script>
+  </body>
+</html>

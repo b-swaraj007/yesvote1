@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Digi-Vote - Election Results</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: { primary: "#10b981", secondary: "#064e3b" },
+            borderRadius: {
+              none: "0px",
+              sm: "8px",
+              DEFAULT: "12px",
+              md: "16px",
+              lg: "20px",
+              xl: "24px",
+              "2xl": "28px",
+              "3xl": "32px",
+              full: "9999px",
+              button: "12px",
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+    <style>
+      :where([class^="ri-"])::before { content: "\f3c2"; }
+      body {
+        background: linear-gradient(135deg, #000 0%, #064e3b 100%);
+        min-height: 100vh;
+        color: #fff;
+      }
+      .glassmorphism {
+        background: rgba(6, 78, 59, 0.15);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      }
+      .glassmorphism-light {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+      }
+      .glassmorphism-dark {
+        background: rgba(0, 0, 0, 0.25);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .fade-in {
+        animation: fadeIn 0.8s ease-out forwards;
+        opacity: 0;
+      }
+      .fade-in-delay-1 {
+        animation-delay: 0.1s;
+      }
+      .fade-in-delay-2 {
+        animation-delay: 0.2s;
+      }
+      .fade-in-delay-3 {
+        animation-delay: 0.3s;
+      }
+      .fade-in-delay-4 {
+        animation-delay: 0.4s;
+      }
+      .fade-in-delay-5 {
+        animation-delay: 0.5s;
+      }
+      .winner-badge {
+        position: absolute;
+        top: -12px;
+        right: 20px;
+        background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+        color: #000;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-weight: bold;
+        box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+        transform: rotate(3deg);
+      }
+      .progress-bar {
+        height: 6px;
+        border-radius: 3px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.1);
+      }
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, rgba(16, 185, 129, 0.7) 0%, rgba(16, 185, 129, 1) 100%);
+        border-radius: 3px;
+      }
+      .card-hover {
+        transition: all 0.3s ease;
+      }
+      .card-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+      }
+    </style>
+  </head>
+  <body class="antialiased">
+    <header
+      class="fixed top-0 left-0 right-0 z-50 glassmorphism-dark py-4 px-6 flex items-center justify-between"
+    >
+      <a href="#" class="text-2xl font-['Pacifico'] text-white">Digi-Vote</a>
+      <nav class="flex items-center space-x-8">
+        <a
+          href="#"
+          class="text-white hover:text-primary transition-colors flex items-center"
+        >
+          <span class="w-5 h-5 flex items-center justify-center mr-2">
+            <i class="ri-dashboard-line"></i>
+          </span>
+          <span>Dashboard</span>
+        </a>
+        <a
+          href="#"
+          class="text-white hover:text-primary transition-colors flex items-center"
+        >
+          <span class="w-5 h-5 flex items-center justify-center mr-2">
+            <i class="ri-logout-box-line"></i>
+          </span>
+          <span>Logout</span>
+        </a>
+      </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-8 max-w-6xl pt-24 pb-20">
+      <!-- Event Info Section -->
+      <div class="glassmorphism rounded-lg p-6 mb-8 fade-in fade-in-delay-1">
+        <div
+          class="flex flex-col md:flex-row justify-between items-start md:items-center"
+        >
+          <div>
+            <h1 class="text-3xl font-bold mb-2">National Election 2025</h1>
+            <div class="flex items-center mb-1">
+              <span
+                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary/20 text-primary mr-3"
+              >
+                <span class="w-3 h-3 flex items-center justify-center mr-1">
+                  <i class="ri-check-line"></i>
+                </span>
+                Result Published
+              </span>
+              <span class="text-gray-300 text-sm flex items-center">
+                <span class="w-4 h-4 flex items-center justify-center mr-1">
+                  <i class="ri-time-line"></i>
+                </span>
+                June 7, 2025
+              </span>
+            </div>
+          </div>
+          <div class="mt-4 md:mt-0 flex items-center">
+            <span class="text-sm text-gray-300 mr-3"
+              >Results finalized at 22:45 EST</span
+            >
+            <span
+              class="px-3 py-1 rounded-full text-xs font-medium bg-green-500/20 text-green-400"
+              >Official</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- Winner Highlight Card -->
+      <div
+        class="glassmorphism rounded-lg p-8 mb-10 relative card-hover fade-in fade-in-delay-2"
+      >
+        <div class="winner-badge flex items-center">
+          <span class="w-4 h-4 flex items-center justify-center mr-1">
+            <i class="ri-trophy-line"></i>
+          </span>
+          WINNER 🏆
+        </div>
+        <div class="flex flex-col md:flex-row items-center">
+          <div class="mb-6 md:mb-0 md:mr-8">
+            <div
+              class="w-40 h-40 rounded-full overflow-hidden border-4 border-primary/50 shadow-lg shadow-primary/20"
+            >
+              <img
+                src="https://readdy.ai/api/search-image?query=professional%2520headshot%2520of%2520a%2520confident%2520male%2520politician%2520in%2520his%252050s%2520with%2520salt%2520and%2520pepper%2520hair%2520wearing%2520a%2520blue%2520suit%2520and%2520tie%252C%2520neutral%2520background%252C%2520high%2520quality%252C%2520photorealistic%252C%2520professional%2520lighting&width=400&height=400&seq=winner1&orientation=squarish"
+                alt="Winner Photo"
+                class="w-full h-full object-cover object-top"
+              />
+            </div>
+          </div>
+          <div class="text-center md:text-left">
+            <h2 class="text-3xl font-bold mb-2 text-white">
+              Dr. Michael Bennett
+            </h2>
+            <h3 class="text-xl text-primary mb-2">
+              Progressive Alliance Party
+            </h3>
+            <p class="text-gray-300 italic mb-6">
+              "Building a sustainable future together"
+            </p>
+            <div class="flex flex-col items-center md:items-start">
+              <div class="flex items-baseline mb-2">
+                <span class="text-4xl font-bold text-white">1,245,782</span>
+                <span class="ml-2 text-gray-300">votes</span>
+              </div>
+              <div class="flex items-center">
+                <span class="text-lg text-primary mr-2">42.8%</span>
+                <span class="text-gray-400 text-sm">of total votes</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Visualization Section -->
+      <div class="glassmorphism rounded-lg p-6 mb-10 fade-in fade-in-delay-3">
+        <h2 class="text-xl font-bold mb-6 flex items-center">
+          <span
+            class="w-6 h-6 flex items-center justify-center mr-2 text-primary"
+          >
+            <i class="ri-bar-chart-grouped-line"></i>
+          </span>
+          Vote Distribution
+        </h2>
+        <div id="voteChart" class="w-full h-80"></div>
+      </div>
+
+      <!-- Candidates Result Grid -->
+      <h2
+        class="text-xl font-bold mb-6 flex items-center fade-in fade-in-delay-4"
+      >
+        <span
+          class="w-6 h-6 flex items-center justify-center mr-2 text-primary"
+        >
+          <i class="ri-user-star-line"></i>
+        </span>
+        All Candidates Results
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+        <!-- Candidate 1 -->
+        <div
+          class="glassmorphism rounded-lg p-6 card-hover fade-in fade-in-delay-4"
+        >
+          <div class="flex items-start">
+            <div
+              class="w-16 h-16 rounded-full overflow-hidden mr-4 border-2 border-primary/30"
+            >
+              <img
+                src="https://readdy.ai/api/search-image?query=professional%2520headshot%2520of%2520a%2520confident%2520male%2520politician%2520in%2520his%252050s%2520with%2520salt%2520and%2520pepper%2520hair%2520wearing%2520a%2520blue%2520suit%2520and%2520tie%252C%2520neutral%2520background%252C%2520high%2520quality%252C%2520photorealistic%252C%2520professional%2520lighting&width=200&height=200&seq=candidate1&orientation=squarish"
+                alt="Candidate Photo"
+                class="w-full h-full object-cover object-top"
+              />
+            </div>
+            <div class="flex-1">
+              <h3 class="font-bold text-lg">Dr. Michael Bennett</h3>
+              <p class="text-primary text-sm mb-1">
+                Progressive Alliance Party
+              </p>
+              <p class="text-gray-400 text-xs italic mb-3">
+                "Building a sustainable future together"
+              </p>
+              <div class="flex justify-between items-baseline mb-2">
+                <span class="font-medium">1,245,782 votes</span>
+                <span class="text-primary">42.8%</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 42.8%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Candidate 2 -->
+        <div
+          class="glassmorphism rounded-lg p-6 card-hover fade-in fade-in-delay-4"
+        >
+          <div class="flex items-start">
+            <div
+              class="w-16 h-16 rounded-full overflow-hidden mr-4 border-2 border-white/20"
+            >
+              <img
+                src="https://readdy.ai/api/search-image?query=professional%2520headshot%2520of%2520a%2520female%2520politician%2520with%2520blonde%2520hair%2520in%2520a%2520red%2520blazer%252C%2520neutral%2520background%252C%2520high%2520quality%252C%2520photorealistic%252C%2520professional%2520lighting&width=200&height=200&seq=candidate2&orientation=squarish"
+                alt="Candidate Photo"
+                class="w-full h-full object-cover object-top"
+              />
+            </div>
+            <div class="flex-1">
+              <h3 class="font-bold text-lg">Sarah Richardson</h3>
+              <p class="text-primary text-sm mb-1">Conservative Union</p>
+              <p class="text-gray-400 text-xs italic mb-3">
+                "Preserving our values, securing our future"
+              </p>
+              <div class="flex justify-between items-baseline mb-2">
+                <span class="font-medium">982,345 votes</span>
+                <span class="text-primary">33.7%</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 33.7%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Candidate 3 -->
+        <div
+          class="glassmorphism rounded-lg p-6 card-hover fade-in fade-in-delay-4"
+        >
+          <div class="flex items-start">
+            <div
+              class="w-16 h-16 rounded-full overflow-hidden mr-4 border-2 border-white/20"
+            >
+              <img
+                src="https://readdy.ai/api/search-image?query=professional%2520headshot%2520of%2520a%2520middle-aged%2520male%2520politician%2520with%2520glasses%2520wearing%2520a%2520green%2520tie%252C%2520neutral%2520background%252C%2520high%2520quality%252C%2520photorealistic%252C%2520professional%2520lighting&width=200&height=200&seq=candidate3&orientation=squarish"
+                alt="Candidate Photo"
+                class="w-full h-full object-cover object-top"
+              />
+            </div>
+            <div class="flex-1">
+              <h3 class="font-bold text-lg">Dr. James Wilson</h3>
+              <p class="text-primary text-sm mb-1">Green Future Party</p>
+              <p class="text-gray-400 text-xs italic mb-3">
+                "For a sustainable and just society"
+              </p>
+              <div class="flex justify-between items-baseline mb-2">
+                <span class="font-medium">425,631 votes</span>
+                <span class="text-primary">14.6%</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 14.6%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Candidate 4 -->
+        <div
+          class="glassmorphism rounded-lg p-6 card-hover fade-in fade-in-delay-5"
+        >
+          <div class="flex items-start">
+            <div
+              class="w-16 h-16 rounded-full overflow-hidden mr-4 border-2 border-white/20"
+            >
+              <img
+                src="https://readdy.ai/api/search-image?query=professional%2520headshot%2520of%2520a%2520young%2520female%2520politician%2520with%2520dark%2520hair%2520in%2520business%2520attire%252C%2520neutral%2520background%252C%2520high%2520quality%252C%2520photorealistic%252C%2520professional%2520lighting&width=200&height=200&seq=candidate4&orientation=squarish"
+                alt="Candidate Photo"
+                class="w-full h-full object-cover object-top"
+              />
+            </div>
+            <div class="flex-1">
+              <h3 class="font-bold text-lg">Maria Gonzalez</h3>
+              <p class="text-primary text-sm mb-1">People's Democratic Party</p>
+              <p class="text-gray-400 text-xs italic mb-3">
+                "Power to the people, for the people"
+              </p>
+              <div class="flex justify-between items-baseline mb-2">
+                <span class="font-medium">198,472 votes</span>
+                <span class="text-primary">6.8%</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 6.8%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Candidate 5 -->
+        <div
+          class="glassmorphism rounded-lg p-6 card-hover fade-in fade-in-delay-5"
+        >
+          <div class="flex items-start">
+            <div
+              class="w-16 h-16 rounded-full overflow-hidden mr-4 border-2 border-white/20"
+            >
+              <img
+                src="https://readdy.ai/api/search-image?query=professional%2520headshot%2520of%2520an%2520older%2520male%2520politician%2520with%2520white%2520hair%2520in%2520a%2520gray%2520suit%252C%2520neutral%2520background%252C%2520high%2520quality%252C%2520photorealistic%252C%2520professional%2520lighting&width=200&height=200&seq=candidate5&orientation=squarish"
+                alt="Candidate Photo"
+                class="w-full h-full object-cover object-top"
+              />
+            </div>
+            <div class="flex-1">
+              <h3 class="font-bold text-lg">Robert Thompson</h3>
+              <p class="text-primary text-sm mb-1">Liberty Alliance</p>
+              <p class="text-gray-400 text-xs italic mb-3">
+                "Freedom, prosperity, and limited government"
+              </p>
+              <div class="flex justify-between items-baseline mb-2">
+                <span class="font-medium">54,890 votes</span>
+                <span class="text-primary">1.9%</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 1.9%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Candidate 6 -->
+        <div
+          class="glassmorphism rounded-lg p-6 card-hover fade-in fade-in-delay-5"
+        >
+          <div class="flex items-start">
+            <div
+              class="w-16 h-16 rounded-full overflow-hidden mr-4 border-2 border-white/20"
+            >
+              <img
+                src="https://readdy.ai/api/search-image?query=professional%2520headshot%2520of%2520a%2520middle-aged%2520female%2520politician%2520with%2520short%2520hair%2520in%2520a%2520purple%2520blazer%252C%2520neutral%2520background%252C%2520high%2520quality%252C%2520photorealistic%252C%2520professional%2520lighting&width=200&height=200&seq=candidate6&orientation=squarish"
+                alt="Candidate Photo"
+                class="w-full h-full object-cover object-top"
+              />
+            </div>
+            <div class="flex-1">
+              <h3 class="font-bold text-lg">Dr. Elizabeth Chen</h3>
+              <p class="text-primary text-sm mb-1">Reform Movement</p>
+              <p class="text-gray-400 text-xs italic mb-3">
+                "Reimagining government for the 21st century"
+              </p>
+              <div class="flex justify-between items-baseline mb-2">
+                <span class="font-medium">5,780 votes</span>
+                <span class="text-primary">0.2%</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 0.2%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Election Statistics -->
+      <div class="glassmorphism rounded-lg p-6 mb-10 fade-in fade-in-delay-5">
+        <h2 class="text-xl font-bold mb-6 flex items-center">
+          <span
+            class="w-6 h-6 flex items-center justify-center mr-2 text-primary"
+          >
+            <i class="ri-file-chart-line"></i>
+          </span>
+          Election Statistics
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="glassmorphism-light rounded-lg p-4 text-center">
+            <span class="text-3xl font-bold text-white block mb-1"
+              >2,912,900</span
+            >
+            <span class="text-gray-300">Total Votes Cast</span>
+          </div>
+          <div class="glassmorphism-light rounded-lg p-4 text-center">
+            <span class="text-3xl font-bold text-white block mb-1">78.4%</span>
+            <span class="text-gray-300">Voter Turnout</span>
+          </div>
+          <div class="glassmorphism-light rounded-lg p-4 text-center">
+            <span class="text-3xl font-bold text-white block mb-1">6</span>
+            <span class="text-gray-300">Participating Candidates</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Back Button -->
+      <div class="flex justify-center mt-12 fade-in fade-in-delay-5">
+        <a
+          href="#"
+          class="px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white font-medium rounded-button whitespace-nowrap transition-all hover:shadow-lg hover:shadow-primary/20 flex items-center justify-center"
+        >
+          <span class="w-5 h-5 flex items-center justify-center mr-2">
+            <i class="ri-arrow-left-line"></i>
+          </span>
+          Back to Dashboard
+        </a>
+      </div>
+    </main>
+
+    <footer class="mt-16 py-8 border-t border-gray-800">
+      <div class="container mx-auto px-6">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+          <div class="mb-6 md:mb-0">
+            <a href="#" class="text-xl font-['Pacifico'] text-white"
+              >Digi-Vote</a
+            >
+            <p class="mt-2 text-sm text-gray-400">
+              Secure Digital Voting Platform
+            </p>
+          </div>
+          <div class="flex space-x-6">
+            <a
+              href="#"
+              class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-800 hover:bg-primary transition-colors"
+            >
+              <i class="ri-github-fill text-white"></i>
+            </a>
+            <a
+              href="#"
+              class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-800 hover:bg-primary transition-colors"
+            >
+              <i class="ri-linkedin-fill text-white"></i>
+            </a>
+            <a
+              href="#"
+              class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-800 hover:bg-primary transition-colors"
+            >
+              <i class="ri-twitter-x-fill text-white"></i>
+            </a>
+            <a
+              href="#"
+              class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-800 hover:bg-primary transition-colors"
+            >
+              <i class="ri-mail-fill text-white"></i>
+            </a>
+          </div>
+        </div>
+        <div
+          class="mt-8 pt-6 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center"
+        >
+          <p class="text-sm text-gray-400">
+            © 2025 Digi-Vote. All rights reserved.
+          </p>
+          <div class="mt-4 md:mt-0 flex space-x-6">
+            <a
+              href="#"
+              class="text-sm text-gray-400 hover:text-primary transition-colors"
+              >Privacy Policy</a
+            >
+            <a
+              href="#"
+              class="text-sm text-gray-400 hover:text-primary transition-colors"
+              >Terms of Service</a
+            >
+            <a
+              href="#"
+              class="text-sm text-gray-400 hover:text-primary transition-colors"
+              >Support</a
+            >
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script id="chart-initialization">
+      document.addEventListener("DOMContentLoaded", function () {
+        const chartDom = document.getElementById("voteChart");
+        const myChart = echarts.init(chartDom);
+
+        const candidates = [
+          {
+            name: "Dr. Michael Bennett",
+            votes: 1245782,
+            percentage: 42.8,
+            party: "Progressive Alliance",
+          },
+          {
+            name: "Sarah Richardson",
+            votes: 982345,
+            percentage: 33.7,
+            party: "Conservative Union",
+          },
+          {
+            name: "Dr. James Wilson",
+            votes: 425631,
+            percentage: 14.6,
+            party: "Green Future",
+          },
+          {
+            name: "Maria Gonzalez",
+            votes: 198472,
+            percentage: 6.8,
+            party: "People's Democratic",
+          },
+          {
+            name: "Robert Thompson",
+            votes: 54890,
+            percentage: 1.9,
+            party: "Liberty Alliance",
+          },
+          {
+            name: "Dr. Elizabeth Chen",
+            votes: 5780,
+            percentage: 0.2,
+            party: "Reform Movement",
+          },
+        ];
+
+        const option = {
+          animation: false,
+          tooltip: {
+            trigger: "axis",
+            axisPointer: {
+              type: "shadow",
+            },
+            backgroundColor: "rgba(255, 255, 255, 0.8)",
+            textStyle: {
+              color: "#1f2937",
+            },
+            formatter: function (params) {
+              const data = params[0];
+              return `<strong>${data.name}</strong><br/>
+                      Votes: ${data.value.toLocaleString()}<br/>
+                      Percentage: ${candidates[data.dataIndex].percentage}%<br/>
+                      Party: ${candidates[data.dataIndex].party}`;
+            },
+          },
+          grid: {
+            top: 10,
+            right: 30,
+            bottom: 60,
+            left: 80,
+          },
+          xAxis: {
+            type: "category",
+            data: candidates.map((c) => c.name.split(" ").pop()),
+            axisLabel: {
+              color: "rgba(255, 255, 255, 0.7)",
+              rotate: 45,
+            },
+            axisLine: {
+              lineStyle: {
+                color: "rgba(255, 255, 255, 0.1)",
+              },
+            },
+          },
+          yAxis: {
+            type: "value",
+            name: "Votes",
+            nameTextStyle: {
+              color: "rgba(255, 255, 255, 0.7)",
+            },
+            axisLabel: {
+              color: "rgba(255, 255, 255, 0.7)",
+              formatter: function (value) {
+                if (value >= 1000000) {
+                  return (value / 1000000).toFixed(1) + "M";
+                } else if (value >= 1000) {
+                  return (value / 1000).toFixed(0) + "K";
+                }
+                return value;
+              },
+            },
+            splitLine: {
+              lineStyle: {
+                color: "rgba(255, 255, 255, 0.1)",
+              },
+            },
+          },
+          series: [
+            {
+              name: "Votes",
+              type: "bar",
+              data: candidates.map((c) => c.votes),
+              itemStyle: {
+                color: function (params) {
+                  const colors = [
+                    "rgba(87, 181, 231, 1)",
+                    "rgba(141, 211, 199, 1)",
+                    "rgba(251, 191, 114, 1)",
+                    "rgba(252, 141, 98, 1)",
+                    "rgba(190, 186, 218, 1)",
+                    "rgba(231, 138, 195, 1)",
+                  ];
+                  return params.dataIndex === 0
+                    ? "rgba(16, 185, 129, 1)"
+                    : colors[params.dataIndex % colors.length];
+                },
+                borderRadius: [5, 5, 0, 0],
+              },
+              emphasis: {
+                itemStyle: {
+                  opacity: 0.8,
+                },
+              },
+              label: {
+                show: true,
+                position: "top",
+                formatter: function (params) {
+                  return candidates[params.dataIndex].percentage + "%";
+                },
+                color: "rgba(255, 255, 255, 0.7)",
+              },
+            },
+          ],
+        };
+
+        myChart.setOption(option);
+
+        window.addEventListener("resize", function () {
+          myChart.resize();
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register - Digi-Vote</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: { primary: "#10B981", secondary: "#064E3B" },
+            borderRadius: {
+              none: "0px",
+              sm: "8px",
+              DEFAULT: "12px",
+              md: "16px",
+              lg: "20px",
+              xl: "24px",
+              "2xl": "28px",
+              "3xl": "32px",
+              full: "9999px",
+              button: "12px",
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
+    />
+    <style>
+      :where([class^="ri-"])::before { content: "\f3c2"; }
+      body {
+        background: linear-gradient(to bottom right, #000000, #042f2e);
+        min-height: 100vh;
+      }
+      .glassmorphism {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+      }
+      .text-glow {
+        text-shadow: 0 0 10px rgba(16, 185, 129, 0.7);
+      }
+      input[type="number"]::-webkit-inner-spin-button,
+      input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body class="text-gray-100 font-sans">
+    <div class="min-h-screen flex items-center justify-center p-4">
+      <div class="glassmorphism rounded-lg p-8 w-full max-w-2xl">
+        <div class="text-center mb-8">
+          <a href="/" class="inline-block">
+            <span class="text-3xl font-['Pacifico'] text-primary text-glow"
+              >Digi-Vote</span
+            >
+          </a>
+          <h1 class="text-2xl font-bold mt-4">Create Your Account</h1>
+          <p class="text-gray-400 mt-2">
+            Join our secure voting platform
+          </p>
+        </div>
+
+        <form id="registerForm" class="space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Full Name -->
+            <div>
+              <label class="block text-sm font-medium mb-2" for="fullName">
+                Full Name
+              </label>
+              <input
+                type="text"
+                id="fullName"
+                name="fullName"
+                required
+                class="w-full px-4 py-2 bg-white bg-opacity-10 border border-gray-600 rounded-lg focus:outline-none focus:border-primary"
+                placeholder="Enter your full name"
+              />
+            </div>
+
+            <!-- Email -->
+            <div>
+              <label class="block text-sm font-medium mb-2" for="email">
+                Email Address
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                required
+                class="w-full px-4 py-2 bg-white bg-opacity-10 border border-gray-600 rounded-lg focus:outline-none focus:border-primary"
+                placeholder="Enter your email"
+              />
+            </div>
+
+            <!-- Mobile Number -->
+            <div>
+              <label class="block text-sm font-medium mb-2" for="mobile">
+                Mobile Number
+              </label>
+              <input
+                type="tel"
+                id="mobile"
+                name="mobile"
+                required
+                pattern="[0-9]{10}"
+                class="w-full px-4 py-2 bg-white bg-opacity-10 border border-gray-600 rounded-lg focus:outline-none focus:border-primary"
+                placeholder="Enter 10-digit mobile number"
+              />
+            </div>
+
+            <!-- Aadhar Number -->
+            <div>
+              <label class="block text-sm font-medium mb-2" for="aadhar">
+                Aadhar Number
+              </label>
+              <input
+                type="text"
+                id="aadhar"
+                name="aadhar"
+                required
+                pattern="[0-9]{12}"
+                class="w-full px-4 py-2 bg-white bg-opacity-10 border border-gray-600 rounded-lg focus:outline-none focus:border-primary"
+                placeholder="Enter 12-digit Aadhar number"
+              />
+            </div>
+
+            <!-- Password -->
+            <div>
+              <label class="block text-sm font-medium mb-2" for="password">
+                Password
+              </label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                required
+                minlength="8"
+                class="w-full px-4 py-2 bg-white bg-opacity-10 border border-gray-600 rounded-lg focus:outline-none focus:border-primary"
+                placeholder="Create a password"
+              />
+            </div>
+
+            <!-- Confirm Password -->
+            <div>
+              <label class="block text-sm font-medium mb-2" for="confirmPassword">
+                Confirm Password
+              </label>
+              <input
+                type="password"
+                id="confirmPassword"
+                name="confirmPassword"
+                required
+                minlength="8"
+                class="w-full px-4 py-2 bg-white bg-opacity-10 border border-gray-600 rounded-lg focus:outline-none focus:border-primary"
+                placeholder="Confirm your password"
+              />
+            </div>
+          </div>
+
+          <!-- Face Registration Section -->
+          <div class="mt-8">
+            <h3 class="text-lg font-semibold mb-4">Face Registration</h3>
+            <div class="glassmorphism rounded-lg p-6">
+              <div class="flex flex-col items-center space-y-4">
+                <div id="videoContainer" class="w-full max-w-md aspect-video bg-black rounded-lg overflow-hidden">
+                  <video id="video" class="w-full h-full object-cover" autoplay></video>
+                </div>
+                <div class="flex space-x-4">
+                  <button
+                    type="button"
+                    id="startCamera"
+                    class="bg-primary text-white px-6 py-2 rounded-button hover:bg-opacity-80 transition-all duration-300"
+                  >
+                    Start Camera
+                  </button>
+                  <button
+                    type="button"
+                    id="capturePhoto"
+                    class="bg-secondary text-white px-6 py-2 rounded-button hover:bg-opacity-80 transition-all duration-300"
+                    disabled
+                  >
+                    Capture Photo
+                  </button>
+                </div>
+                <div id="photoPreview" class="hidden w-full max-w-md aspect-video bg-black rounded-lg overflow-hidden">
+                  <img id="preview" class="w-full h-full object-cover" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Terms and Conditions -->
+          <div class="flex items-center mt-6">
+            <input
+              type="checkbox"
+              id="terms"
+              name="terms"
+              required
+              class="w-4 h-4 bg-white bg-opacity-10 border border-gray-600 rounded focus:ring-primary"
+            />
+            <label for="terms" class="ml-2 text-sm text-gray-400">
+              I agree to the
+              <a href="#" class="text-primary hover:underline">Terms of Service</a>
+              and
+              <a href="#" class="text-primary hover:underline">Privacy Policy</a>
+            </label>
+          </div>
+
+          <!-- Submit Button -->
+          <button
+            type="submit"
+            class="w-full bg-primary text-white py-3 rounded-button hover:bg-opacity-80 transition-all duration-300 mt-8"
+          >
+            Create Account
+          </button>
+
+          <!-- Login Link -->
+          <p class="text-center text-gray-400 mt-6">
+            Already have an account?
+            <a href="/login" class="text-primary hover:underline">Log in</a>
+          </p>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      // Camera functionality
+      const video = document.getElementById('video');
+      const startCamera = document.getElementById('startCamera');
+      const capturePhoto = document.getElementById('capturePhoto');
+      const photoPreview = document.getElementById('photoPreview');
+      const preview = document.getElementById('preview');
+      let stream = null;
+
+      startCamera.addEventListener('click', async () => {
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({ video: true });
+          video.srcObject = stream;
+          startCamera.disabled = true;
+          capturePhoto.disabled = false;
+        } catch (err) {
+          console.error('Error accessing camera:', err);
+          alert('Could not access camera. Please make sure you have granted camera permissions.');
+        }
+      });
+
+      capturePhoto.addEventListener('click', () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+        
+        // Convert to base64
+        const photoData = canvas.toDataURL('image/jpeg');
+        preview.src = photoData;
+        
+        // Show preview
+        photoPreview.classList.remove('hidden');
+        
+        // Stop camera
+        if (stream) {
+          stream.getTracks().forEach(track => track.stop());
+        }
+        video.srcObject = null;
+        startCamera.disabled = false;
+        capturePhoto.disabled = true;
+      });
+
+      // Form submission
+      document.getElementById('registerForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        // Validate passwords match
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        
+        if (password !== confirmPassword) {
+          alert('Passwords do not match!');
+          return;
+        }
+
+        // Get form data
+        const formData = {
+          fullName: document.getElementById('fullName').value,
+          email: document.getElementById('email').value,
+          mobile: document.getElementById('mobile').value,
+          aadhar: document.getElementById('aadhar').value,
+          password: password,
+          photo: preview.src // Base64 photo data
+        };
+
+        try {
+          const response = await fetch('/register', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+          });
+
+          const data = await response.json();
+          
+          if (response.ok) {
+            alert('Registration successful! Please log in.');
+            window.location.href = '/login';
+          } else {
+            alert(data.error || 'Registration failed. Please try again.');
+          }
+        } catch (err) {
+          console.error('Error during registration:', err);
+          alert('An error occurred during registration. Please try again.');
+        }
+      });
+    </script>
+  </body>
+</html> 
