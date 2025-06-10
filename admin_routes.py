@@ -7,6 +7,7 @@ import tempfile
 from utils.id_generator import generate_event_id, generate_voter_id
 from face_embedder import generate_embedding
 from google.cloud import firestore
+import base64
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -448,4 +449,60 @@ def approve_event_voter_firestore(event_id, voter_id):
         return redirect(url_for('event_pending_voters', event_id=event_id))
     except Exception as e:
         flash(f'Error: {str(e)}', 'error')
-        return redirect(url_for('event_pending_voters', event_id=event_id)) 
+        return redirect(url_for('event_pending_voters', event_id=event_id))
+
+@admin_bp.route('/api/create-event', methods=['POST'])
+def api_create_event():
+    if not session.get('user_id') or get_user_data(session['user_id']).get('role') != 'admin':
+        return jsonify({'error': 'Not authorized'}), 403
+    try:
+        data = request.get_json()
+        title = data.get('title')
+        description = data.get('description')
+        start_date = data.get('start_date')
+        end_date = data.get('end_date')
+        candidates = data.get('candidates', [])
+        if not (title and description and start_date and end_date and candidates):
+            return jsonify({'error': 'Missing required fields'}), 400
+        event_id = generate_event_id()
+        candidate_objs = []
+        for i, cand in enumerate(candidates):
+            name = cand.get('name')
+            party = cand.get('party')
+            slogan = cand.get('slogan')
+            photo_b64 = cand.get('photo')
+            if not (name and party and slogan and photo_b64):
+                return jsonify({'error': f'Missing candidate info for candidate {i+1}'}), 400
+            # Save candidate photo to Firebase Storage
+            photo_data = photo_b64.split(',')[1] if ',' in photo_b64 else photo_b64
+            photo_bytes = base64.b64decode(photo_data)
+            with tempfile.NamedTemporaryFile(suffix='.jpg', delete=False) as temp_file:
+                temp_path = temp_file.name
+                temp_file.write(photo_bytes)
+            blob = bucket.blob(f'event_candidates/{event_id}_{name}_{datetime.now().strftime("%Y%m%d_%H%M%S")}.jpg')
+            blob.upload_from_filename(temp_path)
+            blob.make_public()
+            photo_url = blob.public_url
+            os.unlink(temp_path)
+            candidate_objs.append({
+                'candidate_id': f'{event_id}_cand_{i+1}',
+                'name': name,
+                'party': party,
+                'slogan': slogan,
+                'photo_url': photo_url
+            })
+        event_data = {
+            'event_id': event_id,
+            'event_name': title,
+            'event_description': description,
+            'start_time': start_date,
+            'end_time': end_date,
+            'admin_id': session['user_id'],
+            'candidates': candidate_objs,
+            'status': 'active',
+            'created_at': datetime.now().isoformat()
+        }
+        db.collection('events').document(event_id).set(event_data)
+        return jsonify({'message': 'Event created successfully!', 'event_id': event_id}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500 

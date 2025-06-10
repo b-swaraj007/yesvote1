@@ -1,0 +1,2579 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>How Voting Works - Digi-Vote</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: { primary: "#10B981", secondary: "#064E3B" },
+            borderRadius: {
+              none: "0px",
+              sm: "8px",
+              DEFAULT: "12px",
+              md: "16px",
+              lg: "20px",
+              xl: "24px",
+              "2xl": "28px",
+              "3xl": "32px",
+              full: "9999px",
+              button: "12px",
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+    <style>
+      :where([class^="ri-"])::before { content: "\f3c2"; }
+      body {
+        background: linear-gradient(to bottom right, #000000, #042f2e);
+        min-height: 100vh;
+      }
+      .glassmorphism {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+      }
+      .text-glow {
+        text-shadow: 0 0 10px rgba(16, 185, 129, 0.7);
+      }
+      .progress-bar {
+        height: 4px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      .progress-bar-fill {
+        height: 100%;
+        background: #10B981;
+        border-radius: 2px;
+        transition: width 0.3s ease;
+      }
+      .step-indicator {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+      }
+      .step-indicator.active {
+        background: #10B981;
+        border-color: #10B981;
+      }
+      .step-line {
+        flex: 1;
+        height: 2px;
+        background: rgba(255, 255, 255, 0.1);
+      }
+      .step-line.active {
+        background: #10B981;
+      }
+      .faq-item {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .faq-answer {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+      }
+      .faq-item.active .faq-answer {
+        max-height: 500px;
+      }
+      .tooltip {
+        position: relative;
+        display: inline-block;
+      }
+      .tooltip-text {
+        visibility: hidden;
+        width: 200px;
+        background-color: rgba(0, 0, 0, 0.8);
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 8px;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%;
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+      .tooltip:hover .tooltip-text {
+        visibility: visible;
+        opacity: 1;
+      }
+      .custom-checkbox {
+        position: relative;
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .custom-checkbox.checked {
+        background: #10B981;
+        border-color: #10B981;
+      }
+      .custom-checkbox.checked::after {
+        content: '';
+        position: absolute;
+        left: 6px;
+        top: 2px;
+        width: 6px;
+        height: 12px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+      }
+      .custom-radio {
+        position: relative;
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        cursor: pointer;
+      }
+      .custom-radio.checked {
+        background: rgba(16, 185, 129, 0.2);
+        border-color: #10B981;
+      }
+      .custom-radio.checked::after {
+        content: '';
+        position: absolute;
+        left: 5px;
+        top: 5px;
+        width: 8px;
+        height: 8px;
+        background: #10B981;
+        border-radius: 50%;
+      }
+      .custom-switch {
+        position: relative;
+        display: inline-block;
+        width: 40px;
+        height: 20px;
+      }
+      .custom-switch-track {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(255, 255, 255, 0.1);
+        transition: .4s;
+        border-radius: 34px;
+      }
+      .custom-switch-thumb {
+        position: absolute;
+        height: 16px;
+        width: 16px;
+        left: 2px;
+        bottom: 2px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+      }
+      .custom-switch.checked .custom-switch-track {
+        background-color: #10B981;
+      }
+      .custom-switch.checked .custom-switch-thumb {
+        transform: translateX(20px);
+      }
+    </style>
+  </head>
+  <body class="text-gray-100 font-sans">
+    <!-- Header -->
+    <header class="glassmorphism sticky top-0 z-50 w-full">
+      <div
+        class="container mx-auto px-4 py-3 flex items-center justify-between"
+      >
+        <a href="#" class="flex items-center">
+          <span class="text-2xl font-['Pacifico'] text-primary text-glow"
+            >Digi-Vote</span
+          >
+        </a>
+        <nav class="hidden md:flex items-center space-x-8">
+          <a
+            href="#"
+            class="text-white hover:text-primary transition-colors duration-300"
+            >Home</a
+          >
+          <a
+            href="#"
+            class="text-white hover:text-primary transition-colors duration-300"
+            >About</a
+          >
+          <a
+            href="#"
+            class="text-white hover:text-primary transition-colors duration-300"
+            >Gallery</a
+          >
+          <a
+            href="#"
+            class="text-white hover:text-primary transition-colors duration-300"
+            >Contributors</a
+          >
+          <a
+            href="#"
+            class="text-white hover:text-primary transition-colors duration-300"
+            >Contact</a
+          >
+        </nav>
+        <div class="flex items-center space-x-4">
+          <button
+            class="flex items-center space-x-2 text-white hover:text-primary transition-colors duration-300"
+          >
+            <div class="w-8 h-8 flex items-center justify-center">
+              <i class="ri-user-line ri-lg"></i>
+            </div>
+            <span class="hidden md:inline">My Profile</span>
+          </button>
+          <button
+            class="bg-primary text-white px-4 py-2 !rounded-button hover:bg-opacity-80 transition-all duration-300 whitespace-nowrap flex items-center"
+          >
+            <div class="w-5 h-5 flex items-center justify-center mr-2">
+              <i class="ri-logout-box-line"></i>
+            </div>
+            <span>Logout</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+      <!-- Back Button and Page Title -->
+      <div class="flex items-center justify-between mb-8">
+        <a
+          href="https://readdy.ai/home/c4ad7d25-af55-4022-a569-499ff16b9218/7b5b3882-1e86-4809-9fa3-72eec6b0f327"
+          data-readdy="true"
+          class="flex items-center text-white hover:text-primary transition-colors duration-300"
+        >
+          <div class="w-8 h-8 flex items-center justify-center mr-1">
+            <i class="ri-arrow-left-line ri-lg"></i>
+          </div>
+          <span>Back to Dashboard</span>
+        </a>
+        <div class="flex items-center">
+          <div
+            id="progress-indicator"
+            class="hidden md:flex items-center space-x-2 mr-6"
+          >
+            <div class="step-indicator active">1</div>
+            <div class="step-line"></div>
+            <div class="step-indicator">2</div>
+            <div class="step-line"></div>
+            <div class="step-indicator">3</div>
+            <div class="step-line"></div>
+            <div class="step-indicator">4</div>
+            <div class="step-line"></div>
+            <div class="step-indicator">5</div>
+          </div>
+          <div class="flex flex-col items-end">
+            <h1 class="text-2xl md:text-3xl font-bold text-glow">
+              How Voting Works
+            </h1>
+            <p class="text-sm text-gray-300">
+              Your complete guide to secure digital voting
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hero Section -->
+      <section class="mb-12">
+        <div class="glassmorphism rounded-lg overflow-hidden">
+          <div class="relative h-64 md:h-80">
+            <div
+              style="background-image: url('https://readdy.ai/api/search-image?query=Digital%2520voting%2520process%2520flow%2520diagram%2520with%2520secure%2520blockchain%2520technology%252C%2520showing%2520step-by-step%2520process%2520from%2520voter%2520authentication%2520to%2520vote%2520counting%252C%2520modern%2520futuristic%2520design%2520with%2520glowing%2520lines%2520and%2520nodes%2520on%2520dark%2520background&width=1200&height=600&seq=1&orientation=landscape'); background-size: cover; background-position: center;"
+              class="absolute inset-0"
+            ></div>
+            <div
+              class="absolute inset-0 bg-gradient-to-r from-black to-transparent"
+            ></div>
+            <div class="absolute inset-0 flex items-center">
+              <div class="w-full md:w-1/2 p-6 md:p-10">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4 text-glow">
+                  Understanding Our Secure Voting System
+                </h2>
+                <p class="text-gray-200 mb-6">
+                  Digi-Vote uses state-of-the-art technology to ensure your vote
+                  is secure, private, and accurately counted. This guide
+                  explains how our system works from registration to results.
+                </p>
+                <button
+                  id="get-started-btn"
+                  class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-80 transition-all duration-300 whitespace-nowrap flex items-center"
+                >
+                  <div class="w-5 h-5 flex items-center justify-center mr-2">
+                    <i class="ri-arrow-down-line"></i>
+                  </div>
+                  <span>Get Started</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Security Measures Section -->
+      <section id="security-section" class="mb-12">
+        <div class="glassmorphism rounded-lg p-6 md:p-8">
+          <h2 class="text-2xl md:text-3xl font-bold mb-6 flex items-center">
+            <div
+              class="w-8 h-8 flex items-center justify-center mr-3 bg-primary bg-opacity-20 rounded-full"
+            >
+              <i class="ri-shield-check-line text-primary ri-lg"></i>
+            </div>
+            Security Measures
+          </h2>
+          <p class="text-gray-300 mb-8">
+            Digi-Vote employs multiple layers of security to protect the
+            integrity of every election.
+          </p>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Blockchain Technology -->
+            <div
+              class="glassmorphism rounded-lg p-5 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300"
+            >
+              <div class="flex items-start mb-4">
+                <div
+                  class="w-12 h-12 flex items-center justify-center bg-primary bg-opacity-20 rounded-full mr-4 shrink-0"
+                >
+                  <i class="ri-link-m text-primary ri-lg"></i>
+                </div>
+                <div>
+                  <h3 class="text-xl font-semibold mb-2">
+                    Blockchain Technology
+                  </h3>
+                  <p class="text-gray-300 text-sm">
+                    Every vote is recorded on a decentralized blockchain,
+                    creating an immutable record that cannot be altered or
+                    deleted.
+                    <span class="tooltip text-primary">
+                      How it works
+                      <span class="tooltip-text text-xs">
+                        Votes are encrypted and stored as blocks in a chain.
+                        Each block contains a timestamp and link to the previous
+                        block, making it impossible to alter past records
+                        without detection.
+                      </span>
+                    </span>
+                  </p>
+                </div>
+              </div>
+              <div class="mt-4 p-3 bg-white bg-opacity-5 rounded-lg">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs text-gray-400">Tamper Resistance</span>
+                  <span class="text-xs text-primary">99.99%</span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-bar-fill" style="width: 99.99%"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- End-to-end Encryption -->
+            <div
+              class="glassmorphism rounded-lg p-5 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300"
+            >
+              <div class="flex items-start mb-4">
+                <div
+                  class="w-12 h-12 flex items-center justify-center bg-primary bg-opacity-20 rounded-full mr-4 shrink-0"
+                >
+                  <i class="ri-lock-password-line text-primary ri-lg"></i>
+                </div>
+                <div>
+                  <h3 class="text-xl font-semibold mb-2">
+                    End-to-end Encryption
+                  </h3>
+                  <p class="text-gray-300 text-sm">
+                    Your vote is encrypted from the moment you cast it until
+                    it's counted, ensuring only authorized systems can access
+                    it.
+                    <span class="tooltip text-primary">
+                      How it works
+                      <span class="tooltip-text text-xs">
+                        We use 256-bit AES encryption combined with RSA
+                        public-key cryptography to ensure that only the vote
+                        counting system can decrypt your ballot.
+                      </span>
+                    </span>
+                  </p>
+                </div>
+              </div>
+              <div class="mt-4 p-3 bg-white bg-opacity-5 rounded-lg">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs text-gray-400">Data Protection</span>
+                  <span class="text-xs text-primary">100%</span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-bar-fill" style="width: 100%"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Two-factor Authentication -->
+            <div
+              class="glassmorphism rounded-lg p-5 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300"
+            >
+              <div class="flex items-start mb-4">
+                <div
+                  class="w-12 h-12 flex items-center justify-center bg-primary bg-opacity-20 rounded-full mr-4 shrink-0"
+                >
+                  <i class="ri-fingerprint-line text-primary ri-lg"></i>
+                </div>
+                <div>
+                  <h3 class="text-xl font-semibold mb-2">
+                    Two-factor Authentication
+                  </h3>
+                  <p class="text-gray-300 text-sm">
+                    Multiple verification steps ensure only eligible voters can
+                    access the system and cast their vote.
+                    <span class="tooltip text-primary">
+                      How it works
+                      <span class="tooltip-text text-xs">
+                        After entering your credentials, a one-time code is sent
+                        to your registered mobile device or email to verify your
+                        identity before you can access the voting system.
+                      </span>
+                    </span>
+                  </p>
+                </div>
+              </div>
+              <div class="mt-4 p-3 bg-white bg-opacity-5 rounded-lg">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs text-gray-400"
+                    >Identity Verification</span
+                  >
+                  <span class="text-xs text-primary">99.7%</span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-bar-fill" style="width: 99.7%"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Audit Trail -->
+            <div
+              class="glassmorphism rounded-lg p-5 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300"
+            >
+              <div class="flex items-start mb-4">
+                <div
+                  class="w-12 h-12 flex items-center justify-center bg-primary bg-opacity-20 rounded-full mr-4 shrink-0"
+                >
+                  <i class="ri-file-list-3-line text-primary ri-lg"></i>
+                </div>
+                <div>
+                  <h3 class="text-xl font-semibold mb-2">Audit Trail</h3>
+                  <p class="text-gray-300 text-sm">
+                    A complete record of all voting activity is maintained while
+                    preserving voter anonymity.
+                    <span class="tooltip text-primary">
+                      How it works
+                      <span class="tooltip-text text-xs">
+                        The system records timestamps and actions without
+                        linking to personal identifiers, allowing for
+                        verification of process integrity without compromising
+                        voter privacy.
+                      </span>
+                    </span>
+                  </p>
+                </div>
+              </div>
+              <div class="mt-4 p-3 bg-white bg-opacity-5 rounded-lg">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs text-gray-400">Transparency</span>
+                  <span class="text-xs text-primary">98.5%</span>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-bar-fill" style="width: 98.5%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="mt-8 p-4 border border-primary border-opacity-30 bg-primary bg-opacity-5 rounded-lg"
+          >
+            <div class="flex items-start">
+              <div
+                class="w-6 h-6 flex items-center justify-center mt-0.5 mr-3 text-primary"
+              >
+                <i class="ri-information-line"></i>
+              </div>
+              <div>
+                <h4 class="font-semibold text-primary mb-1">
+                  Security Certifications
+                </h4>
+                <p class="text-sm text-gray-300">
+                  Our system has been certified by the National Institute of
+                  Standards and Technology (NIST) and undergoes regular security
+                  audits by independent cybersecurity firms.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step-by-Step Voting Process -->
+      <section id="process-section" class="mb-12">
+        <div class="glassmorphism rounded-lg p-6 md:p-8">
+          <h2 class="text-2xl md:text-3xl font-bold mb-6 flex items-center">
+            <div
+              class="w-8 h-8 flex items-center justify-center mr-3 bg-primary bg-opacity-20 rounded-full"
+            >
+              <i class="ri-number-1 text-primary ri-lg"></i>
+            </div>
+            Step-by-Step Voting Process
+          </h2>
+          <p class="text-gray-300 mb-8">
+            Follow these steps to cast your vote securely in any Digi-Vote
+            election.
+          </p>
+
+          <div class="space-y-8">
+            <!-- Step 1 -->
+            <div
+              class="glassmorphism rounded-lg p-5 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300"
+            >
+              <div class="flex flex-col md:flex-row gap-6">
+                <div class="md:w-1/3">
+                  <div class="relative h-48 rounded-lg overflow-hidden">
+                    <div
+                      style="background-image: url('https://readdy.ai/api/search-image?query=Person%2520logging%2520into%2520secure%2520voting%2520platform%2520on%2520laptop%252C%2520entering%2520credentials%2520with%2520security%2520lock%2520icon%2520visible%2520on%2520screen%252C%2520modern%2520clean%2520interface%252C%2520soft%2520lighting%252C%2520professional%2520setting%252C%2520high%2520quality%2520digital%2520render&width=400&height=300&seq=2&orientation=landscape'); background-size: cover; background-position: center;"
+                      class="absolute inset-0"
+                    ></div>
+                  </div>
+                </div>
+                <div class="md:w-2/3">
+                  <div class="flex items-center mb-3">
+                    <div
+                      class="w-10 h-10 flex items-center justify-center bg-primary text-white font-bold rounded-full mr-3"
+                    >
+                      1
+                    </div>
+                    <h3 class="text-xl font-semibold">
+                      Login & Authentication
+                    </h3>
+                    <span class="ml-auto text-xs text-gray-400"
+                      >Estimated time: 1 min</span
+                    >
+                  </div>
+                  <p class="text-gray-300 mb-4">
+                    Access the Digi-Vote platform using your registered
+                    credentials. You'll need your Voter ID and password to
+                    begin.
+                  </p>
+                  <div class="space-y-3">
+                    <div class="flex items-center">
+                      <div
+                        class="w-5 h-5 flex items-center justify-center mr-2 text-primary"
+                      >
+                        <i class="ri-check-line"></i>
+                      </div>
+                      <span class="text-sm text-gray-300"
+                        >Enter your Voter ID and password on the login
+                        screen</span
+                      >
+                    </div>
+                    <div class="flex items-center">
+                      <div
+                        class="w-5 h-5 flex items-center justify-center mr-2 text-primary"
+                      >
+                        <i class="ri-check-line"></i>
+                      </div>
+                      <span class="text-sm text-gray-300"
+                        >Complete the two-factor authentication by entering the
+                        code sent to your mobile device</span
+                      >
+                    </div>
+                    <div class="flex items-center">
+                      <div
+                        class="w-5 h-5 flex items-center justify-center mr-2 text-primary"
+                      >
+                        <i class="ri-check-line"></i>
+                      </div>
+                      <span class="text-sm text-gray-300"
+                        >Review and accept the terms and conditions for the
+                        voting process</span
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div
+              class="glassmorphism rounded-lg p-5 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300"
+            >
+              <div class="flex flex-col md:flex-row gap-6">
+                <div class="md:w-1/3">
+                  <div class="relative h-48 rounded-lg overflow-hidden">
+                    <div
+                      style="background-image: url('https://readdy.ai/api/search-image?query=Person%2520viewing%2520election%2520ballot%2520on%2520tablet%2520screen%2520with%2520multiple%2520candidates%2520and%2520options%252C%2520clean%2520interface%2520design%252C%2520professional%2520setting%252C%2520soft%2520lighting%252C%2520high%2520quality%2520digital%2520render&width=400&height=300&seq=3&orientation=landscape'); background-size: cover; background-position: center;"
+                      class="absolute inset-0"
+                    ></div>
+                  </div>
+                </div>
+                <div class="md:w-2/3">
+                  <div class="flex items-center mb-3">
+                    <div
+                      class="w-10 h-10 flex items-center justify-center bg-primary text-white font-bold rounded-full mr-3"
+                    >
+                      2
+                    </div>
+                    <h3 class="text-xl font-semibold">Ballot Selection</h3>
+                    <span class="ml-auto text-xs text-gray-400"
+                      >Estimated time: 2-5 mins</span
+                    >
+                  </div>
+                  <p class="text-gray-300 mb-4">
+                    View available elections and select the one you wish to
+                    participate in. You'll see all candidates or proposals with
+                    detailed information.
+                  </p>
+                  <div class="space-y-3">
+                    <div class="flex items-center">
+                      <div
+                        class="w-5 h-5 flex items-center justify-center mr-2 text-primary"
+                      >
+                        <i class="ri-check-line"></i>
+                      </div>
+                      <span class="text-sm text-gray-300"
+                        >Browse the list of active elections on your
+                        dashboard</span
+                      >
+                    </div>
+                    <div class="flex items-center">
+                      <div
+                        class="w-5 h-5 flex items-center justify-center mr-2 text-primary"
+                      >
+                        <i class="ri-check-line"></i>
+                      </div>
+                      <span class="text-sm text-gray-300"
+                        >Click on an election to view the ballot with candidates
+                        or proposals</span
+                      >
+                    </div>
+                    <div class="flex items-center">
+                      <div
+                        class="w-5 h-5 flex items-center justify-center mr-2 text-primary"
+                      >
+                        <i class="ri-check-line"></i>
+                      </div>
+                      <span class="text-sm text-gray-300"
+                        >Review candidate profiles or proposal details before
+                        making your selection</span
+                      >
+                    </div>
+                  </div>
+                  <div class="mt-4">
+                    <button
+                      class="text-primary text-sm hover:underline flex items-center"
+                    >
+                      <span>View sample ballot</span>
+                      <div
+                        class="w-4 h-4 flex items-center justify-center ml-1"
+                      >
+                        <i class="ri-external-link-line"></i>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div
+              class="glassmorphism rounded-lg p-5 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300"
+            >
+              <div class="flex flex-col md:flex-row gap-6">
+                <div class="md:w-1/3">
+                  <div class="relative h-48 rounded-lg overflow-hidden">
+                    <div
+                      style="background-image: url('https://readdy.ai/api/search-image?query=Person%2520making%2520selection%2520on%2520digital%2520ballot%252C%2520finger%2520touching%2520screen%2520to%2520select%2520candidate%252C%2520clean%2520interface%2520with%2520checkmarks%252C%2520professional%2520setting%252C%2520soft%2520lighting%252C%2520high%2520quality%2520digital%2520render&width=400&height=300&seq=4&orientation=landscape'); background-size: cover; background-position: center;"
+                      class="absolute inset-0"
+                    ></div>
+                  </div>
+                </div>
+                <div class="md:w-2/3">
+                  <div class="flex items-center mb-3">
+                    <div
+                      class="w-10 h-10 flex items-center justify-center bg-primary text-white font-bold rounded-full mr-3"
+                    >
+                      3
+                    </div>
+                    <h3 class="text-xl font-semibold">Cast Your Vote</h3>
+                    <span class="ml-auto text-xs text-gray-400"
+                      >Estimated time: 1-2 mins</span
+                    >
+                  </div>
+                  <p class="text-gray-300 mb-4">
+                    Make your selection by clicking on your preferred candidate
+                    or option. You can review your choice before final
+                    submission.
+                  </p>
+                  <div class="space-y-3">
+                    <div class="flex items-center">
+                      <div
+                        class="w-5 h-5 flex items-center justify-center mr-2 text-primary"
+                      >
+                        <i class="ri-check-line"></i>
+                      </div>
+                      <span class="text-sm text-gray-300"
+                        >Select your preferred candidate or option by clicking
+                        on their name or the radio button</span
+                      >
+                    </div>
+                    <div class="flex items-center">
+                      <div
+                        class="w-5 h-5 flex items-center justify-center mr-2 text-primary"
+                      >
+                        <i class="ri-check-line"></i>
+                      </div>
+                      <span class="text-sm text-gray-300"
+                        >For multiple-selection ballots, you can choose up to
+                        the maximum allowed options</span
+                      >
+                    </div>
+                    <div class="flex items-center">
+                      <div
+                        class="w-5 h-5 flex items-center justify-center mr-2 text-primary"
+                      >
+                        <i class="ri-check-line"></i>
+                      </div>
+                      <span class="text-sm text-gray-300"
+                        >Review your selection on the confirmation screen before
+                        submitting</span
+                      >
+                    </div>
+                  </div>
+                  <div class="mt-4 p-3 bg-white bg-opacity-5 rounded-lg">
+                    <div class="flex items-center">
+                      <div
+                        class="w-6 h-6 flex items-center justify-center mr-2 text-yellow-400"
+                      >
+                        <i class="ri-information-line"></i>
+                      </div>
+                      <p class="text-sm text-gray-300">
+                        Once submitted, your vote cannot be changed. Take your
+                        time to make your selection.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div
+              class="glassmorphism rounded-lg p-5 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300"
+            >
+              <div class="flex flex-col md:flex-row gap-6">
+                <div class="md:w-1/3">
+                  <div class="relative h-48 rounded-lg overflow-hidden">
+                    <div
+                      style="background-image: url('https://readdy.ai/api/search-image?query=Digital%2520vote%2520confirmation%2520screen%2520with%2520checkmark%2520and%2520success%2520message%252C%2520receipt%2520being%2520generated%252C%2520clean%2520interface%2520design%252C%2520professional%2520setting%252C%2520soft%2520lighting%252C%2520high%2520quality%2520digital%2520render&width=400&height=300&seq=5&orientation=landscape'); background-size: cover; background-position: center;"
+                      class="absolute inset-0"
+                    ></div>
+                  </div>
+                </div>
+                <div class="md:w-2/3">
+                  <div class="flex items-center mb-3">
+                    <div
+                      class="w-10 h-10 flex items-center justify-center bg-primary text-white font-bold rounded-full mr-3"
+                    >
+                      4
+                    </div>
+                    <h3 class="text-xl font-semibold">
+                      Verification & Confirmation
+                    </h3>
+                    <span class="ml-auto text-xs text-gray-400"
+                      >Estimated time: 1 min</span
+                    >
+                  </div>
+                  <p class="text-gray-300 mb-4">
+                    After submitting your vote, you'll receive a confirmation
+                    with a unique receipt number that you can use to verify your
+                    vote was counted.
+                  </p>
+                  <div class="space-y-3">
+                    <div class="flex items-center">
+                      <div
+                        class="w-5 h-5 flex items-center justify-center mr-2 text-primary"
+                      >
+                        <i class="ri-check-line"></i>
+                      </div>
+                      <span class="text-sm text-gray-300"
+                        >Receive an on-screen confirmation that your vote was
+                        successfully recorded</span
+                      >
+                    </div>
+                    <div class="flex items-center">
+                      <div
+                        class="w-5 h-5 flex items-center justify-center mr-2 text-primary"
+                      >
+                        <i class="ri-check-line"></i>
+                      </div>
+                      <span class="text-sm text-gray-300"
+                        >Note your unique receipt number for future
+                        reference</span
+                      >
+                    </div>
+                    <div class="flex items-center">
+                      <div
+                        class="w-5 h-5 flex items-center justify-center mr-2 text-primary"
+                      >
+                        <i class="ri-check-line"></i>
+                      </div>
+                      <span class="text-sm text-gray-300"
+                        >Receive an email confirmation with your receipt number
+                        (optional)</span
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 5 -->
+            <div
+              class="glassmorphism rounded-lg p-5 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300"
+            >
+              <div class="flex flex-col md:flex-row gap-6">
+                <div class="md:w-1/3">
+                  <div class="relative h-48 rounded-lg overflow-hidden">
+                    <div
+                      style="background-image: url('https://readdy.ai/api/search-image?query=Person%2520viewing%2520election%2520results%2520dashboard%2520with%2520charts%2520and%2520statistics%252C%2520clean%2520interface%2520design%252C%2520professional%2520setting%252C%2520soft%2520lighting%252C%2520high%2520quality%2520digital%2520render&width=400&height=300&seq=6&orientation=landscape'); background-size: cover; background-position: center;"
+                      class="absolute inset-0"
+                    ></div>
+                  </div>
+                </div>
+                <div class="md:w-2/3">
+                  <div class="flex items-center mb-3">
+                    <div
+                      class="w-10 h-10 flex items-center justify-center bg-primary text-white font-bold rounded-full mr-3"
+                    >
+                      5
+                    </div>
+                    <h3 class="text-xl font-semibold">
+                      Results & Verification
+                    </h3>
+                    <span class="ml-auto text-xs text-gray-400"
+                      >Available after election closes</span
+                    >
+                  </div>
+                  <p class="text-gray-300 mb-4">
+                    Once the election closes, results are tallied and published.
+                    You can verify your vote was included in the final count
+                    using your receipt number.
+                  </p>
+                  <div class="space-y-3">
+                    <div class="flex items-center">
+                      <div
+                        class="w-5 h-5 flex items-center justify-center mr-2 text-primary"
+                      >
+                        <i class="ri-check-line"></i>
+                      </div>
+                      <span class="text-sm text-gray-300"
+                        >View election results on the results page after voting
+                        closes</span
+                      >
+                    </div>
+                    <div class="flex items-center">
+                      <div
+                        class="w-5 h-5 flex items-center justify-center mr-2 text-primary"
+                      >
+                        <i class="ri-check-line"></i>
+                      </div>
+                      <span class="text-sm text-gray-300"
+                        >Use the verification tool to confirm your vote was
+                        included in the final tally</span
+                      >
+                    </div>
+                    <div class="flex items-center">
+                      <div
+                        class="w-5 h-5 flex items-center justify-center mr-2 text-primary"
+                      >
+                        <i class="ri-check-line"></i>
+                      </div>
+                      <span class="text-sm text-gray-300"
+                        >Access detailed analytics and breakdowns of the voting
+                        results</span
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-8 flex justify-center">
+            <button
+              class="bg-primary bg-opacity-20 text-primary px-6 py-3 !rounded-button hover:bg-opacity-30 transition-all duration-300 whitespace-nowrap flex items-center"
+            >
+              <div class="w-5 h-5 flex items-center justify-center mr-2">
+                <i class="ri-play-circle-line"></i>
+              </div>
+              <span>Watch Interactive Demo</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Technology Overview -->
+      <section id="technology-section" class="mb-12">
+        <div class="glassmorphism rounded-lg p-6 md:p-8">
+          <h2 class="text-2xl md:text-3xl font-bold mb-6 flex items-center">
+            <div
+              class="w-8 h-8 flex items-center justify-center mr-3 bg-primary bg-opacity-20 rounded-full"
+            >
+              <i class="ri-cpu-line text-primary ri-lg"></i>
+            </div>
+            Technology Behind Digi-Vote
+          </h2>
+          <p class="text-gray-300 mb-8">
+            Our platform is built on cutting-edge technologies to ensure
+            security, transparency, and reliability.
+          </p>
+
+          <!-- System Architecture Diagram -->
+          <div class="mb-8">
+            <h3 class="text-xl font-semibold mb-4">System Architecture</h3>
+            <div class="glassmorphism rounded-lg p-4 overflow-hidden">
+              <div id="architecture-chart" class="h-80"></div>
+            </div>
+          </div>
+
+          <!-- Key Technologies -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div
+              class="glassmorphism rounded-lg p-5 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300"
+            >
+              <div
+                class="w-12 h-12 flex items-center justify-center bg-primary bg-opacity-20 rounded-full mb-4"
+              >
+                <i class="ri-database-2-line text-primary ri-lg"></i>
+              </div>
+              <h3 class="text-lg font-semibold mb-2">Distributed Ledger</h3>
+              <p class="text-sm text-gray-300">
+                Our blockchain implementation uses a distributed ledger
+                technology that maintains multiple synchronized copies of the
+                voting record across secure nodes.
+              </p>
+              <div class="mt-4 flex items-center">
+                <div class="w-3 h-3 bg-primary rounded-full mr-2"></div>
+                <span class="text-xs text-gray-400">99.999% Uptime</span>
+              </div>
+            </div>
+
+            <div
+              class="glassmorphism rounded-lg p-5 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300"
+            >
+              <div
+                class="w-12 h-12 flex items-center justify-center bg-primary bg-opacity-20 rounded-full mb-4"
+              >
+                <i class="ri-lock-2-line text-primary ri-lg"></i>
+              </div>
+              <h3 class="text-lg font-semibold mb-2">Cryptographic Security</h3>
+              <p class="text-sm text-gray-300">
+                Military-grade encryption protects all data in transit and at
+                rest. We use asymmetric key pairs to ensure only authorized
+                systems can decrypt votes.
+              </p>
+              <div class="mt-4 flex items-center">
+                <div class="w-3 h-3 bg-primary rounded-full mr-2"></div>
+                <span class="text-xs text-gray-400"
+                  >256-bit AES Encryption</span
+                >
+              </div>
+            </div>
+
+            <div
+              class="glassmorphism rounded-lg p-5 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300"
+            >
+              <div
+                class="w-12 h-12 flex items-center justify-center bg-primary bg-opacity-20 rounded-full mb-4"
+              >
+                <i class="ri-fingerprint-2-line text-primary ri-lg"></i>
+              </div>
+              <h3 class="text-lg font-semibold mb-2">Identity Verification</h3>
+              <p class="text-sm text-gray-300">
+                Multi-factor authentication combines something you know
+                (password), something you have (mobile device), and optional
+                biometric verification.
+              </p>
+              <div class="mt-4 flex items-center">
+                <div class="w-3 h-3 bg-primary rounded-full mr-2"></div>
+                <span class="text-xs text-gray-400">NIST 800-63 Compliant</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Data Flow Diagram -->
+          <div class="mb-8">
+            <h3 class="text-xl font-semibold mb-4">Data Flow</h3>
+            <div class="glassmorphism rounded-lg p-5">
+              <div class="relative h-64 md:h-80">
+                <div
+                  style="background-image: url('https://readdy.ai/api/search-image?query=Digital%2520voting%2520data%2520flow%2520diagram%2520showing%2520secure%2520path%2520from%2520voter%2520to%2520blockchain%2520with%2520encryption%2520nodes%252C%2520verification%2520steps%252C%2520and%2520counting%2520mechanism%252C%2520modern%2520tech%2520design%2520with%2520glowing%2520lines%2520on%2520dark%2520background&width=1200&height=500&seq=7&orientation=landscape'); background-size: cover; background-position: center;"
+                  class="absolute inset-0 rounded-lg"
+                ></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Security Certifications -->
+          <div>
+            <h3 class="text-xl font-semibold mb-4">
+              Security Certifications & Compliance
+            </h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div
+                class="glassmorphism rounded-lg p-4 flex flex-col items-center justify-center text-center"
+              >
+                <div class="w-12 h-12 flex items-center justify-center mb-2">
+                  <i class="ri-shield-check-fill text-primary ri-2x"></i>
+                </div>
+                <h4 class="text-sm font-semibold mb-1">NIST Certified</h4>
+                <p class="text-xs text-gray-400">
+                  Meets NIST 800-53 security controls
+                </p>
+              </div>
+              <div
+                class="glassmorphism rounded-lg p-4 flex flex-col items-center justify-center text-center"
+              >
+                <div class="w-12 h-12 flex items-center justify-center mb-2">
+                  <i class="ri-lock-fill text-primary ri-2x"></i>
+                </div>
+                <h4 class="text-sm font-semibold mb-1">SOC 2 Type II</h4>
+                <p class="text-xs text-gray-400">
+                  Audited for security & availability
+                </p>
+              </div>
+              <div
+                class="glassmorphism rounded-lg p-4 flex flex-col items-center justify-center text-center"
+              >
+                <div class="w-12 h-12 flex items-center justify-center mb-2">
+                  <i class="ri-global-fill text-primary ri-2x"></i>
+                </div>
+                <h4 class="text-sm font-semibold mb-1">ISO 27001</h4>
+                <p class="text-xs text-gray-400">
+                  Information security management
+                </p>
+              </div>
+              <div
+                class="glassmorphism rounded-lg p-4 flex flex-col items-center justify-center text-center"
+              >
+                <div class="w-12 h-12 flex items-center justify-center mb-2">
+                  <i class="ri-eye-fill text-primary ri-2x"></i>
+                </div>
+                <h4 class="text-sm font-semibold mb-1">Penetration Tested</h4>
+                <p class="text-xs text-gray-400">
+                  Quarterly by independent firms
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Verification Methods -->
+      <section id="verification-section" class="mb-12">
+        <div class="glassmorphism rounded-lg p-6 md:p-8">
+          <h2 class="text-2xl md:text-3xl font-bold mb-6 flex items-center">
+            <div
+              class="w-8 h-8 flex items-center justify-center mr-3 bg-primary bg-opacity-20 rounded-full"
+            >
+              <i class="ri-checkbox-circle-line text-primary ri-lg"></i>
+            </div>
+            Verification Methods
+          </h2>
+          <p class="text-gray-300 mb-8">
+            Digi-Vote provides multiple ways to verify your vote was correctly
+            recorded and counted.
+          </p>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- QR Code Verification -->
+            <div
+              class="glassmorphism rounded-lg p-5 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300"
+            >
+              <div class="flex flex-col md:flex-row gap-6">
+                <div class="md:w-1/3 flex justify-center">
+                  <div
+                    class="w-32 h-32 bg-white p-2 rounded-lg flex items-center justify-center"
+                  >
+                    <div class="w-full h-full bg-black rounded-sm relative">
+                      <div
+                        class="absolute inset-2 grid grid-cols-5 grid-rows-5 gap-0.5"
+                      >
+                        <div class="bg-white rounded-sm"></div>
+                        <div class="bg-white rounded-sm"></div>
+                        <div class="bg-white rounded-sm"></div>
+                        <div class="bg-white rounded-sm"></div>
+                        <div class="bg-white rounded-sm"></div>
+                        <div class="bg-white rounded-sm"></div>
+                        <div class="bg-black rounded-sm"></div>
+                        <div class="bg-black rounded-sm"></div>
+                        <div class="bg-black rounded-sm"></div>
+                        <div class="bg-white rounded-sm"></div>
+                        <div class="bg-white rounded-sm"></div>
+                        <div class="bg-black rounded-sm"></div>
+                        <div class="bg-white rounded-sm"></div>
+                        <div class="bg-black rounded-sm"></div>
+                        <div class="bg-white rounded-sm"></div>
+                        <div class="bg-white rounded-sm"></div>
+                        <div class="bg-black rounded-sm"></div>
+                        <div class="bg-white rounded-sm"></div>
+                        <div class="bg-black rounded-sm"></div>
+                        <div class="bg-white rounded-sm"></div>
+                        <div class="bg-white rounded-sm"></div>
+                        <div class="bg-white rounded-sm"></div>
+                        <div class="bg-white rounded-sm"></div>
+                        <div class="bg-white rounded-sm"></div>
+                        <div class="bg-white rounded-sm"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="md:w-2/3">
+                  <h3 class="text-xl font-semibold mb-3">
+                    QR Code Verification
+                  </h3>
+                  <p class="text-gray-300 mb-4">
+                    Each vote generates a unique QR code that contains your
+                    encrypted vote receipt. You can scan this code later to
+                    verify your vote.
+                  </p>
+                  <div class="space-y-3">
+                    <div class="flex items-start">
+                      <div
+                        class="w-5 h-5 flex items-center justify-center mr-2 mt-0.5 text-primary"
+                      >
+                        <i class="ri-number-1"></i>
+                      </div>
+                      <span class="text-sm text-gray-300"
+                        >Save the QR code displayed after voting (screenshot or
+                        download)</span
+                      >
+                    </div>
+                    <div class="flex items-start">
+                      <div
+                        class="w-5 h-5 flex items-center justify-center mr-2 mt-0.5 text-primary"
+                      >
+                        <i class="ri-number-2"></i>
+                      </div>
+                      <span class="text-sm text-gray-300"
+                        >Visit the verification portal after results are
+                        published</span
+                      >
+                    </div>
+                    <div class="flex items-start">
+                      <div
+                        class="w-5 h-5 flex items-center justify-center mr-2 mt-0.5 text-primary"
+                      >
+                        <i class="ri-number-3"></i>
+                      </div>
+                      <span class="text-sm text-gray-300"
+                        >Scan or upload your QR code to confirm your vote was
+                        counted</span
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Receipt Verification -->
+            <div
+              class="glassmorphism rounded-lg p-5 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300"
+            >
+              <div class="flex flex-col md:flex-row gap-6">
+                <div class="md:w-1/3 flex justify-center">
+                  <div
+                    class="w-32 h-32 glassmorphism p-3 rounded-lg flex flex-col justify-center"
+                  >
+                    <div class="text-xs text-gray-400 mb-1">Receipt ID</div>
+                    <div class="text-primary font-mono text-sm mb-2">
+                      DV-2025-06-07-A59F3
+                    </div>
+                    <div class="w-full h-0.5 bg-white bg-opacity-10 mb-2"></div>
+                    <div class="text-xs text-gray-400 mb-1">Timestamp</div>
+                    <div class="text-white font-mono text-sm">
+                      2025-06-07 14:32:18 UTC
+                    </div>
+                  </div>
+                </div>
+                <div class="md:w-2/3">
+                  <h3 class="text-xl font-semibold mb-3">
+                    Receipt Verification
+                  </h3>
+                  <p class="text-gray-300 mb-4">
+                    Each vote generates a unique receipt ID that you can use to
+                    verify your vote was included in the final tally.
+                  </p>
+                  <div class="space-y-3">
+                    <div class="flex items-start">
+                      <div
+                        class="w-5 h-5 flex items-center justify-center mr-2 mt-0.5 text-primary"
+                      >
+                        <i class="ri-number-1"></i>
+                      </div>
+                      <span class="text-sm text-gray-300"
+                        >Record the receipt ID shown after voting
+                        completion</span
+                      >
+                    </div>
+                    <div class="flex items-start">
+                      <div
+                        class="w-5 h-5 flex items-center justify-center mr-2 mt-0.5 text-primary"
+                      >
+                        <i class="ri-number-2"></i>
+                      </div>
+                      <span class="text-sm text-gray-300"
+                        >Enter this ID in the verification portal after results
+                        are published</span
+                      >
+                    </div>
+                    <div class="flex items-start">
+                      <div
+                        class="w-5 h-5 flex items-center justify-center mr-2 mt-0.5 text-primary"
+                      >
+                        <i class="ri-number-3"></i>
+                      </div>
+                      <span class="text-sm text-gray-300"
+                        >Confirm your vote was included without revealing your
+                        specific choices</span
+                      >
+                    </div>
+                  </div>
+                  <div class="mt-4">
+                    <div class="relative">
+                      <input
+                        type="text"
+                        placeholder="Enter your receipt ID"
+                        class="w-full bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg px-4 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50 border-none"
+                      />
+                      <button
+                        class="absolute right-2 top-1/2 transform -translate-y-1/2 text-primary"
+                      >
+                        <div class="w-6 h-6 flex items-center justify-center">
+                          <i class="ri-search-line"></i>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Blockchain Explorer -->
+            <div
+              class="glassmorphism rounded-lg p-5 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300"
+            >
+              <div class="flex flex-col md:flex-row gap-6">
+                <div class="md:w-1/3">
+                  <div class="relative h-32 rounded-lg overflow-hidden">
+                    <div
+                      style="background-image: url('https://readdy.ai/api/search-image?query=Blockchain%2520explorer%2520interface%2520showing%2520blocks%2520of%2520data%2520with%2520timestamps%2520and%2520hash%2520values%252C%2520modern%2520tech%2520design%2520with%2520glowing%2520connections%2520on%2520dark%2520background&width=400&height=200&seq=8&orientation=landscape'); background-size: cover; background-position: center;"
+                      class="absolute inset-0"
+                    ></div>
+                  </div>
+                </div>
+                <div class="md:w-2/3">
+                  <h3 class="text-xl font-semibold mb-3">
+                    Blockchain Explorer
+                  </h3>
+                  <p class="text-gray-300 mb-4">
+                    For advanced users, our public blockchain explorer allows
+                    you to verify all votes have been correctly recorded on the
+                    blockchain.
+                  </p>
+                  <div class="space-y-3">
+                    <div class="flex items-start">
+                      <div
+                        class="w-5 h-5 flex items-center justify-center mr-2 mt-0.5 text-primary"
+                      >
+                        <i class="ri-check-line"></i>
+                      </div>
+                      <span class="text-sm text-gray-300"
+                        >Access the public blockchain explorer to view all
+                        anonymized vote transactions</span
+                      >
+                    </div>
+                    <div class="flex items-start">
+                      <div
+                        class="w-5 h-5 flex items-center justify-center mr-2 mt-0.5 text-primary"
+                      >
+                        <i class="ri-check-line"></i>
+                      </div>
+                      <span class="text-sm text-gray-300"
+                        >Search for your transaction using your receipt ID</span
+                      >
+                    </div>
+                    <div class="flex items-start">
+                      <div
+                        class="w-5 h-5 flex items-center justify-center mr-2 mt-0.5 text-primary"
+                      >
+                        <i class="ri-check-line"></i>
+                      </div>
+                      <span class="text-sm text-gray-300"
+                        >Verify the timestamp and integrity of your vote
+                        record</span
+                      >
+                    </div>
+                  </div>
+                  <div class="mt-4">
+                    <button
+                      class="text-primary text-sm hover:underline flex items-center"
+                    >
+                      <span>Open Blockchain Explorer</span>
+                      <div
+                        class="w-4 h-4 flex items-center justify-center ml-1"
+                      >
+                        <i class="ri-external-link-line"></i>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Audit Access -->
+            <div
+              class="glassmorphism rounded-lg p-5 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300"
+            >
+              <div class="flex flex-col md:flex-row gap-6">
+                <div class="md:w-1/3">
+                  <div class="relative h-32 rounded-lg overflow-hidden">
+                    <div
+                      style="background-image: url('https://readdy.ai/api/search-image?query=Digital%2520audit%2520trail%2520interface%2520showing%2520log%2520entries%2520with%2520timestamps%2520and%2520action%2520codes%252C%2520modern%2520tech%2520design%2520with%2520clean%2520layout%2520on%2520dark%2520background&width=400&height=200&seq=9&orientation=landscape'); background-size: cover; background-position: center;"
+                      class="absolute inset-0"
+                    ></div>
+                  </div>
+                </div>
+                <div class="md:w-2/3">
+                  <h3 class="text-xl font-semibold mb-3">Audit Trail Access</h3>
+                  <p class="text-gray-300 mb-4">
+                    Digi-Vote maintains a complete audit trail of all system
+                    activities while preserving voter anonymity.
+                  </p>
+                  <div class="space-y-3">
+                    <div class="flex items-start">
+                      <div
+                        class="w-5 h-5 flex items-center justify-center mr-2 mt-0.5 text-primary"
+                      >
+                        <i class="ri-check-line"></i>
+                      </div>
+                      <span class="text-sm text-gray-300"
+                        >System logs record all voting activities without
+                        linking to personal identifiers</span
+                      >
+                    </div>
+                    <div class="flex items-start">
+                      <div
+                        class="w-5 h-5 flex items-center justify-center mr-2 mt-0.5 text-primary"
+                      >
+                        <i class="ri-check-line"></i>
+                      </div>
+                      <span class="text-sm text-gray-300"
+                        >Independent auditors verify the integrity of the entire
+                        voting process</span
+                      >
+                    </div>
+                    <div class="flex items-start">
+                      <div
+                        class="w-5 h-5 flex items-center justify-center mr-2 mt-0.5 text-primary"
+                      >
+                        <i class="ri-check-line"></i>
+                      </div>
+                      <span class="text-sm text-gray-300"
+                        >Public audit reports are published after each
+                        election</span
+                      >
+                    </div>
+                  </div>
+                  <div class="mt-4">
+                    <button
+                      class="text-primary text-sm hover:underline flex items-center"
+                    >
+                      <span>View Latest Audit Report</span>
+                      <div
+                        class="w-4 h-4 flex items-center justify-center ml-1"
+                      >
+                        <i class="ri-file-text-line"></i>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="mt-8 p-4 border border-yellow-500 border-opacity-30 bg-yellow-500 bg-opacity-5 rounded-lg"
+          >
+            <div class="flex items-start">
+              <div
+                class="w-6 h-6 flex items-center justify-center mt-0.5 mr-3 text-yellow-500"
+              >
+                <i class="ri-lightbulb-line"></i>
+              </div>
+              <div>
+                <h4 class="font-semibold text-yellow-400 mb-1">
+                  Verification Best Practice
+                </h4>
+                <p class="text-sm text-gray-300">
+                  For maximum confidence in the voting process, we recommend
+                  using at least two different verification methods to confirm
+                  your vote was correctly recorded and counted.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FAQ Section -->
+      <section id="faq-section" class="mb-12">
+        <div class="glassmorphism rounded-lg p-6 md:p-8">
+          <h2 class="text-2xl md:text-3xl font-bold mb-6 flex items-center">
+            <div
+              class="w-8 h-8 flex items-center justify-center mr-3 bg-primary bg-opacity-20 rounded-full"
+            >
+              <i class="ri-question-line text-primary ri-lg"></i>
+            </div>
+            Frequently Asked Questions
+          </h2>
+          <p class="text-gray-300 mb-8">
+            Find answers to common questions about the Digi-Vote system and
+            process.
+          </p>
+
+          <div class="mb-6">
+            <div class="relative">
+              <input
+                type="text"
+                placeholder="Search FAQs..."
+                class="w-full bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg px-4 py-3 pl-10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50 border-none"
+              />
+              <div
+                class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              >
+                <div class="w-5 h-5 flex items-center justify-center">
+                  <i class="ri-search-line"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <!-- FAQ Item 1 -->
+            <div class="faq-item pb-4">
+              <div class="flex items-center justify-between cursor-pointer">
+                <h3 class="text-lg font-medium">
+                  Is my vote really anonymous?
+                </h3>
+                <div
+                  class="w-6 h-6 flex items-center justify-center text-primary faq-toggle"
+                >
+                  <i class="ri-add-line"></i>
+                </div>
+              </div>
+              <div class="faq-answer pt-2">
+                <p class="text-gray-300 text-sm">
+                  Yes, your vote is completely anonymous. While the system
+                  verifies your identity to ensure you're eligible to vote, once
+                  your ballot is submitted, it's separated from your personal
+                  information. The blockchain records only encrypted votes that
+                  cannot be traced back to individual voters. Even system
+                  administrators cannot link votes to specific voters.
+                </p>
+              </div>
+            </div>
+
+            <!-- FAQ Item 2 -->
+            <div class="faq-item pb-4">
+              <div class="flex items-center justify-between cursor-pointer">
+                <h3 class="text-lg font-medium">
+                  What happens if I lose my internet connection while voting?
+                </h3>
+                <div
+                  class="w-6 h-6 flex items-center justify-center text-primary faq-toggle"
+                >
+                  <i class="ri-add-line"></i>
+                </div>
+              </div>
+              <div class="faq-answer pt-2">
+                <p class="text-gray-300 text-sm">
+                  The Digi-Vote system is designed to handle connection
+                  interruptions. If you lose your connection during the voting
+                  process but before submitting your ballot, your selections
+                  will be saved temporarily on your device. When you reconnect
+                  and log back in, you can continue from where you left off.
+                  However, if the connection is lost during the actual
+                  submission process, your vote might not be recorded, and
+                  you'll need to start over.
+                </p>
+              </div>
+            </div>
+
+            <!-- FAQ Item 3 -->
+            <div class="faq-item pb-4">
+              <div class="flex items-center justify-between cursor-pointer">
+                <h3 class="text-lg font-medium">
+                  Can I change my vote after submitting it?
+                </h3>
+                <div
+                  class="w-6 h-6 flex items-center justify-center text-primary faq-toggle"
+                >
+                  <i class="ri-add-line"></i>
+                </div>
+              </div>
+              <div class="faq-answer pt-2">
+                <p class="text-gray-300 text-sm">
+                  No, once your vote is submitted and confirmed, it cannot be
+                  changed or retracted. This is why we include a review step
+                  before final submission, allowing you to verify your
+                  selections. This immutability is a key security feature of the
+                  blockchain technology that powers our system, ensuring votes
+                  cannot be altered after they're cast.
+                </p>
+              </div>
+            </div>
+
+            <!-- FAQ Item 4 -->
+            <div class="faq-item pb-4">
+              <div class="flex items-center justify-between cursor-pointer">
+                <h3 class="text-lg font-medium">
+                  What devices can I use to vote?
+                </h3>
+                <div
+                  class="w-6 h-6 flex items-center justify-center text-primary faq-toggle"
+                >
+                  <i class="ri-add-line"></i>
+                </div>
+              </div>
+              <div class="faq-answer pt-2">
+                <p class="text-gray-300 text-sm">
+                  Digi-Vote is compatible with most modern devices and browsers.
+                  You can vote using a desktop computer, laptop, tablet, or
+                  smartphone. We recommend using the latest version of Chrome,
+                  Firefox, Safari, or Edge browsers for the best experience. The
+                  system is responsive and will adapt to your screen size,
+                  though a larger screen provides a better viewing experience
+                  for some elections with complex ballots.
+                </p>
+              </div>
+            </div>
+
+            <!-- FAQ Item 5 -->
+            <div class="faq-item pb-4">
+              <div class="flex items-center justify-between cursor-pointer">
+                <h3 class="text-lg font-medium">
+                  How do I know my vote was counted correctly?
+                </h3>
+                <div
+                  class="w-6 h-6 flex items-center justify-center text-primary faq-toggle"
+                >
+                  <i class="ri-add-line"></i>
+                </div>
+              </div>
+              <div class="faq-answer pt-2">
+                <p class="text-gray-300 text-sm">
+                  After submitting your vote, you'll receive a unique receipt ID
+                  and QR code. Once the election closes, you can use these to
+                  verify that your vote was included in the final tally through
+                  our verification portal. This verification process confirms
+                  your vote was recorded and counted without revealing your
+                  specific choices, maintaining your privacy while ensuring
+                  transparency.
+                </p>
+              </div>
+            </div>
+
+            <!-- FAQ Item 6 -->
+            <div class="faq-item pb-4">
+              <div class="flex items-center justify-between cursor-pointer">
+                <h3 class="text-lg font-medium">
+                  What if I need assistance during the voting process?
+                </h3>
+                <div
+                  class="w-6 h-6 flex items-center justify-center text-primary faq-toggle"
+                >
+                  <i class="ri-add-line"></i>
+                </div>
+              </div>
+              <div class="faq-answer pt-2">
+                <p class="text-gray-300 text-sm">
+                  Help is available throughout the voting process. You can use
+                  the "Help" button on any screen to access context-specific
+                  guidance. For more assistance, our support team is available
+                  via live chat during voting hours, or you can call our support
+                  hotline at +1 (555) 987-6543. If you have a disability that
+                  requires special accommodation, please contact our
+                  accessibility team before the election.
+                </p>
+              </div>
+            </div>
+
+            <!-- FAQ Item 7 -->
+            <div class="faq-item pb-4">
+              <div class="flex items-center justify-between cursor-pointer">
+                <h3 class="text-lg font-medium">
+                  Has the system ever been hacked?
+                </h3>
+                <div
+                  class="w-6 h-6 flex items-center justify-center text-primary faq-toggle"
+                >
+                  <i class="ri-add-line"></i>
+                </div>
+              </div>
+              <div class="faq-answer pt-2">
+                <p class="text-gray-300 text-sm">
+                  No, the Digi-Vote system has never been successfully hacked.
+                  We employ multiple layers of security and conduct regular
+                  security audits and penetration testing by independent
+                  cybersecurity firms. Our blockchain technology makes the
+                  system inherently resistant to tampering. We also maintain a
+                  bug bounty program where security researchers can responsibly
+                  disclose vulnerabilities, helping us continuously improve our
+                  security posture.
+                </p>
+              </div>
+            </div>
+
+            <!-- FAQ Item 8 -->
+            <div class="faq-item pb-4">
+              <div class="flex items-center justify-between cursor-pointer">
+                <h3 class="text-lg font-medium">
+                  What happens to my data after the election?
+                </h3>
+                <div
+                  class="w-6 h-6 flex items-center justify-center text-primary faq-toggle"
+                >
+                  <i class="ri-add-line"></i>
+                </div>
+              </div>
+              <div class="faq-answer pt-2">
+                <p class="text-gray-300 text-sm">
+                  Your anonymized vote remains permanently on the blockchain for
+                  verification and audit purposes. However, personal
+                  identification data used for authentication is stored
+                  separately and is retained only as long as required by
+                  applicable regulations. After this period, personal data is
+                  securely deleted while maintaining the integrity of the
+                  anonymous voting record.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-8 text-center">
+            <p class="text-gray-400 mb-4">Don't see your question here?</p>
+            <button
+              class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-80 transition-all duration-300 whitespace-nowrap flex items-center mx-auto"
+            >
+              <div class="w-5 h-5 flex items-center justify-center mr-2">
+                <i class="ri-customer-service-2-line"></i>
+              </div>
+              <span>Contact Support</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Help Resources -->
+      <section id="resources-section" class="mb-12">
+        <div class="glassmorphism rounded-lg p-6 md:p-8">
+          <h2 class="text-2xl md:text-3xl font-bold mb-6 flex items-center">
+            <div
+              class="w-8 h-8 flex items-center justify-center mr-3 bg-primary bg-opacity-20 rounded-full"
+            >
+              <i class="ri-book-open-line text-primary ri-lg"></i>
+            </div>
+            Help Resources
+          </h2>
+          <p class="text-gray-300 mb-8">
+            Additional resources to help you understand and use the Digi-Vote
+            system.
+          </p>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Video Tutorials -->
+            <div
+              class="glassmorphism rounded-lg p-5 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300"
+            >
+              <div
+                class="w-12 h-12 flex items-center justify-center bg-primary bg-opacity-20 rounded-full mb-4"
+              >
+                <i class="ri-video-line text-primary ri-lg"></i>
+              </div>
+              <h3 class="text-lg font-semibold mb-2">Video Tutorials</h3>
+              <p class="text-sm text-gray-300 mb-4">
+                Watch step-by-step video guides explaining every aspect of the
+                voting process.
+              </p>
+              <div class="space-y-2">
+                <div class="flex items-center">
+                  <div
+                    class="w-5 h-5 flex items-center justify-center mr-2 text-primary"
+                  >
+                    <i class="ri-play-circle-line"></i>
+                  </div>
+                  <span class="text-sm text-gray-300"
+                    >Getting Started with Digi-Vote</span
+                  >
+                </div>
+                <div class="flex items-center">
+                  <div
+                    class="w-5 h-5 flex items-center justify-center mr-2 text-primary"
+                  >
+                    <i class="ri-play-circle-line"></i>
+                  </div>
+                  <span class="text-sm text-gray-300"
+                    >How to Verify Your Vote</span
+                  >
+                </div>
+                <div class="flex items-center">
+                  <div
+                    class="w-5 h-5 flex items-center justify-center mr-2 text-primary"
+                  >
+                    <i class="ri-play-circle-line"></i>
+                  </div>
+                  <span class="text-sm text-gray-300"
+                    >Understanding Blockchain Security</span
+                  >
+                </div>
+              </div>
+              <button
+                class="w-full bg-white bg-opacity-5 text-white mt-4 py-2 !rounded-button hover:bg-opacity-10 transition-all duration-300 whitespace-nowrap flex items-center justify-center"
+              >
+                <span>View All Videos</span>
+              </button>
+            </div>
+
+            <!-- Downloadable Guides -->
+            <div
+              class="glassmorphism rounded-lg p-5 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300"
+            >
+              <div
+                class="w-12 h-12 flex items-center justify-center bg-primary bg-opacity-20 rounded-full mb-4"
+              >
+                <i class="ri-file-pdf-line text-primary ri-lg"></i>
+              </div>
+              <h3 class="text-lg font-semibold mb-2">Downloadable Guides</h3>
+              <p class="text-sm text-gray-300 mb-4">
+                Download comprehensive PDF guides for offline reference.
+              </p>
+              <div class="space-y-2">
+                <div class="flex items-center">
+                  <div
+                    class="w-5 h-5 flex items-center justify-center mr-2 text-primary"
+                  >
+                    <i class="ri-file-download-line"></i>
+                  </div>
+                  <span class="text-sm text-gray-300"
+                    >Complete Voter Guide (PDF)</span
+                  >
+                </div>
+                <div class="flex items-center">
+                  <div
+                    class="w-5 h-5 flex items-center justify-center mr-2 text-primary"
+                  >
+                    <i class="ri-file-download-line"></i>
+                  </div>
+                  <span class="text-sm text-gray-300"
+                    >Security & Privacy Explainer (PDF)</span
+                  >
+                </div>
+                <div class="flex items-center">
+                  <div
+                    class="w-5 h-5 flex items-center justify-center mr-2 text-primary"
+                  >
+                    <i class="ri-file-download-line"></i>
+                  </div>
+                  <span class="text-sm text-gray-300"
+                    >Troubleshooting Guide (PDF)</span
+                  >
+                </div>
+              </div>
+              <button
+                class="w-full bg-white bg-opacity-5 text-white mt-4 py-2 !rounded-button hover:bg-opacity-10 transition-all duration-300 whitespace-nowrap flex items-center justify-center"
+              >
+                <span>Download All Guides</span>
+              </button>
+            </div>
+
+            <!-- Support Contact -->
+            <div
+              class="glassmorphism rounded-lg p-5 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300"
+            >
+              <div
+                class="w-12 h-12 flex items-center justify-center bg-primary bg-opacity-20 rounded-full mb-4"
+              >
+                <i class="ri-customer-service-2-line text-primary ri-lg"></i>
+              </div>
+              <h3 class="text-lg font-semibold mb-2">Support Contact</h3>
+              <p class="text-sm text-gray-300 mb-4">
+                Get direct assistance from our support team during voting hours.
+              </p>
+              <div class="space-y-3">
+                <div class="flex items-center">
+                  <div
+                    class="w-5 h-5 flex items-center justify-center mr-2 text-primary"
+                  >
+                    <i class="ri-phone-line"></i>
+                  </div>
+                  <span class="text-sm text-gray-300"
+                    >Support Hotline: +1 (555) 987-6543</span
+                  >
+                </div>
+                <div class="flex items-center">
+                  <div
+                    class="w-5 h-5 flex items-center justify-center mr-2 text-primary"
+                  >
+                    <i class="ri-mail-line"></i>
+                  </div>
+                  <span class="text-sm text-gray-300"
+                    >Email: support@digi-vote.example.com</span
+                  >
+                </div>
+                <div class="flex items-center">
+                  <div
+                    class="w-5 h-5 flex items-center justify-center mr-2 text-primary"
+                  >
+                    <i class="ri-time-line"></i>
+                  </div>
+                  <span class="text-sm text-gray-300"
+                    >Hours: 8:00 AM - 8:00 PM, 7 days a week</span
+                  >
+                </div>
+              </div>
+              <button
+                class="w-full bg-white bg-opacity-5 text-white mt-4 py-2 !rounded-button hover:bg-opacity-10 transition-all duration-300 whitespace-nowrap flex items-center justify-center"
+              >
+                <span>Start Live Chat</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Emergency Support -->
+          <div
+            class="mt-8 p-4 border border-red-500 border-opacity-30 bg-red-500 bg-opacity-5 rounded-lg"
+          >
+            <div class="flex items-start">
+              <div
+                class="w-10 h-10 flex items-center justify-center mt-0.5 mr-3 text-red-500 bg-red-500 bg-opacity-10 rounded-full"
+              >
+                <i class="ri-alarm-warning-line ri-lg"></i>
+              </div>
+              <div>
+                <h4 class="font-semibold text-red-400 mb-1">
+                  Emergency Support
+                </h4>
+                <p class="text-sm text-gray-300 mb-2">
+                  If you encounter critical issues during voting that prevent
+                  you from casting your ballot, please contact our emergency
+                  support line immediately:
+                </p>
+                <div class="flex items-center">
+                  <div
+                    class="w-5 h-5 flex items-center justify-center mr-2 text-red-400"
+                  >
+                    <i class="ri-phone-line"></i>
+                  </div>
+                  <span class="text-red-400 font-semibold"
+                    >+1 (555) 123-4567</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Practice Voting Simulation -->
+      <section class="mb-12">
+        <div class="glassmorphism rounded-lg p-6 md:p-8">
+          <h2 class="text-2xl md:text-3xl font-bold mb-6 flex items-center">
+            <div
+              class="w-8 h-8 flex items-center justify-center mr-3 bg-primary bg-opacity-20 rounded-full"
+            >
+              <i class="ri-test-tube-line text-primary ri-lg"></i>
+            </div>
+            Practice Voting Simulation
+          </h2>
+          <p class="text-gray-300 mb-8">
+            Try our interactive demo to practice the voting process before an
+            actual election.
+          </p>
+
+          <div class="glassmorphism rounded-lg overflow-hidden">
+            <div class="relative h-64 md:h-80">
+              <div
+                style="background-image: url('https://readdy.ai/api/search-image?query=Digital%2520voting%2520simulation%2520interface%2520with%2520sample%2520ballot%2520and%2520voting%2520options%252C%2520modern%2520clean%2520design%2520with%2520voting%2520buttons%2520and%2520progress%2520indicators%2520on%2520dark%2520background&width=1200&height=600&seq=10&orientation=landscape'); background-size: cover; background-position: center;"
+                class="absolute inset-0"
+              ></div>
+              <div
+                class="absolute inset-0 bg-gradient-to-t from-black to-transparent"
+              ></div>
+              <div class="absolute bottom-0 left-0 right-0 p-6">
+                <h3 class="text-xl font-semibold mb-2">
+                  Interactive Demo Election
+                </h3>
+                <p class="text-gray-300 mb-4">
+                  Practice the entire voting process from login to verification
+                  in our safe simulation environment.
+                </p>
+                <button
+                  class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-80 transition-all duration-300 whitespace-nowrap flex items-center"
+                >
+                  <div class="w-5 h-5 flex items-center justify-center mr-2">
+                    <i class="ri-play-line"></i>
+                  </div>
+                  <span>Start Practice Session</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="glassmorphism rounded-lg p-4">
+              <div class="flex items-center mb-2">
+                <div
+                  class="w-8 h-8 flex items-center justify-center bg-primary bg-opacity-20 rounded-full mr-2"
+                >
+                  <i class="ri-timer-line text-primary"></i>
+                </div>
+                <h4 class="font-semibold">No Time Limit</h4>
+              </div>
+              <p class="text-sm text-gray-300">
+                Take as long as you need to explore and understand each step of
+                the process.
+              </p>
+            </div>
+            <div class="glassmorphism rounded-lg p-4">
+              <div class="flex items-center mb-2">
+                <div
+                  class="w-8 h-8 flex items-center justify-center bg-primary bg-opacity-20 rounded-full mr-2"
+                >
+                  <i class="ri-restart-line text-primary"></i>
+                </div>
+                <h4 class="font-semibold">Unlimited Attempts</h4>
+              </div>
+              <p class="text-sm text-gray-300">
+                Practice as many times as you want until you feel comfortable
+                with the system.
+              </p>
+            </div>
+            <div class="glassmorphism rounded-lg p-4">
+              <div class="flex items-center mb-2">
+                <div
+                  class="w-8 h-8 flex items-center justify-center bg-primary bg-opacity-20 rounded-full mr-2"
+                >
+                  <i class="ri-guide-line text-primary"></i>
+                </div>
+                <h4 class="font-semibold">Guided Tour</h4>
+              </div>
+              <p class="text-sm text-gray-300">
+                Step-by-step instructions help you navigate through each part of
+                the process.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Feedback Section -->
+      <section class="mb-12">
+        <div class="glassmorphism rounded-lg p-6 md:p-8">
+          <h2 class="text-2xl md:text-3xl font-bold mb-6 flex items-center">
+            <div
+              class="w-8 h-8 flex items-center justify-center mr-3 bg-primary bg-opacity-20 rounded-full"
+            >
+              <i class="ri-feedback-line text-primary ri-lg"></i>
+            </div>
+            Share Your Feedback
+          </h2>
+          <p class="text-gray-300 mb-8">
+            Help us improve the Digi-Vote system by sharing your thoughts and
+            suggestions.
+          </p>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+              <div class="mb-4">
+                <label class="block text-gray-300 mb-2"
+                  >How helpful was this guide?</label
+                >
+                <div class="flex space-x-4">
+                  <div class="flex items-center">
+                    <div class="custom-radio" data-value="1"></div>
+                    <span class="ml-2 text-sm text-gray-300">Not helpful</span>
+                  </div>
+                  <div class="flex items-center">
+                    <div class="custom-radio" data-value="2"></div>
+                    <span class="ml-2 text-sm text-gray-300"
+                      >Somewhat helpful</span
+                    >
+                  </div>
+                  <div class="flex items-center">
+                    <div class="custom-radio" data-value="3"></div>
+                    <span class="ml-2 text-sm text-gray-300">Very helpful</span>
+                  </div>
+                </div>
+              </div>
+              <div class="mb-4">
+                <label class="block text-gray-300 mb-2"
+                  >Which sections did you find most useful? (Select all that
+                  apply)</label
+                >
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <div class="flex items-center">
+                    <div class="custom-checkbox" data-value="security"></div>
+                    <span class="ml-2 text-sm text-gray-300"
+                      >Security Measures</span
+                    >
+                  </div>
+                  <div class="flex items-center">
+                    <div class="custom-checkbox" data-value="process"></div>
+                    <span class="ml-2 text-sm text-gray-300"
+                      >Voting Process</span
+                    >
+                  </div>
+                  <div class="flex items-center">
+                    <div class="custom-checkbox" data-value="technology"></div>
+                    <span class="ml-2 text-sm text-gray-300"
+                      >Technology Overview</span
+                    >
+                  </div>
+                  <div class="flex items-center">
+                    <div
+                      class="custom-checkbox"
+                      data-value="verification"
+                    ></div>
+                    <span class="ml-2 text-sm text-gray-300"
+                      >Verification Methods</span
+                    >
+                  </div>
+                  <div class="flex items-center">
+                    <div class="custom-checkbox" data-value="faq"></div>
+                    <span class="ml-2 text-sm text-gray-300">FAQs</span>
+                  </div>
+                  <div class="flex items-center">
+                    <div class="custom-checkbox" data-value="resources"></div>
+                    <span class="ml-2 text-sm text-gray-300"
+                      >Help Resources</span
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="mb-4">
+                <label class="block text-gray-300 mb-2"
+                  >Do you feel confident about using the Digi-Vote system
+                  now?</label
+                >
+                <div
+                  class="flex items-center justify-between bg-white bg-opacity-5 rounded-lg p-3"
+                >
+                  <span class="text-sm text-gray-300">Not confident</span>
+                  <div class="flex space-x-2">
+                    <div
+                      class="w-8 h-8 flex items-center justify-center rounded-full bg-white bg-opacity-10 hover:bg-opacity-20 cursor-pointer confidence-rating"
+                      data-value="1"
+                    >
+                      1
+                    </div>
+                    <div
+                      class="w-8 h-8 flex items-center justify-center rounded-full bg-white bg-opacity-10 hover:bg-opacity-20 cursor-pointer confidence-rating"
+                      data-value="2"
+                    >
+                      2
+                    </div>
+                    <div
+                      class="w-8 h-8 flex items-center justify-center rounded-full bg-white bg-opacity-10 hover:bg-opacity-20 cursor-pointer confidence-rating"
+                      data-value="3"
+                    >
+                      3
+                    </div>
+                    <div
+                      class="w-8 h-8 flex items-center justify-center rounded-full bg-white bg-opacity-10 hover:bg-opacity-20 cursor-pointer confidence-rating"
+                      data-value="4"
+                    >
+                      4
+                    </div>
+                    <div
+                      class="w-8 h-8 flex items-center justify-center rounded-full bg-white bg-opacity-10 hover:bg-opacity-20 cursor-pointer confidence-rating"
+                      data-value="5"
+                    >
+                      5
+                    </div>
+                  </div>
+                  <span class="text-sm text-gray-300">Very confident</span>
+                </div>
+              </div>
+              <div class="mb-4">
+                <label class="block text-gray-300 mb-2"
+                  >Any suggestions for improvement?</label
+                >
+                <textarea
+                  rows="4"
+                  class="w-full bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50 border-none"
+                  placeholder="Share your thoughts..."
+                ></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-6 flex justify-end">
+            <button
+              class="bg-primary text-white px-6 py-3 !rounded-button hover:bg-opacity-80 transition-all duration-300 whitespace-nowrap flex items-center"
+            >
+              <div class="w-5 h-5 flex items-center justify-center mr-2">
+                <i class="ri-send-plane-line"></i>
+              </div>
+              <span>Submit Feedback</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Back to Top Button -->
+      <div class="fixed bottom-8 right-8 z-50">
+        <button
+          id="back-to-top"
+          class="w-12 h-12 bg-primary rounded-full flex items-center justify-center shadow-lg opacity-0 invisible transition-all duration-300"
+        >
+          <div class="w-6 h-6 flex items-center justify-center">
+            <i class="ri-arrow-up-line text-white"></i>
+          </div>
+        </button>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="glassmorphism mt-12 py-6">
+      <div class="container mx-auto px-4">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+          <div class="mb-4 md:mb-0">
+            <span class="text-xl font-['Pacifico'] text-primary text-glow"
+              >Digi-Vote</span
+            >
+            <p class="text-sm text-gray-400 mt-1">
+              © 2025 AIML Student Project. All rights reserved.
+            </p>
+          </div>
+          <div class="flex space-x-4">
+            <a
+              href="#"
+              class="w-8 h-8 flex items-center justify-center rounded-full bg-white bg-opacity-10 hover:bg-primary hover:bg-opacity-20 transition-colors"
+            >
+              <div class="w-4 h-4 flex items-center justify-center">
+                <i class="ri-twitter-x-line"></i>
+              </div>
+            </a>
+            <a
+              href="#"
+              class="w-8 h-8 flex items-center justify-center rounded-full bg-white bg-opacity-10 hover:bg-primary hover:bg-opacity-20 transition-colors"
+            >
+              <div class="w-4 h-4 flex items-center justify-center">
+                <i class="ri-instagram-line"></i>
+              </div>
+            </a>
+            <a
+              href="#"
+              class="w-8 h-8 flex items-center justify-center rounded-full bg-white bg-opacity-10 hover:bg-primary hover:bg-opacity-20 transition-colors"
+            >
+              <div class="w-4 h-4 flex items-center justify-center">
+                <i class="ri-github-line"></i>
+              </div>
+            </a>
+            <a
+              href="#"
+              class="w-8 h-8 flex items-center justify-center rounded-full bg-white bg-opacity-10 hover:bg-primary hover:bg-opacity-20 transition-colors"
+            >
+              <div class="w-4 h-4 flex items-center justify-center">
+                <i class="ri-linkedin-line"></i>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script id="navigationScript">
+      document.addEventListener("DOMContentLoaded", function () {
+        const getStartedBtn = document.getElementById("get-started-btn");
+        const securitySection = document.getElementById("security-section");
+
+        getStartedBtn.addEventListener("click", function () {
+          securitySection.scrollIntoView({ behavior: "smooth" });
+        });
+
+        // Progress indicator
+        const sections = [
+          document.getElementById("security-section"),
+          document.getElementById("process-section"),
+          document.getElementById("technology-section"),
+          document.getElementById("verification-section"),
+          document.getElementById("faq-section"),
+        ];
+
+        const indicators = document.querySelectorAll(
+          "#progress-indicator .step-indicator",
+        );
+        const lines = document.querySelectorAll("#progress-indicator .step-line");
+
+        function updateProgressIndicator() {
+          const scrollPosition = window.scrollY + 200;
+
+          for (let i = 0; i < sections.length; i++) {
+            if (sections[i] && scrollPosition >= sections[i].offsetTop) {
+              // Update indicators
+              for (let j = 0; j <= i; j++) {
+                indicators[j].classList.add("active");
+                if (j < i && lines[j]) {
+                  lines[j].classList.add("active");
+                }
+              }
+
+              for (let j = i + 1; j < indicators.length; j++) {
+                indicators[j].classList.remove("active");
+                if (j - 1 >= i && lines[j - 1]) {
+                  lines[j - 1].classList.remove("active");
+                }
+              }
+            }
+          }
+        }
+
+        window.addEventListener("scroll", updateProgressIndicator);
+        updateProgressIndicator();
+
+        // Back to top button
+        const backToTopButton = document.getElementById("back-to-top");
+
+        function toggleBackToTopButton() {
+          if (window.scrollY > 500) {
+            backToTopButton.classList.remove("opacity-0", "invisible");
+            backToTopButton.classList.add("opacity-100", "visible");
+          } else {
+            backToTopButton.classList.remove("opacity-100", "visible");
+            backToTopButton.classList.add("opacity-0", "invisible");
+          }
+        }
+
+        backToTopButton.addEventListener("click", function () {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+
+        window.addEventListener("scroll", toggleBackToTopButton);
+        toggleBackToTopButton();
+      });
+    </script>
+
+    <script id="faqInteractions">
+      document.addEventListener("DOMContentLoaded", function () {
+        const faqItems = document.querySelectorAll(".faq-item");
+
+        faqItems.forEach((item) => {
+          const toggle = item.querySelector(".faq-toggle");
+          const answer = item.querySelector(".faq-answer");
+
+          toggle.addEventListener("click", function () {
+            const isActive = item.classList.contains("active");
+
+            // Close all FAQs
+            faqItems.forEach((faq) => {
+              faq.classList.remove("active");
+              faq.querySelector(".faq-toggle").innerHTML =
+                '<i class="ri-add-line"></i>';
+            });
+
+            // Toggle current FAQ
+            if (!isActive) {
+              item.classList.add("active");
+              toggle.innerHTML = '<i class="ri-subtract-line"></i>';
+            }
+          });
+        });
+      });
+    </script>
+
+    <script id="customFormElements">
+      document.addEventListener("DOMContentLoaded", function () {
+        // Custom radio buttons
+        const customRadios = document.querySelectorAll(".custom-radio");
+
+        customRadios.forEach((radio) => {
+          radio.addEventListener("click", function () {
+            const name =
+              this.parentElement.parentElement.parentElement.querySelector(
+                "label",
+              ).textContent;
+            const value = this.getAttribute("data-value");
+
+            // Uncheck all radios in the same group
+            document.querySelectorAll(`.custom-radio[data-value]`).forEach((r) => {
+              if (
+                r.parentElement.parentElement.parentElement.querySelector("label")
+                  .textContent === name
+              ) {
+                r.classList.remove("checked");
+              }
+            });
+
+            // Check this radio
+            this.classList.add("checked");
+          });
+        });
+
+        // Custom checkboxes
+        const customCheckboxes = document.querySelectorAll(".custom-checkbox");
+
+        customCheckboxes.forEach((checkbox) => {
+          checkbox.addEventListener("click", function () {
+            this.classList.toggle("checked");
+          });
+        });
+
+        // Confidence rating
+        const confidenceRatings = document.querySelectorAll(".confidence-rating");
+
+        confidenceRatings.forEach((rating) => {
+          rating.addEventListener("click", function () {
+            confidenceRatings.forEach((r) =>
+              r.classList.remove("bg-primary", "text-white"),
+            );
+
+            const value = parseInt(this.getAttribute("data-value"));
+            for (let i = 0; i < confidenceRatings.length; i++) {
+              const r = confidenceRatings[i];
+              const rValue = parseInt(r.getAttribute("data-value"));
+
+              if (rValue <= value) {
+                r.classList.add("bg-primary", "text-white");
+                r.classList.remove("bg-white", "bg-opacity-10");
+              } else {
+                r.classList.remove("bg-primary", "text-white");
+                r.classList.add("bg-white", "bg-opacity-10");
+              }
+            }
+          });
+        });
+
+        // Custom switches
+        const customSwitches = document.querySelectorAll(".custom-switch");
+
+        customSwitches.forEach((switchEl) => {
+          switchEl.addEventListener("click", function () {
+            this.classList.toggle("checked");
+          });
+        });
+      });
+    </script>
+
+    <script id="architectureChart">
+      document.addEventListener("DOMContentLoaded", function () {
+        const chartDom = document.getElementById("architecture-chart");
+        if (chartDom) {
+          const myChart = echarts.init(chartDom);
+
+          const option = {
+            animation: false,
+            tooltip: {
+              trigger: "item",
+              backgroundColor: "rgba(255, 255, 255, 0.8)",
+              borderColor: "rgba(255, 255, 255, 0.3)",
+              textStyle: {
+                color: "#1f2937",
+              },
+            },
+            color: [
+              "rgba(87, 181, 231, 1)",
+              "rgba(141, 211, 199, 1)",
+              "rgba(251, 191, 114, 1)",
+              "rgba(252, 141, 98, 1)",
+            ],
+            legend: {
+              top: "bottom",
+              textStyle: {
+                color: "#e5e7eb",
+              },
+            },
+            series: [
+              {
+                name: "System Architecture",
+                type: "graph",
+                layout: "force",
+                data: [
+                  {
+                    name: "User Interface",
+                    value: 40,
+                    symbolSize: 60,
+                    category: 0,
+                  },
+                  {
+                    name: "Authentication",
+                    value: 30,
+                    symbolSize: 50,
+                    category: 0,
+                  },
+                  {
+                    name: "Vote Processing",
+                    value: 35,
+                    symbolSize: 55,
+                    category: 1,
+                  },
+                  {
+                    name: "Blockchain",
+                    value: 45,
+                    symbolSize: 65,
+                    category: 1,
+                  },
+                  {
+                    name: "Encryption",
+                    value: 30,
+                    symbolSize: 50,
+                    category: 2,
+                  },
+                  {
+                    name: "Verification",
+                    value: 25,
+                    symbolSize: 45,
+                    category: 2,
+                  },
+                  {
+                    name: "Audit System",
+                    value: 20,
+                    symbolSize: 40,
+                    category: 3,
+                  },
+                  {
+                    name: "Results Tabulation",
+                    value: 30,
+                    symbolSize: 50,
+                    category: 3,
+                  },
+                ],
+                links: [
+                  {
+                    source: "User Interface",
+                    target: "Authentication",
+                  },
+                  {
+                    source: "Authentication",
+                    target: "Vote Processing",
+                  },
+                  {
+                    source: "Vote Processing",
+                    target: "Encryption",
+                  },
+                  {
+                    source: "Encryption",
+                    target: "Blockchain",
+                  },
+                  {
+                    source: "Blockchain",
+                    target: "Verification",
+                  },
+                  {
+                    source: "Blockchain",
+                    target: "Audit System",
+                  },
+                  {
+                    source: "Blockchain",
+                    target: "Results Tabulation",
+                  },
+                  {
+                    source: "Verification",
+                    target: "Results Tabulation",
+                  },
+                  {
+                    source: "Audit System",
+                    target: "Results Tabulation",
+                  },
+                ],
+                categories: [
+                  {
+                    name: "Frontend",
+                  },
+                  {
+                    name: "Core",
+                  },
+                  {
+                    name: "Security",
+                  },
+                  {
+                    name: "Reporting",
+                  },
+                ],
+                roam: false,
+                label: {
+                  show: true,
+                  position: "inside",
+                  formatter: "{b}",
+                  fontSize: 12,
+                  color: "#fff",
+                },
+                lineStyle: {
+                  color: "source",
+                  curveness: 0.3,
+                  width: 2,
+                },
+                emphasis: {
+                  focus: "adjacency",
+                  lineStyle: {
+                    width: 4,
+                  },
+                },
+                force: {
+                  repulsion: 200,
+                  edgeLength: 120,
+                },
+              },
+            ],
+          };
+
+          myChart.setOption(option);
+
+          window.addEventListener("resize", function () {
+            myChart.resize();
+          });
+        }
+      });
+    </script>
+  </body>
+</html>

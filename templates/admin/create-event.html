@@ -695,5 +695,156 @@
         }
       });
     </script>
+    <script id="eventCreationAJAX">
+    document.addEventListener("DOMContentLoaded", function () {
+      const form = document.getElementById("createEventForm");
+      const submitBtn = document.getElementById("submitBtn");
+      const formErrors = document.getElementById("formErrors");
+      const errorMessage = document.getElementById("errorMessage");
+
+      form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        submitBtn.disabled = true;
+        formErrors.classList.add("hidden");
+        errorMessage.textContent = "";
+
+        // Gather event details
+        const title = document.getElementById("eventTitle").value.trim();
+        const description = document.getElementById("eventDescription").value.trim();
+        const start_date = document.getElementById("startDate").value;
+        const end_date = document.getElementById("endDate").value;
+
+        // Gather candidates
+        const candidateCards = document.querySelectorAll(".candidate-card");
+        const candidates = [];
+        let error = null;
+
+        for (let i = 0; i < candidateCards.length; i++) {
+          const card = candidateCards[i];
+          const name = card.querySelector(".candidate-name").value.trim();
+          const party = card.querySelector(".candidate-party").value.trim();
+          const slogan = card.querySelector(".candidate-slogan").value.trim();
+          const photoInput = card.querySelector(".candidate-photo");
+          let photo = "";
+          if (photoInput && photoInput.files && photoInput.files[0]) {
+            // Convert image to base64
+            photo = await toBase64(photoInput.files[0]);
+          } else {
+            // Try to get preview src (if already loaded)
+            const preview = card.querySelector(".photo-preview");
+            if (preview && preview.src && !preview.classList.contains("hidden")) {
+              photo = preview.src;
+            }
+          }
+          if (!name || !party || !slogan || !photo) {
+            error = `Please complete all candidate fields and upload a photo for candidate ${i + 1}`;
+            break;
+          }
+          candidates.push({ name, party, slogan, photo });
+        }
+
+        if (!title || !description || !start_date || !end_date) {
+          error = "Please complete all event fields.";
+        }
+        if (error) {
+          formErrors.classList.remove("hidden");
+          errorMessage.textContent = error;
+          submitBtn.disabled = false;
+          return;
+        }
+
+        // Prepare data
+        const eventData = {
+          title,
+          description,
+          start_date,
+          end_date,
+          candidates,
+        };
+
+        // Show loading
+        submitBtn.textContent = "Creating...";
+
+        // Send AJAX request
+        try {
+          const response = await fetch("/admin/api/create-event", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(eventData),
+          });
+          const data = await response.json();
+          submitBtn.textContent = "Create Voting Event";
+          submitBtn.disabled = false;
+          if (response.ok) {
+            showEventSuccessModal(data.event_id);
+          } else {
+            formErrors.classList.remove("hidden");
+            errorMessage.textContent = data.error || "Failed to create event.";
+          }
+        } catch (err) {
+          submitBtn.textContent = "Create Voting Event";
+          submitBtn.disabled = false;
+          formErrors.classList.remove("hidden");
+          errorMessage.textContent = "An error occurred. Please try again.";
+        }
+      });
+
+      function toBase64(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = (error) => reject(error);
+        });
+      }
+
+      function showEventSuccessModal(eventId) {
+        const modal = document.createElement("div");
+        modal.className =
+          "fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50";
+        modal.innerHTML = `
+          <div class="glassmorphism rounded-lg p-8 max-w-md text-center">
+            <div class="w-20 h-20 mx-auto flex items-center justify-center mb-4 text-primary">
+              <i class="ri-check-double-line ri-3x"></i>
+            </div>
+            <h2 class="text-2xl font-bold mb-2">Voting Event Created!</h2>
+            <p class="text-gray-300 mb-2">Your voting event has been successfully created.</p>
+            <p class="text-lg font-semibold text-primary mb-6">Event ID: <span class="font-mono">${eventId}</span></p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+              <button id="viewEventBtn" class="bg-primary hover:bg-opacity-90 text-white px-6 py-3 !rounded-button whitespace-nowrap transition-colors">
+                View Event
+              </button>
+              <button id="createAnotherBtn" class="bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 !rounded-button whitespace-nowrap transition-colors">
+                Create Another
+              </button>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(modal);
+        document.getElementById("viewEventBtn").onclick = function () {
+          window.location.href = "/admin/dashboard";
+        };
+        document.getElementById("createAnotherBtn").onclick = function () {
+          modal.remove();
+          form.reset();
+          // Reset candidate cards to just one
+          const candidatesContainer = document.getElementById("candidatesContainer");
+          const candidateCards = candidatesContainer.querySelectorAll(".candidate-card");
+          for (let i = 1; i < candidateCards.length; i++) {
+            candidateCards[i].remove();
+          }
+          const firstCard = candidateCards[0];
+          const photoPreview = firstCard.querySelector(".photo-preview");
+          const photoPlaceholder = firstCard.querySelector(".photo-placeholder");
+          photoPreview.classList.add("hidden");
+          photoPlaceholder.classList.remove("hidden");
+          firstCard.querySelector(".candidate-name").value = "";
+          firstCard.querySelector(".candidate-party").value = "";
+          firstCard.querySelector(".candidate-slogan").value = "";
+          document.getElementById("candidateCount").textContent = "1 candidate added";
+        };
+      }
+    });
+    </script>
   </body>
 </html>

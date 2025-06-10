@@ -19,6 +19,7 @@ import urllib.parse
 from face_embedder import generate_embedding
 import numpy as np
 import cv2
+from dateutil import parser  # You may need to install python-dateutil
 
 # Load environment variables
 load_dotenv()
@@ -170,11 +171,13 @@ def register():
             return jsonify({'error': 'Failed to upload photo or extract face embedding. Please try again.'}), 500
         
         # Store user data in Firestore
+        voter_id = generate_voter_id()
         user_data = {
             'name': data['fullName'],
             'email': data['email'],
             'mobile': data['mobile'],
             'aadhar': data['aadhar'],
+            'voter_id': voter_id,
             'photo_url': photo_url,
             'embedding': embedding_list,
             'role': 'voter',
@@ -182,7 +185,7 @@ def register():
             'approved': False  # Requires admin approval
         }
         db.collection('users').document(user.uid).set(user_data)
-        return jsonify({'message': 'Registration successful'}), 200
+        return jsonify({'message': 'Registration successful', 'voter_id': voter_id}), 200
     except Exception as e:
         print(f"Registration error: {str(e)}")
         return jsonify({'error': 'Registration failed. Please try again.'}), 500
@@ -192,27 +195,55 @@ def register():
 def voter_dashboard():
     if session.get('role') != 'voter':
         return redirect(url_for('login_page'))
-    
+    user_id = session['user_id']
     # Get user data from Firestore
-    user_doc = db.collection('users').document(session['user_id']).get()
+    user_doc = db.collection('users').document(user_id).get()
     if not user_doc.exists:
         return redirect(url_for('login_page'))
-    
     user_data = user_doc.to_dict()
-    
-    # Get active events
-    events_ref = db.collection('events').where('status', '==', 'active').stream()
-    events = []
+
+    voter_id = user_data.get('voter_id')
+    # Get events the user has joined (exists in event's voters subcollection)
+    events_ref = db.collection('events').stream()
+    joined_events = []
     for event in events_ref:
         event_data = event.to_dict()
-        # Check if user has voted in this event
-        vote_ref = db.collection('votes').where('event_id', '==', event.id).where('voter_id', '==', session['user_id']).limit(1).get()
-        event_data['has_voted'] = len(vote_ref) > 0
-        event_data['event_id'] = event.id
-        events.append(event_data)
-    
-    # Get past votes
-    votes_ref = db.collection('votes').where('voter_id', '==', session['user_id']).stream()
+        event_id = event.id
+        voter_ref = db.collection('events').document(event_id).collection('voters').where('voter_id', '==', voter_id).limit(1)
+        voter_docs = list(voter_ref.stream())
+        if voter_docs:
+            voter_doc = voter_docs[0]
+            voter_status = voter_doc.to_dict().get('status', 'pending')
+            approved = voter_doc.to_dict().get('approved', False)
+            has_voted = voter_doc.to_dict().get('has_voted', False)
+            # Voting window
+            start_time = event_data.get('start_time')
+            end_time = event_data.get('end_time')
+            # Convert to datetime if string
+            if isinstance(start_time, str):
+                try:
+                    start_time = parser.parse(start_time)
+                except Exception:
+                    start_time = None
+            if isinstance(end_time, str):
+                try:
+                    end_time = parser.parse(end_time)
+                except Exception:
+                    end_time = None
+            joined_events.append({
+                'event_id': event_id,
+                'event_name': event_data.get('event_name'),
+                'event_description': event_data.get('event_description'),
+                'start_time': start_time,
+                'end_time': end_time,
+                'status': voter_status,
+                'approved': approved,
+                'has_voted': has_voted,
+                'candidates': event_data.get('candidates', []),
+            })
+
+    # Get past votes (optional, keep as before)
+    votes_ref = db.collection('votes').where('voter_id', '==', voter_id).stream()
     past_votes = []
     for vote in votes_ref:
         vote_data = vote.to_dict()
@@ -223,10 +254,10 @@ def voter_dashboard():
             vote_data['date'] = event_data.get('date', 'N/A')
             vote_data['status'] = 'Voted'
             past_votes.append(vote_data)
-    
+
     return render_template('voter/dashboard.html', 
                          user=user_data,
-                         events=events,
+                         joined_events=joined_events,
                          past_votes=past_votes)
 
 @app.route('/vote/<event_id>', methods=['POST'])
@@ -525,6 +556,46 @@ def voter_settings():
         except Exception as e:
             flash('Failed to update profile: ' + str(e), 'error')
     return render_template('voter/settings.html', user=user)
+
+@app.route('/voter/api/join-event', methods=['POST'])
+def voter_api_join_event():
+    if not session.get('user_id') or session.get('role') != 'voter':
+        return jsonify({'error': 'Not authorized'}), 403
+    data = request.get_json()
+    event_id = data.get('event_id')
+    if not event_id:
+        return jsonify({'error': 'Event ID is required'}), 400
+    event_ref = db.collection('events').document(event_id)
+    event_doc = event_ref.get()
+    if not event_doc.exists:
+        return jsonify({'error': 'Event not found'}), 404
+    event_data = event_doc.to_dict()
+    user_id = session['user_id']
+    voter_ref = event_ref.collection('voters').document(user_id)
+    voter_doc = voter_ref.get()
+    if voter_doc.exists:
+        voter_status = voter_doc.to_dict().get('status', 'pending')
+        return jsonify({'event': event_data, 'status': voter_status}), 200
+    # Copy user data from global users
+    user_doc = db.collection('users').document(user_id).get()
+    if not user_doc.exists:
+        return jsonify({'error': 'User not found'}), 404
+    user_data = user_doc.to_dict()
+    event_voter_data = {
+        'user_id': user_id,
+        'voter_id': user_data.get('voter_id'),
+        'name': user_data.get('name'),
+        'email': user_data.get('email'),
+        'mobile': user_data.get('mobile'),
+        'photo_url': user_data.get('photo_url'),
+        'embedding': user_data.get('embedding'),
+        'status': 'pending',
+        'approved': False,
+        'has_voted': False,
+        'joined_at': datetime.now(),
+    }
+    voter_ref.set(event_voter_data)
+    return jsonify({'event': event_data, 'status': 'pending'}), 200
 
 if __name__ == '__main__':
     app.run(debug=True) 
