@@ -97,14 +97,15 @@
           >
         </nav>
         <div class="flex items-center space-x-4">
-          <button
+          <a
+            href="{{ url_for('voter_settings') }}"
             class="flex items-center space-x-2 text-white hover:text-primary transition-colors duration-300"
           >
             <div class="w-8 h-8 flex items-center justify-center">
               <i class="ri-user-line ri-lg"></i>
             </div>
             <span class="hidden md:inline">My Profile</span>
-          </button>
+          </a>
           <button
             class="bg-primary text-white px-4 py-2 !rounded-button hover:bg-opacity-80 transition-all duration-300 whitespace-nowrap flex items-center"
           >

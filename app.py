@@ -120,12 +120,34 @@ def register():
             display_name=data['fullName']
         )
         
-        # Upload photo to Firebase Storage
-        photo_data = data['photo'].split(',')[1]  # Remove data URL prefix
-        photo_bytes = base64.b64decode(photo_data)
-        photo_blob = bucket.blob(f'user_photos/{user.uid}.jpg')
-        photo_blob.upload_from_string(photo_bytes, content_type='image/jpeg')
-        photo_url = photo_blob.public_url
+        try:
+            # Upload photo to Firebase Storage
+            photo_data = data['photo'].split(',')[1]  # Remove data URL prefix
+            photo_bytes = base64.b64decode(photo_data)
+            
+            # Create a temporary file
+            with tempfile.NamedTemporaryFile(suffix='.jpg', delete=False) as temp_file:
+                temp_path = temp_file.name
+                temp_file.write(photo_bytes)
+            
+            # Upload to Firebase Storage
+            blob = bucket.blob(f'user_photos/{user.uid}.jpg')
+            blob.upload_from_filename(temp_path)
+            
+            # Make the blob publicly accessible
+            blob.make_public()
+            
+            # Get the public URL
+            photo_url = blob.public_url
+            
+            # Clean up the temporary file
+            os.unlink(temp_path)
+            
+        except Exception as e:
+            # If photo upload fails, delete the created user
+            firebase_auth.delete_user(user.uid)
+            print(f"Photo upload error: {str(e)}")
+            return jsonify({'error': 'Failed to upload photo. Please try again.'}), 500
         
         # Store user data in Firestore
         user_data = {
@@ -145,7 +167,7 @@ def register():
         
     except Exception as e:
         print(f"Registration error: {str(e)}")
-        return jsonify({'error': 'Registration failed'}), 500
+        return jsonify({'error': 'Registration failed. Please try again.'}), 500
 
 @app.route('/voter/dashboard')
 @login_required
@@ -456,6 +478,35 @@ def fix_photo_urls():
             'photo_url': photo_url
         })
     return 'All photo_url fields updated to the correct format.'
+
+@app.route('/voter/settings', methods=['GET', 'POST'])
+def voter_settings():
+    if not session.get('user_id') or session.get('role') != 'voter':
+        return redirect(url_for('login'))
+    user_id = session['user_id']
+    user_ref = db.collection('users').document(user_id)
+    user_doc = user_ref.get()
+    if not user_doc.exists:
+        return redirect(url_for('login'))
+    user = user_doc.to_dict()
+
+    if request.method == 'POST':
+        name = request.form.get('firstName', '').strip() + ' ' + request.form.get('lastName', '').strip()
+        mobile = request.form.get('phone', '').strip()
+        bio = request.form.get('bio', '').strip()
+        update_data = {
+            'name': name or user.get('name', ''),
+            'mobile': mobile or user.get('mobile', ''),
+            'bio': bio or user.get('bio', ''),
+        }
+        try:
+            user_ref.update(update_data)
+            flash('Profile updated successfully!', 'success')
+            # Refresh user data
+            user = user_ref.get().to_dict()
+        except Exception as e:
+            flash('Failed to update profile: ' + str(e), 'error')
+    return render_template('voter/settings.html', user=user)
 
 if __name__ == '__main__':
     app.run(debug=True) 
