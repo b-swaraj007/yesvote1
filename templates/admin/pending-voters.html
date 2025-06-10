@@ -163,602 +163,74 @@
           </div>
         </div>
 
-        <div
-          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-        >
-          <!-- Voter Card 1 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {% for voter in voters %}
           <div class="glassmorphism rounded-lg overflow-hidden card-hover">
             <div class="p-4 border-b border-white border-opacity-10">
               <div class="flex items-center space-x-4">
-                <div
-                  class="w-16 h-16 rounded-full bg-primary bg-opacity-10 flex items-center justify-center overflow-hidden"
-                >
-                  <div
-                    class="w-8 h-8 flex items-center justify-center text-primary"
-                  >
-                    <i class="ri-user-3-line ri-2x"></i>
-                  </div>
+                <div class="w-16 h-16 rounded-full bg-primary bg-opacity-10 flex items-center justify-center overflow-hidden">
+                  {% if voter.photo_url %}
+                    <img src="{{ voter.photo_url }}" alt="{{ voter.name }}" class="w-full h-full object-cover rounded-full" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                    <div class="w-8 h-8 flex items-center justify-center text-primary" style="display:none;">
+                      <i class="ri-user-3-line ri-2x"></i>
+                    </div>
+                  {% else %}
+                    <div class="w-8 h-8 flex items-center justify-center text-primary">
+                      <i class="ri-user-3-line ri-2x"></i>
+                    </div>
+                  {% endif %}
                 </div>
                 <div>
-                  <h3 class="font-semibold text-lg">Michael Anderson</h3>
-                  <p class="text-sm text-gray-400">Computer Science, Year 3</p>
+                  <h3 class="font-semibold text-lg">{{ voter.name }}</h3>
                 </div>
               </div>
             </div>
             <div class="p-4 space-y-3">
               <div class="flex items-center">
-                <div
-                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
-                >
+                <div class="w-5 h-5 flex items-center justify-center mr-3 text-primary">
                   <i class="ri-mail-line"></i>
                 </div>
-                <span class="text-sm">michael.anderson@university.edu</span>
+                <span class="text-sm">{{ voter.email }}</span>
               </div>
               <div class="flex items-center">
-                <div
-                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
-                >
+                <div class="w-5 h-5 flex items-center justify-center mr-3 text-primary">
                   <i class="ri-smartphone-line"></i>
                 </div>
-                <span class="text-sm">+1 (555) 234-5678</span>
+                <span class="text-sm">{{ voter.mobile }}</span>
               </div>
               <div class="flex items-center">
-                <div
-                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
-                >
+                <div class="w-5 h-5 flex items-center justify-center mr-3 text-primary">
                   <i class="ri-id-card-line"></i>
                 </div>
-                <span class="text-sm">ID: CS2023456</span>
+                <span class="text-sm">Voter ID: {{ voter.voter_id }}</span>
               </div>
               <div class="flex items-center">
-                <div
-                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
-                >
+                <div class="w-5 h-5 flex items-center justify-center mr-3 text-primary">
                   <i class="ri-calendar-line"></i>
                 </div>
-                <span class="text-sm">Applied: June 5, 2025</span>
+                <span class="text-sm">Applied: {{ voter.created_at.strftime('%B %d, %Y') if voter.created_at else '' }}</span>
               </div>
             </div>
             <div class="p-4 bg-black bg-opacity-20 flex space-x-3">
-              <button
-                class="flex-1 bg-primary text-white py-2 !rounded-button hover:bg-opacity-80 transition-all duration-300 whitespace-nowrap flex items-center justify-center"
-              >
-                <div class="w-5 h-5 flex items-center justify-center mr-1">
-                  <i class="ri-check-line"></i>
-                </div>
-                Approve
-              </button>
-              <button
-                class="flex-1 border border-red-500 text-red-400 py-2 !rounded-button hover:bg-red-500 hover:bg-opacity-20 transition-all duration-300 whitespace-nowrap flex items-center justify-center"
-              >
-                <div class="w-5 h-5 flex items-center justify-center mr-1">
-                  <i class="ri-close-line"></i>
-                </div>
-                Reject
-              </button>
-            </div>
-          </div>
-
-          <!-- Voter Card 2 -->
-          <div class="glassmorphism rounded-lg overflow-hidden card-hover">
-            <div class="p-4 border-b border-white border-opacity-10">
-              <div class="flex items-center space-x-4">
-                <div
-                  class="w-16 h-16 rounded-full bg-primary bg-opacity-10 flex items-center justify-center overflow-hidden"
-                >
-                  <div
-                    class="w-8 h-8 flex items-center justify-center text-primary"
-                  >
-                    <i class="ri-user-3-line ri-2x"></i>
+              <form method="POST" action="{{ url_for('admin.approve_event_voter', event_id=event_id, voter_id=voter.user_id) }}" style="flex:1;">
+                <button type="submit" class="w-full bg-primary text-white py-2 !rounded-button hover:bg-opacity-80 transition-all duration-300 whitespace-nowrap flex items-center justify-center">
+                  <div class="w-5 h-5 flex items-center justify-center mr-1">
+                    <i class="ri-check-line"></i>
                   </div>
-                </div>
-                <div>
-                  <h3 class="font-semibold text-lg">Jessica Williams</h3>
-                  <p class="text-sm text-gray-400">
-                    Business Administration, Year 2
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div class="p-4 space-y-3">
-              <div class="flex items-center">
-                <div
-                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
-                >
-                  <i class="ri-mail-line"></i>
-                </div>
-                <span class="text-sm">jessica.williams@university.edu</span>
-              </div>
-              <div class="flex items-center">
-                <div
-                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
-                >
-                  <i class="ri-smartphone-line"></i>
-                </div>
-                <span class="text-sm">+1 (555) 876-5432</span>
-              </div>
-              <div class="flex items-center">
-                <div
-                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
-                >
-                  <i class="ri-id-card-line"></i>
-                </div>
-                <span class="text-sm">ID: BA2024789</span>
-              </div>
-              <div class="flex items-center">
-                <div
-                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
-                >
-                  <i class="ri-calendar-line"></i>
-                </div>
-                <span class="text-sm">Applied: June 6, 2025</span>
-              </div>
-            </div>
-            <div class="p-4 bg-black bg-opacity-20 flex space-x-3">
-              <button
-                class="flex-1 bg-primary text-white py-2 !rounded-button hover:bg-opacity-80 transition-all duration-300 whitespace-nowrap flex items-center justify-center"
-              >
-                <div class="w-5 h-5 flex items-center justify-center mr-1">
-                  <i class="ri-check-line"></i>
-                </div>
-                Approve
-              </button>
-              <button
-                class="flex-1 border border-red-500 text-red-400 py-2 !rounded-button hover:bg-red-500 hover:bg-opacity-20 transition-all duration-300 whitespace-nowrap flex items-center justify-center"
-              >
-                <div class="w-5 h-5 flex items-center justify-center mr-1">
-                  <i class="ri-close-line"></i>
-                </div>
-                Reject
-              </button>
-            </div>
-          </div>
-
-          <!-- Voter Card 3 -->
-          <div class="glassmorphism rounded-lg overflow-hidden card-hover">
-            <div class="p-4 border-b border-white border-opacity-10">
-              <div class="flex items-center space-x-4">
-                <div
-                  class="w-16 h-16 rounded-full bg-primary bg-opacity-10 flex items-center justify-center overflow-hidden"
-                >
-                  <div
-                    class="w-8 h-8 flex items-center justify-center text-primary"
-                  >
-                    <i class="ri-user-3-line ri-2x"></i>
+                  Approve
+                </button>
+              </form>
+              <form method="POST" action="{{ url_for('admin.reject_event_voter', event_id=event_id, voter_id=voter.user_id) }}" style="flex:1;">
+                <button type="submit" class="w-full border border-red-500 text-red-400 py-2 !rounded-button hover:bg-red-500 hover:bg-opacity-20 transition-all duration-300 whitespace-nowrap flex items-center justify-center">
+                  <div class="w-5 h-5 flex items-center justify-center mr-1">
+                    <i class="ri-close-line"></i>
                   </div>
-                </div>
-                <div>
-                  <h3 class="font-semibold text-lg">David Thompson</h3>
-                  <p class="text-sm text-gray-400">
-                    Electrical Engineering, Year 4
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div class="p-4 space-y-3">
-              <div class="flex items-center">
-                <div
-                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
-                >
-                  <i class="ri-mail-line"></i>
-                </div>
-                <span class="text-sm">david.thompson@university.edu</span>
-              </div>
-              <div class="flex items-center">
-                <div
-                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
-                >
-                  <i class="ri-smartphone-line"></i>
-                </div>
-                <span class="text-sm">+1 (555) 345-6789</span>
-              </div>
-              <div class="flex items-center">
-                <div
-                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
-                >
-                  <i class="ri-id-card-line"></i>
-                </div>
-                <span class="text-sm">ID: EE2021123</span>
-              </div>
-              <div class="flex items-center">
-                <div
-                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
-                >
-                  <i class="ri-calendar-line"></i>
-                </div>
-                <span class="text-sm">Applied: June 5, 2025</span>
-              </div>
-            </div>
-            <div class="p-4 bg-black bg-opacity-20 flex space-x-3">
-              <button
-                class="flex-1 bg-primary text-white py-2 !rounded-button hover:bg-opacity-80 transition-all duration-300 whitespace-nowrap flex items-center justify-center"
-              >
-                <div class="w-5 h-5 flex items-center justify-center mr-1">
-                  <i class="ri-check-line"></i>
-                </div>
-                Approve
-              </button>
-              <button
-                class="flex-1 border border-red-500 text-red-400 py-2 !rounded-button hover:bg-red-500 hover:bg-opacity-20 transition-all duration-300 whitespace-nowrap flex items-center justify-center"
-              >
-                <div class="w-5 h-5 flex items-center justify-center mr-1">
-                  <i class="ri-close-line"></i>
-                </div>
-                Reject
-              </button>
+                  Reject
+                </button>
+              </form>
             </div>
           </div>
-
-          <!-- Voter Card 4 -->
-          <div class="glassmorphism rounded-lg overflow-hidden card-hover">
-            <div class="p-4 border-b border-white border-opacity-10">
-              <div class="flex items-center space-x-4">
-                <div
-                  class="w-16 h-16 rounded-full bg-primary bg-opacity-10 flex items-center justify-center overflow-hidden"
-                >
-                  <div
-                    class="w-8 h-8 flex items-center justify-center text-primary"
-                  >
-                    <i class="ri-user-3-line ri-2x"></i>
-                  </div>
-                </div>
-                <div>
-                  <h3 class="font-semibold text-lg">Sophia Martinez</h3>
-                  <p class="text-sm text-gray-400">Civil Engineering, Year 3</p>
-                </div>
-              </div>
-            </div>
-            <div class="p-4 space-y-3">
-              <div class="flex items-center">
-                <div
-                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
-                >
-                  <i class="ri-mail-line"></i>
-                </div>
-                <span class="text-sm">sophia.martinez@university.edu</span>
-              </div>
-              <div class="flex items-center">
-                <div
-                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
-                >
-                  <i class="ri-smartphone-line"></i>
-                </div>
-                <span class="text-sm">+1 (555) 987-6543</span>
-              </div>
-              <div class="flex items-center">
-                <div
-                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
-                >
-                  <i class="ri-id-card-line"></i>
-                </div>
-                <span class="text-sm">ID: CE2022345</span>
-              </div>
-              <div class="flex items-center">
-                <div
-                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
-                >
-                  <i class="ri-calendar-line"></i>
-                </div>
-                <span class="text-sm">Applied: June 6, 2025</span>
-              </div>
-            </div>
-            <div class="p-4 bg-black bg-opacity-20 flex space-x-3">
-              <button
-                class="flex-1 bg-primary text-white py-2 !rounded-button hover:bg-opacity-80 transition-all duration-300 whitespace-nowrap flex items-center justify-center"
-              >
-                <div class="w-5 h-5 flex items-center justify-center mr-1">
-                  <i class="ri-check-line"></i>
-                </div>
-                Approve
-              </button>
-              <button
-                class="flex-1 border border-red-500 text-red-400 py-2 !rounded-button hover:bg-red-500 hover:bg-opacity-20 transition-all duration-300 whitespace-nowrap flex items-center justify-center"
-              >
-                <div class="w-5 h-5 flex items-center justify-center mr-1">
-                  <i class="ri-close-line"></i>
-                </div>
-                Reject
-              </button>
-            </div>
-          </div>
-
-          <!-- Voter Card 5 -->
-          <div class="glassmorphism rounded-lg overflow-hidden card-hover">
-            <div class="p-4 border-b border-white border-opacity-10">
-              <div class="flex items-center space-x-4">
-                <div
-                  class="w-16 h-16 rounded-full bg-primary bg-opacity-10 flex items-center justify-center overflow-hidden"
-                >
-                  <div
-                    class="w-8 h-8 flex items-center justify-center text-primary"
-                  >
-                    <i class="ri-user-3-line ri-2x"></i>
-                  </div>
-                </div>
-                <div>
-                  <h3 class="font-semibold text-lg">Alexander Johnson</h3>
-                  <p class="text-sm text-gray-400">
-                    Mechanical Engineering, Year 2
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div class="p-4 space-y-3">
-              <div class="flex items-center">
-                <div
-                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
-                >
-                  <i class="ri-mail-line"></i>
-                </div>
-                <span class="text-sm">alex.johnson@university.edu</span>
-              </div>
-              <div class="flex items-center">
-                <div
-                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
-                >
-                  <i class="ri-smartphone-line"></i>
-                </div>
-                <span class="text-sm">+1 (555) 456-7890</span>
-              </div>
-              <div class="flex items-center">
-                <div
-                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
-                >
-                  <i class="ri-id-card-line"></i>
-                </div>
-                <span class="text-sm">ID: ME2023789</span>
-              </div>
-              <div class="flex items-center">
-                <div
-                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
-                >
-                  <i class="ri-calendar-line"></i>
-                </div>
-                <span class="text-sm">Applied: June 7, 2025</span>
-              </div>
-            </div>
-            <div class="p-4 bg-black bg-opacity-20 flex space-x-3">
-              <button
-                class="flex-1 bg-primary text-white py-2 !rounded-button hover:bg-opacity-80 transition-all duration-300 whitespace-nowrap flex items-center justify-center"
-              >
-                <div class="w-5 h-5 flex items-center justify-center mr-1">
-                  <i class="ri-check-line"></i>
-                </div>
-                Approve
-              </button>
-              <button
-                class="flex-1 border border-red-500 text-red-400 py-2 !rounded-button hover:bg-red-500 hover:bg-opacity-20 transition-all duration-300 whitespace-nowrap flex items-center justify-center"
-              >
-                <div class="w-5 h-5 flex items-center justify-center mr-1">
-                  <i class="ri-close-line"></i>
-                </div>
-                Reject
-              </button>
-            </div>
-          </div>
-
-          <!-- Voter Card 6 -->
-          <div class="glassmorphism rounded-lg overflow-hidden card-hover">
-            <div class="p-4 border-b border-white border-opacity-10">
-              <div class="flex items-center space-x-4">
-                <div
-                  class="w-16 h-16 rounded-full bg-primary bg-opacity-10 flex items-center justify-center overflow-hidden"
-                >
-                  <div
-                    class="w-8 h-8 flex items-center justify-center text-primary"
-                  >
-                    <i class="ri-user-3-line ri-2x"></i>
-                  </div>
-                </div>
-                <div>
-                  <h3 class="font-semibold text-lg">Emily Rodriguez</h3>
-                  <p class="text-sm text-gray-400">Computer Science, Year 1</p>
-                </div>
-              </div>
-            </div>
-            <div class="p-4 space-y-3">
-              <div class="flex items-center">
-                <div
-                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
-                >
-                  <i class="ri-mail-line"></i>
-                </div>
-                <span class="text-sm">emily.rodriguez@university.edu</span>
-              </div>
-              <div class="flex items-center">
-                <div
-                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
-                >
-                  <i class="ri-smartphone-line"></i>
-                </div>
-                <span class="text-sm">+1 (555) 567-8901</span>
-              </div>
-              <div class="flex items-center">
-                <div
-                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
-                >
-                  <i class="ri-id-card-line"></i>
-                </div>
-                <span class="text-sm">ID: CS2024567</span>
-              </div>
-              <div class="flex items-center">
-                <div
-                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
-                >
-                  <i class="ri-calendar-line"></i>
-                </div>
-                <span class="text-sm">Applied: June 7, 2025</span>
-              </div>
-            </div>
-            <div class="p-4 bg-black bg-opacity-20 flex space-x-3">
-              <button
-                class="flex-1 bg-primary text-white py-2 !rounded-button hover:bg-opacity-80 transition-all duration-300 whitespace-nowrap flex items-center justify-center"
-              >
-                <div class="w-5 h-5 flex items-center justify-center mr-1">
-                  <i class="ri-check-line"></i>
-                </div>
-                Approve
-              </button>
-              <button
-                class="flex-1 border border-red-500 text-red-400 py-2 !rounded-button hover:bg-red-500 hover:bg-opacity-20 transition-all duration-300 whitespace-nowrap flex items-center justify-center"
-              >
-                <div class="w-5 h-5 flex items-center justify-center mr-1">
-                  <i class="ri-close-line"></i>
-                </div>
-                Reject
-              </button>
-            </div>
-          </div>
-
-          <!-- Voter Card 7 -->
-          <div class="glassmorphism rounded-lg overflow-hidden card-hover">
-            <div class="p-4 border-b border-white border-opacity-10">
-              <div class="flex items-center space-x-4">
-                <div
-                  class="w-16 h-16 rounded-full bg-primary bg-opacity-10 flex items-center justify-center overflow-hidden"
-                >
-                  <div
-                    class="w-8 h-8 flex items-center justify-center text-primary"
-                  >
-                    <i class="ri-user-3-line ri-2x"></i>
-                  </div>
-                </div>
-                <div>
-                  <h3 class="font-semibold text-lg">Daniel Wilson</h3>
-                  <p class="text-sm text-gray-400">
-                    Business Administration, Year 3
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div class="p-4 space-y-3">
-              <div class="flex items-center">
-                <div
-                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
-                >
-                  <i class="ri-mail-line"></i>
-                </div>
-                <span class="text-sm">daniel.wilson@university.edu</span>
-              </div>
-              <div class="flex items-center">
-                <div
-                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
-                >
-                  <i class="ri-smartphone-line"></i>
-                </div>
-                <span class="text-sm">+1 (555) 678-9012</span>
-              </div>
-              <div class="flex items-center">
-                <div
-                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
-                >
-                  <i class="ri-id-card-line"></i>
-                </div>
-                <span class="text-sm">ID: BA2022678</span>
-              </div>
-              <div class="flex items-center">
-                <div
-                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
-                >
-                  <i class="ri-calendar-line"></i>
-                </div>
-                <span class="text-sm">Applied: June 6, 2025</span>
-              </div>
-            </div>
-            <div class="p-4 bg-black bg-opacity-20 flex space-x-3">
-              <button
-                class="flex-1 bg-primary text-white py-2 !rounded-button hover:bg-opacity-80 transition-all duration-300 whitespace-nowrap flex items-center justify-center"
-              >
-                <div class="w-5 h-5 flex items-center justify-center mr-1">
-                  <i class="ri-check-line"></i>
-                </div>
-                Approve
-              </button>
-              <button
-                class="flex-1 border border-red-500 text-red-400 py-2 !rounded-button hover:bg-red-500 hover:bg-opacity-20 transition-all duration-300 whitespace-nowrap flex items-center justify-center"
-              >
-                <div class="w-5 h-5 flex items-center justify-center mr-1">
-                  <i class="ri-close-line"></i>
-                </div>
-                Reject
-              </button>
-            </div>
-          </div>
-
-          <!-- Voter Card 8 -->
-          <div class="glassmorphism rounded-lg overflow-hidden card-hover">
-            <div class="p-4 border-b border-white border-opacity-10">
-              <div class="flex items-center space-x-4">
-                <div
-                  class="w-16 h-16 rounded-full bg-primary bg-opacity-10 flex items-center justify-center overflow-hidden"
-                >
-                  <div
-                    class="w-8 h-8 flex items-center justify-center text-primary"
-                  >
-                    <i class="ri-user-3-line ri-2x"></i>
-                  </div>
-                </div>
-                <div>
-                  <h3 class="font-semibold text-lg">Olivia Taylor</h3>
-                  <p class="text-sm text-gray-400">
-                    Electrical Engineering, Year 2
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div class="p-4 space-y-3">
-              <div class="flex items-center">
-                <div
-                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
-                >
-                  <i class="ri-mail-line"></i>
-                </div>
-                <span class="text-sm">olivia.taylor@university.edu</span>
-              </div>
-              <div class="flex items-center">
-                <div
-                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
-                >
-                  <i class="ri-smartphone-line"></i>
-                </div>
-                <span class="text-sm">+1 (555) 789-0123</span>
-              </div>
-              <div class="flex items-center">
-                <div
-                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
-                >
-                  <i class="ri-id-card-line"></i>
-                </div>
-                <span class="text-sm">ID: EE2023890</span>
-              </div>
-              <div class="flex items-center">
-                <div
-                  class="w-5 h-5 flex items-center justify-center mr-3 text-primary"
-                >
-                  <i class="ri-calendar-line"></i>
-                </div>
-                <span class="text-sm">Applied: June 5, 2025</span>
-              </div>
-            </div>
-            <div class="p-4 bg-black bg-opacity-20 flex space-x-3">
-              <button
-                class="flex-1 bg-primary text-white py-2 !rounded-button hover:bg-opacity-80 transition-all duration-300 whitespace-nowrap flex items-center justify-center"
-              >
-                <div class="w-5 h-5 flex items-center justify-center mr-1">
-                  <i class="ri-check-line"></i>
-                </div>
-                Approve
-              </button>
-              <button
-                class="flex-1 border border-red-500 text-red-400 py-2 !rounded-button hover:bg-red-500 hover:bg-opacity-20 transition-all duration-300 whitespace-nowrap flex items-center justify-center"
-              >
-                <div class="w-5 h-5 flex items-center justify-center mr-1">
-                  <i class="ri-close-line"></i>
-                </div>
-                Reject
-              </button>
-            </div>
-          </div>
+          {% endfor %}
         </div>
 
         <div class="mt-8 flex justify-between items-center">

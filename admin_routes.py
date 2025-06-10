@@ -138,19 +138,38 @@ def create_event():
 def manage_events():
     if not session.get('user_id'):
         return redirect(url_for('login_page'))
-    user_data = get_user_data(session['user_id'])
-    if not user_data or user_data.get('role') != 'admin':
-        return redirect(url_for('login_page'))
-    
-    # Get all events for this admin
+    user_id = session['user_id']
+    page = request.args.get('page', 1, type=int)
+    sort = request.args.get('sort', 'newest')
+    per_page = 10  # Number of events per page
+    # Fetch all events created by this admin
+    events_query = db.collection('events').where('admin_id', '==', user_id).stream()
     events = []
-    events_ref = db.collection('events').where('admin_id', '==', session['user_id']).stream()
-    for event in events_ref:
+    for event in events_query:
         event_data = event.to_dict()
-        event_data['id'] = event.id
+        event_id = event.id
+        # Get approved voters count
+        voters_ref = db.collection('events').document(event_id).collection('voters').where('approved', '==', True)
+        approved_voters = list(voters_ref.stream())
+        event_data['event_id'] = event_id
+        event_data['approved_voter_count'] = len(approved_voters)
         events.append(event_data)
-    
-    return render_template('admin/manage-events.html', events=events)
+    # Sort events
+    if sort == 'newest':
+        events.sort(key=lambda x: x.get('created_at', ''), reverse=True)
+    elif sort == 'oldest':
+        events.sort(key=lambda x: x.get('created_at', ''))
+    elif sort == 'name-asc':
+        events.sort(key=lambda x: x.get('event_name', ''))
+    elif sort == 'name-desc':
+        events.sort(key=lambda x: x.get('event_name', ''), reverse=True)
+    # Paginate events
+    total_events = len(events)
+    total_pages = (total_events + per_page - 1) // per_page
+    start_idx = (page - 1) * per_page
+    end_idx = start_idx + per_page
+    paginated_events = events[start_idx:end_idx]
+    return render_template('admin/manage-events.html', events=paginated_events, active_page='manage_events', page=page, total_pages=total_pages, sort=sort)
 
 @admin_bp.route('/results')
 def results():
@@ -201,55 +220,45 @@ def audit_logs():
     
     return render_template('admin/audit-logs.html', logs=logs)
 
-@admin_bp.route('/approve/<user_id>', methods=['POST'])
-def approve_voter(user_id):
+@admin_bp.route('/approve-voter/<voter_id>', methods=['POST'])
+def approve_voter(voter_id):
     if not session.get('user_id'):
-        return jsonify({'error': 'Not authenticated'}), 401
-    
-    user_data = get_user_data(session['user_id'])
-    if not user_data or user_data.get('role') != 'admin':
-        return jsonify({'error': 'Not authorized'}), 403
-    
+        return redirect(url_for('login_page'))
     try:
-        # Update user approval status
-        db.collection('users').document(user_id).update({
-            'approved': True,
-            'approved_by': session['user_id'],
-            'approved_at': datetime.now()
-        })
-        return jsonify({'message': 'Voter approved successfully'})
+        # Get voter data
+        voter_ref = db.collection('users').document(voter_id)
+        voter_doc = voter_ref.get()
+        if not voter_doc.exists:
+            flash('Voter not found', 'error')
+            return redirect(url_for('admin.pending_voters'))
+        voter_data = voter_doc.to_dict()
+        voter_name = voter_data.get('name', 'Unknown')
+        # Update voter status to approved
+        voter_ref.update({'approved': True})
+        flash(f'{voter_name}, {voter_id} has been approved', 'success')
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        flash(f'Error approving voter: {str(e)}', 'error')
+    return redirect(url_for('admin.pending_voters'))
 
-@admin_bp.route('/reject/<user_id>', methods=['POST'])
-def reject_voter(user_id):
+@admin_bp.route('/reject-voter/<voter_id>', methods=['POST'])
+def reject_voter(voter_id):
     if not session.get('user_id'):
-        return jsonify({'error': 'Not authenticated'}), 401
-    
-    user_data = get_user_data(session['user_id'])
-    if not user_data or user_data.get('role') != 'admin':
-        return jsonify({'error': 'Not authorized'}), 403
-    
+        return redirect(url_for('login_page'))
     try:
-        # Get user data
-        user_doc = db.collection('users').document(user_id).get()
-        if not user_doc.exists:
-            return jsonify({'error': 'User not found'}), 404
-        
-        user_data = user_doc.to_dict()
-        
-        # Delete user's photo from storage
-        if 'photo_url' in user_data:
-            photo_path = user_data['photo_url'].split('/')[-1]
-            blob = bucket.blob(f'voter_photos/{photo_path}')
-            blob.delete()
-        
-        # Delete user document
-        db.collection('users').document(user_id).delete()
-        
-        return jsonify({'message': 'Voter rejected successfully'})
+        # Get voter data
+        voter_ref = db.collection('users').document(voter_id)
+        voter_doc = voter_ref.get()
+        if not voter_doc.exists:
+            flash('Voter not found', 'error')
+            return redirect(url_for('admin.pending_voters'))
+        voter_data = voter_doc.to_dict()
+        voter_name = voter_data.get('name', 'Unknown')
+        # Delete voter
+        voter_ref.delete()
+        flash(f'{voter_name}, {voter_id} has been rejected', 'success')
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        flash(f'Error rejecting voter: {str(e)}', 'error')
+    return redirect(url_for('admin.pending_voters'))
 
 @admin_bp.route('/event/<event_id>/results')
 def admin_event_results(event_id):
@@ -289,49 +298,37 @@ def admin_event_results(event_id):
 @admin_bp.route('/event/<event_id>/approve-voter/<voter_id>', methods=['POST'])
 def approve_event_voter(event_id, voter_id):
     if not session.get('user_id'):
-        return jsonify({'error': 'Not authenticated'}), 401
-    
+        flash('Not authenticated', 'error')
+        return redirect(url_for('admin.event_pending_voters', event_id=event_id))
     user_data = get_user_data(session['user_id'])
     if not user_data or user_data.get('role') != 'admin':
-        return jsonify({'error': 'Not authorized'}), 403
-    
+        flash('Not authorized', 'error')
+        return redirect(url_for('admin.event_pending_voters', event_id=event_id))
     try:
         # Get voter data
         voter_ref = db.collection('events').document(event_id).collection('voters').document(voter_id)
         voter_data = voter_ref.get().to_dict()
-        
         if not voter_data:
-            return jsonify({'error': 'Voter not found'}), 404
-        
-        # Generate voter ID
-        new_voter_id = generate_voter_id()
-        
-        # Generate face embedding
-        photo_url = voter_data['photo_url']
-        embedding = generate_embedding(photo_url)
-        
-        if embedding is None:
-            return jsonify({'error': 'Could not generate face embedding'}), 400
-        
-        # Update voter data with new ID and embedding
+            flash('Voter not found', 'error')
+            return redirect(url_for('admin.event_pending_voters', event_id=event_id))
+        # Check for valid photo_url
+        photo_url = voter_data.get('photo_url')
+        if not photo_url or not photo_url.startswith('http'):
+            flash('Voter photo is missing or invalid.', 'error')
+            return redirect(url_for('admin.event_pending_voters', event_id=event_id))
+        # Approve voter (no embedding generation)
         voter_data.update({
             'status': 'approved',
-            'voter_id': new_voter_id,
-            'embedding': embedding.tolist(),
+            'approved': True,
             'approved_at': datetime.now(),
             'approved_by': session['user_id']
         })
-        
-        # Update voter document
         voter_ref.set(voter_data)
-        
-        return jsonify({
-            'message': 'Voter approved successfully',
-            'voter_id': new_voter_id
-        })
-        
+        flash('Voter approved successfully', 'success')
+        return redirect(url_for('admin.event_pending_voters', event_id=event_id))
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        flash(f'Error: {str(e)}', 'error')
+        return redirect(url_for('admin.event_pending_voters', event_id=event_id))
 
 @admin_bp.route('/event/<event_id>/reject-voter/<voter_id>', methods=['POST'])
 def reject_event_voter(event_id, voter_id):
@@ -371,7 +368,11 @@ def event_pending_voters(event_id):
     try:
         # Get pending voters for this specific event
         voters_ref = db.collection('events').document(event_id).collection('voters').where('status', '==', 'pending').stream()
-        pending_voters = [voter.to_dict() for voter in voters_ref]
+        pending_voters = []
+        for voter in voters_ref:
+            voter_dict = voter.to_dict()
+            voter_dict['user_id'] = voter.id
+            pending_voters.append(voter_dict)
         return render_template('admin/pending-voters.html', voters=pending_voters, event_id=event_id)
     except Exception as e:
         flash(f'Error: {str(e)}', 'error')
@@ -446,10 +447,10 @@ def approve_event_voter_firestore(event_id, voter_id):
         db.collection('events').document(event_id).collection('audit_logs').add(audit_data)
 
         flash('Voter approved successfully', 'success')
-        return redirect(url_for('event_pending_voters', event_id=event_id))
+        return redirect(url_for('admin.event_pending_voters', event_id=event_id))
     except Exception as e:
         flash(f'Error: {str(e)}', 'error')
-        return redirect(url_for('event_pending_voters', event_id=event_id))
+        return redirect(url_for('admin.event_pending_voters', event_id=event_id))
 
 @admin_bp.route('/api/create-event', methods=['POST'])
 def api_create_event():
@@ -505,4 +506,31 @@ def api_create_event():
         db.collection('events').document(event_id).set(event_data)
         return jsonify({'message': 'Event created successfully!', 'event_id': event_id}), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500 
+        return jsonify({'error': str(e)}), 500
+
+@admin_bp.route('/event/<event_id>/edit', methods=['POST'])
+def edit_event(event_id):
+    if not session.get('user_id'):
+        return redirect(url_for('login_page'))
+    try:
+        # Get form data
+        event_description = request.form.get('event_description')
+        event_slogan = request.form.get('event_slogan')
+        if not event_description or not event_slogan:
+            flash('Missing required fields', 'error')
+            return redirect(url_for('admin.manage_events'))
+        # Update event document
+        event_ref = db.collection('events').document(event_id)
+        event_ref.update({
+            'event_description': event_description
+        })
+        # Update first candidate's slogan
+        event_data = event_ref.get().to_dict()
+        if event_data and 'candidates' in event_data and event_data['candidates']:
+            candidates = event_data['candidates']
+            candidates[0]['slogan'] = event_slogan
+            event_ref.update({'candidates': candidates})
+        flash('Event updated successfully', 'success')
+    except Exception as e:
+        flash(f'Error: {str(e)}', 'error')
+    return redirect(url_for('admin.manage_events')) 

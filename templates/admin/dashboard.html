@@ -103,13 +103,12 @@ tailwind.config = {
                 <span class="bg-primary bg-opacity-20 text-primary text-xs px-2 py-1 rounded-full">Admin</span>
             </div>
             
-            <nav class="hidden md:flex space-x-6">
-                <a href="#" class="text-primary border-b-2 border-primary py-1 transition-colors">Dashboard</a>
-                <a href="#" class="hover:text-primary border-b-2 border-transparent hover:border-primary py-1 transition-colors">Create Event</a>
-                <a href="#" class="hover:text-primary border-b-2 border-transparent hover:border-primary py-1 transition-colors">Approvals</a>
-                <a href="#" class="hover:text-primary border-b-2 border-transparent hover:border-primary py-1 transition-colors">Voter List</a>
-                <a href="#" class="hover:text-primary border-b-2 border-transparent hover:border-primary py-1 transition-colors">Results</a>
-                <a href="#" class="hover:text-primary border-b-2 border-transparent hover:border-primary py-1 transition-colors">Audit Log</a>
+            <nav class="hidden md:flex items-center space-x-8">
+                <a href="{{ url_for('admin.dashboard') }}" class="text-primary border-b-2 border-primary py-1 transition-colors {% if active_page == 'dashboard' %}text-primary{% endif %}">Dashboard</a>
+                <a href="{{ url_for('admin.create_event') }}" class="hover:text-primary border-b-2 border-transparent hover:border-primary py-1 transition-colors {% if active_page == 'create_event' %}text-primary{% endif %}">Create Event</a>
+                <a href="{{ url_for('admin.manage_events') }}" class="hover:text-primary border-b-2 border-transparent hover:border-primary py-1 transition-colors {% if active_page == 'manage_events' %}text-primary{% endif %}">Manage Events</a>
+                <a href="{{ url_for('admin.results') }}" class="hover:text-primary border-b-2 border-transparent hover:border-primary py-1 transition-colors {% if active_page == 'results' %}text-primary{% endif %}">Results</a>
+                <a href="{{ url_for('admin.audit_logs') }}" class="hover:text-primary border-b-2 border-transparent hover:border-primary py-1 transition-colors {% if active_page == 'audit_logs' %}text-primary{% endif %}">Audit Log</a>
             </nav>
             
             <div class="flex items-center space-x-4">
@@ -196,27 +195,23 @@ tailwind.config = {
         
         <div class="md:hidden glassmorphism mt-4 rounded p-4 hidden" id="mobile-menu">
             <nav class="flex flex-col space-y-3">
-                <a href="#" class="text-primary flex items-center space-x-2">
+                <a href="{{ url_for('admin.dashboard') }}" class="text-primary flex items-center space-x-2">
                     <i class="ri-dashboard-line"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="#" class="hover:text-primary flex items-center space-x-2">
+                <a href="{{ url_for('admin.create_event') }}" class="hover:text-primary flex items-center space-x-2">
                     <i class="ri-add-circle-line"></i>
                     <span>Create Event</span>
                 </a>
-                <a href="#" class="hover:text-primary flex items-center space-x-2">
-                    <i class="ri-user-follow-line"></i>
-                    <span>Approvals</span>
+                <a href="{{ url_for('admin.manage_events') }}" class="hover:text-primary flex items-center space-x-2">
+                    <i class="ri-calendar-event-line"></i>
+                    <span>Manage Events</span>
                 </a>
-                <a href="#" class="hover:text-primary flex items-center space-x-2">
-                    <i class="ri-team-line"></i>
-                    <span>Voter List</span>
-                </a>
-                <a href="#" class="hover:text-primary flex items-center space-x-2">
+                <a href="{{ url_for('admin.results') }}" class="hover:text-primary flex items-center space-x-2">
                     <i class="ri-bar-chart-grouped-line"></i>
                     <span>Results</span>
                 </a>
-                <a href="#" class="hover:text-primary flex items-center space-x-2">
+                <a href="{{ url_for('admin.audit_logs') }}" class="hover:text-primary flex items-center space-x-2">
                     <i class="ri-file-list-3-line"></i>
                     <span>Audit Log</span>
                 </a>
@@ -349,7 +344,7 @@ tailwind.config = {
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-xl font-bold">Votes per Candidate</h2>
                     <div class="flex space-x-2">
-                        <select id="event-selector" class="glassmorphism border-none rounded-button text-sm px-3 py-2 pr-8 appearance-none bg-right bg-no-repeat" style="background-image: url('data:image/svg+xml;charset=US-ASCII,<svg width=\"12\" height=\"12\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M3 5h6l-3 3z\" fill=\"%23fff\"/></svg>'); background-position: right 10px center;">
+                        <select id="event-selector" class="glassmorphism border-none rounded-button text-sm px-3 py-2 pr-8 appearance-none bg-right bg-no-repeat" style="background-position: right 10px center;">
                             <option value="student-council">Student Council Election</option>
                             <option value="faculty-senate">Faculty Senate Election</option>
                             <option value="department-chair">Department Chair Selection</option>
@@ -440,7 +435,7 @@ tailwind.config = {
                         </div>
                     </div>
                     <div class="flex items-center space-x-2">
-                        <select class="glassmorphism border-none rounded-button text-sm px-3 py-2 pr-8 appearance-none bg-right bg-no-repeat" style="background-image: url('data:image/svg+xml;charset=US-ASCII,<svg width=\"12\" height=\"12\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M3 5h6l-3 3z\" fill=\"%23fff\"/></svg>'); background-position: right 10px center;">
+                        <select class="glassmorphism border-none rounded-button text-sm px-3 py-2 pr-8 appearance-none bg-right bg-no-repeat" style="background-position: right 10px center;">
                             <option value="all">All Events</option>
                             <option value="student-council">Student Council Election</option>
                             <option value="faculty-senate">Faculty Senate Election</option>

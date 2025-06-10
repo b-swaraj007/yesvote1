@@ -258,7 +258,8 @@ def voter_dashboard():
     return render_template('voter/dashboard.html', 
                          user=user_data,
                          joined_events=joined_events,
-                         past_votes=past_votes)
+                         past_votes=past_votes,
+                         now=datetime.now())
 
 @app.route('/vote/<event_id>', methods=['POST'])
 def vote(event_id):
