@@ -16,6 +16,9 @@ import io
 from functools import wraps
 import base64
 import urllib.parse
+from face_embedder import generate_embedding
+import numpy as np
+import cv2
 
 # Load environment variables
 load_dotenv()
@@ -133,21 +136,38 @@ def register():
             # Upload to Firebase Storage
             blob = bucket.blob(f'user_photos/{user.uid}.jpg')
             blob.upload_from_filename(temp_path)
-            
-            # Make the blob publicly accessible
             blob.make_public()
-            
-            # Get the public URL
             photo_url = blob.public_url
             
-            # Clean up the temporary file
+            # Read image from bytes for embedding
+            nparr = np.frombuffer(photo_bytes, np.uint8)
+            img_np = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+            embedding = generate_embedding(img_np)
+            if embedding is None:
+                # Clean up
+                os.unlink(temp_path)
+                firebase_auth.delete_user(user.uid)
+                flash('no face detected please place your face in camera frame', 'error')
+                return jsonify({'error': 'no face detected please place your face in camera frame'}), 400
+            embedding_list = embedding.tolist()
+
+            # After embedding is generated, check for duplicate faces
+            users_ref = db.collection('users').stream()
+            for user_doc in users_ref:
+                existing = user_doc.to_dict()
+                if 'embedding' in existing:
+                    existing_emb = np.array(existing['embedding'])
+                    dist = np.linalg.norm(np.array(embedding_list) - existing_emb)
+                    if dist < 0.6:
+                        os.unlink(temp_path)
+                        firebase_auth.delete_user(user.uid)
+                        flash('This face is already registered with another account.', 'error')
+                        return jsonify({'error': 'This face is already registered with another account.'}), 400
             os.unlink(temp_path)
-            
         except Exception as e:
-            # If photo upload fails, delete the created user
             firebase_auth.delete_user(user.uid)
-            print(f"Photo upload error: {str(e)}")
-            return jsonify({'error': 'Failed to upload photo. Please try again.'}), 500
+            print(f"Photo upload or embedding error: {str(e)}")
+            return jsonify({'error': 'Failed to upload photo or extract face embedding. Please try again.'}), 500
         
         # Store user data in Firestore
         user_data = {
@@ -156,15 +176,13 @@ def register():
             'mobile': data['mobile'],
             'aadhar': data['aadhar'],
             'photo_url': photo_url,
+            'embedding': embedding_list,
             'role': 'voter',
             'created_at': datetime.now(),
             'approved': False  # Requires admin approval
         }
-        
         db.collection('users').document(user.uid).set(user_data)
-        
         return jsonify({'message': 'Registration successful'}), 200
-        
     except Exception as e:
         print(f"Registration error: {str(e)}")
         return jsonify({'error': 'Registration failed. Please try again.'}), 500
