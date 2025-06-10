@@ -261,76 +261,145 @@ def voter_dashboard():
                          past_votes=past_votes,
                          now=datetime.now())
 
+@app.route('/vote/<event_id>', methods=['GET'])
+@login_required
+def vote_page(event_id):
+    if session.get('role') != 'voter':
+        return redirect(url_for('login_page'))
+    user_id = session['user_id']
+    # Get event data
+    event_ref = db.collection('events').document(event_id)
+    event_doc = event_ref.get()
+    if not event_doc.exists:
+        flash('Event not found.', 'error')
+        return redirect(url_for('voter_dashboard'))
+    event_data = event_doc.to_dict()
+    # Get voter data for this event
+    voter_ref = event_ref.collection('voters').where('user_id', '==', user_id).limit(1)
+    voter_docs = list(voter_ref.stream())
+    if not voter_docs:
+        flash('You are not registered for this event.', 'error')
+        return redirect(url_for('voter_dashboard'))
+    voter_data = voter_docs[0].to_dict()
+    if not voter_data.get('approved', False):
+        flash('You are not approved to vote in this event.', 'error')
+        return redirect(url_for('voter_dashboard'))
+    if voter_data.get('has_voted', False):
+        flash('You have already voted in this event.', 'error')
+        return redirect(url_for('voter_dashboard'))
+    # Prepare candidate list
+    candidates = event_data.get('candidates', [])
+    # Pass all info to template
+    return render_template('voter/vote.html',
+                          event=event_data,
+                          candidates=candidates,
+                          voter=voter_data,
+                          user=session,
+                          event_id=event_id)
+
 @app.route('/vote/<event_id>', methods=['POST'])
-def vote(event_id):
-    if not session.get('user_id'):
-        return jsonify({'error': 'Not authenticated'}), 401
-    try:
-        # Get voter data from event's voters subcollection
-        voter_ref = db.collection('events').document(event_id).collection('voters').document(session['user_id'])
-        voter_data = voter_ref.get().to_dict()
-        if not voter_data or voter_data.get('status') != 'approved':
-            return jsonify({'error': 'Voter not approved for this event'}), 403
-        if voter_data.get('has_voted'):
-            return jsonify({'error': 'You have already voted in this event'}), 400
-
-        # Generate ballot ID and receipt ID
-        ballot_id = generate_ballot_id()
-        receipt_id = generate_receipt_id()
-        candidate_id = request.form.get('candidate_id')
-
-        # Store vote in event's ballots subcollection
-        vote_data = {
-            'voter_id': session['user_id'],
-            'candidate_id': candidate_id,
-            'timestamp': datetime.now(),
-            'status': 'cast',
-            'receipt_id': receipt_id
+@login_required
+def cast_vote(event_id):
+    if session.get('role') != 'voter':
+        return redirect(url_for('login_page'))
+    user_id = session['user_id']
+    event_ref = db.collection('events').document(event_id)
+    event_doc = event_ref.get()
+    if not event_doc.exists:
+        flash('Event not found.', 'error')
+        return redirect(url_for('voter_dashboard'))
+    event_data = event_doc.to_dict()
+    # Get voter data for this event
+    voter_ref = event_ref.collection('voters').where('user_id', '==', user_id).limit(1)
+    voter_docs = list(voter_ref.stream())
+    if not voter_docs:
+        flash('You are not registered for this event.', 'error')
+        return redirect(url_for('voter_dashboard'))
+    voter_data = voter_docs[0].to_dict()
+    if not voter_data.get('approved', False):
+        flash('You are not approved to vote in this event.', 'error')
+        return redirect(url_for('voter_dashboard'))
+    if voter_data.get('has_voted', False):
+        flash('You have already voted in this event.', 'error')
+        return redirect(url_for('voter_dashboard'))
+    # Get form data
+    candidate_id = request.form.get('candidate_id')
+    live_photo = request.files.get('live_photo')
+    if not candidate_id or not live_photo:
+        flash('Please select a candidate and capture your live photo.', 'error')
+        return redirect(url_for('vote_page', event_id=event_id))
+    # Generate embedding for live photo
+    file_bytes = np.frombuffer(live_photo.read(), np.uint8)
+    img_np = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
+    embedding = generate_embedding(img_np)
+    if embedding is None:
+        flash('Face not detected. Please retake your photo.', 'error')
+        return redirect(url_for('vote_page', event_id=event_id))
+    # Compare with registered embedding
+    registered_embedding = np.array(voter_data.get('embedding'))
+    similarity = np.dot(embedding, registered_embedding) / (np.linalg.norm(embedding) * np.linalg.norm(registered_embedding))
+    match = similarity > 0.7  # Threshold for face match
+    # Store audit log for verification attempt
+    audit_data = {
+        'action': 'face_verification',
+        'user_id': user_id,
+        'timestamp': datetime.now(),
+        'details': {
+            'similarity': float(similarity),
+            'match': bool(match)
         }
-        db.collection('events').document(event_id).collection('ballots').document(ballot_id).set(vote_data)
-
-        # Update voter's voting status
-        voter_ref.update({
-            'has_voted': True,
+    }
+    event_ref.collection('audit_logs').add(audit_data)
+    if not match:
+        flash('Face verification failed. Please try again.', 'error')
+        return redirect(url_for('vote_page', event_id=event_id))
+    # Generate ballot and receipt IDs
+    ballot_id = generate_ballot_id()
+    receipt_id = generate_receipt_id()
+    # Store vote in ballots subcollection
+    vote_data = {
+        'voter_id': user_id,
+        'candidate_id': candidate_id,
+        'timestamp': datetime.now(),
+        'status': 'cast',
+        'receipt_id': receipt_id
+    }
+    event_ref.collection('ballots').document(ballot_id).set(vote_data)
+    # Update voter's voting status
+    voter_ref = event_ref.collection('voters').document(voter_docs[0].id)
+    voter_ref.update({
+        'has_voted': True,
+        'ballot_id': ballot_id,
+        'receipt_id': receipt_id,
+        'voted_at': datetime.now()
+    })
+    # Add to audit log
+    audit_data = {
+        'action': 'vote_cast',
+        'user_id': user_id,
+        'timestamp': datetime.now(),
+        'details': {
             'ballot_id': ballot_id,
-            'receipt_id': receipt_id,
-            'voted_at': datetime.now()
-        })
-
-        # Add to audit log
-        audit_data = {
-            'action': 'vote_cast',
-            'user_id': session['user_id'],
-            'timestamp': datetime.now(),
-            'details': {
-                'ballot_id': ballot_id,
-                'candidate_id': candidate_id
-            }
+            'candidate_id': candidate_id
         }
-        db.collection('events').document(event_id).collection('audit_logs').add(audit_data)
-
-        # Update results
-        results_ref = db.collection('events').document(event_id).collection('results').document(candidate_id)
-        results_doc = results_ref.get()
-        if results_doc.exists:
-            current_votes = results_doc.to_dict().get('votes', 0)
-            results_ref.update({
-                'votes': current_votes + 1,
-                'last_updated': datetime.now()
-            })
-        else:
-            results_ref.set({
-                'votes': 1,
-                'last_updated': datetime.now()
-            })
-
-        return jsonify({
-            'message': 'Vote cast successfully',
-            'ballot_id': ballot_id,
-            'receipt_id': receipt_id
+    }
+    event_ref.collection('audit_logs').add(audit_data)
+    # Update results
+    results_ref = event_ref.collection('results').document(candidate_id)
+    results_doc = results_ref.get()
+    if results_doc.exists:
+        current_votes = results_doc.to_dict().get('votes', 0)
+        results_ref.update({
+            'votes': current_votes + 1,
+            'last_updated': datetime.now()
         })
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    else:
+        results_ref.set({
+            'votes': 1,
+            'last_updated': datetime.now()
+        })
+    # Redirect to confirmation page with details
+    return redirect(url_for('vote_confirmation', event_id=event_id, ballot_id=ballot_id, receipt_id=receipt_id))
 
 @app.route('/logout')
 def logout():
@@ -597,6 +666,103 @@ def voter_api_join_event():
     }
     voter_ref.set(event_voter_data)
     return jsonify({'event': event_data, 'status': 'pending'}), 200
+
+@app.route('/vote/confirmation')
+@login_required
+def vote_confirmation():
+    event_id = request.args.get('event_id')
+    ballot_id = request.args.get('ballot_id')
+    receipt_id = request.args.get('receipt_id')
+    if not event_id or not ballot_id or not receipt_id:
+        flash('Missing confirmation details.', 'error')
+        return redirect(url_for('voter_dashboard'))
+    # Get event data
+    event_ref = db.collection('events').document(event_id)
+    event_doc = event_ref.get()
+    if not event_doc.exists:
+        flash('Event not found.', 'error')
+        return redirect(url_for('voter_dashboard'))
+    event_data = event_doc.to_dict()
+    # Get ballot data
+    ballot_ref = event_ref.collection('ballots').document(ballot_id)
+    ballot_doc = ballot_ref.get()
+    if not ballot_doc.exists:
+        flash('Ballot not found.', 'error')
+        return redirect(url_for('voter_dashboard'))
+    ballot_data = ballot_doc.to_dict()
+    # Get candidate data
+    candidate = None
+    for cand in event_data.get('candidates', []):
+        if cand.get('candidate_id') == ballot_data.get('candidate_id'):
+            candidate = cand
+            break
+    # Get voter data
+    voter_ref = event_ref.collection('voters').where('user_id', '==', ballot_data.get('voter_id')).limit(1)
+    voter_docs = list(voter_ref.stream())
+    voter_data = voter_docs[0].to_dict() if voter_docs else {}
+    # Format timestamp
+    vote_time = ballot_data.get('timestamp')
+    if hasattr(vote_time, 'strftime'):
+        vote_time_str = vote_time.strftime('%B %d, %Y • %H:%M:%S')
+    else:
+        vote_time_str = str(vote_time)
+    return render_template('voter/confirmation.html',
+                          event=event_data,
+                          candidate=candidate,
+                          voter=voter_data,
+                          ballot_id=ballot_id,
+                          receipt_id=receipt_id,
+                          vote_time=vote_time_str)
+
+@app.route('/api/verify-face/<event_id>', methods=['POST'])
+@login_required
+def api_verify_face(event_id):
+    if session.get('role') != 'voter':
+        return jsonify({'match': False, 'message': 'Not authorized'}), 403
+    user_id = session['user_id']
+    event_ref = db.collection('events').document(event_id)
+    event_doc = event_ref.get()
+    if not event_doc.exists:
+        return jsonify({'match': False, 'message': 'Event not found.'}), 404
+    # Get voter data for this event
+    voter_ref = event_ref.collection('voters').where('user_id', '==', user_id).limit(1)
+    voter_docs = list(voter_ref.stream())
+    if not voter_docs:
+        return jsonify({'match': False, 'message': 'You are not registered for this event.'}), 403
+    voter_data = voter_docs[0].to_dict()
+    if not voter_data.get('approved', False):
+        return jsonify({'match': False, 'message': 'You are not approved to vote in this event.'}), 403
+    if voter_data.get('has_voted', False):
+        return jsonify({'match': False, 'message': 'You have already voted in this event.'}), 403
+    live_photo = request.files.get('live_photo')
+    if not live_photo:
+        return jsonify({'match': False, 'message': 'No photo uploaded.'}), 400
+    try:
+        file_bytes = np.frombuffer(live_photo.read(), np.uint8)
+        img_np = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
+        embedding = generate_embedding(img_np)
+        if embedding is None:
+            return jsonify({'match': False, 'message': 'Face not detected. Please retake your photo.'}), 200
+        registered_embedding = np.array(voter_data.get('embedding'))
+        similarity = np.dot(embedding, registered_embedding) / (np.linalg.norm(embedding) * np.linalg.norm(registered_embedding))
+        match = similarity > 0.7
+        # Store audit log for verification attempt
+        audit_data = {
+            'action': 'face_verification_api',
+            'user_id': user_id,
+            'timestamp': datetime.now(),
+            'details': {
+                'similarity': float(similarity),
+                'match': bool(match)
+            }
+        }
+        event_ref.collection('audit_logs').add(audit_data)
+        if match:
+            return jsonify({'match': True, 'message': 'Face verified successfully.'}), 200
+        else:
+            return jsonify({'match': False, 'message': 'System cannot verify you as voter. Cannot vote for now.'}), 200
+    except Exception as e:
+        return jsonify({'match': False, 'message': f'Error processing image: {str(e)}'}), 500
 
 if __name__ == '__main__':
     app.run(debug=True) 

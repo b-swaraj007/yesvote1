@@ -102,9 +102,7 @@
         >
           <i class="ri-check-line ri-2x text-primary"></i>
         </div>
-        <h1 class="text-3xl md:text-4xl font-bold mb-6 text-primary">
-          Your Vote Has Been Successfully Cast!
-        </h1>
+        <h1 class="text-3xl md:text-4xl font-bold mb-6 text-primary" aria-label="Vote Success">Your Vote Has Been Successfully Cast!</h1>
         <p class="text-gray-300 mb-8">
           Thank you for participating in the democratic process. Your vote has
           been securely recorded.
@@ -119,15 +117,15 @@
               <div class="space-y-3 text-left">
                 <div>
                   <p class="text-sm text-gray-400">Voter Name</p>
-                  <p class="font-medium">Emily Richardson</p>
+                  <p class="font-medium">{{ voter.name }}</p>
                 </div>
                 <div>
                   <p class="text-sm text-gray-400">Voter ID</p>
-                  <p class="font-medium">DV-2025-78943</p>
+                  <p class="font-medium">{{ voter.voter_id }}</p>
                 </div>
                 <div>
                   <p class="text-sm text-gray-400">Voting Date & Time</p>
-                  <p class="font-medium">June 7, 2025 • 14:32:45</p>
+                  <p class="font-medium">{{ vote_time }}</p>
                 </div>
               </div>
             </div>
@@ -139,15 +137,15 @@
               <div class="space-y-3 text-left">
                 <div>
                   <p class="text-sm text-gray-400">Event Title</p>
-                  <p class="font-medium">National Election 2025</p>
+                  <p class="font-medium">{{ event.event_name }}</p>
                 </div>
                 <div>
                   <p class="text-sm text-gray-400">Ballot ID</p>
-                  <p class="font-medium">NE2025-B-10472</p>
+                  <p class="font-medium">{{ ballot_id }}</p>
                 </div>
                 <div>
                   <p class="text-sm text-gray-400">Confirmation Code</p>
-                  <p class="font-medium text-primary">DVNE-7842-9631-5208</p>
+                  <p class="font-medium text-primary">{{ receipt_id }}</p>
                 </div>
               </div>
             </div>
@@ -161,7 +159,7 @@
             <span
               class="w-6 h-6 flex items-center justify-center mr-2 text-primary"
             >
-              <i class="ri-user-star-line"></i>
+              <i class="ri-user-star-line" aria-hidden="true"></i>
             </span>
             Your Selected Candidate
           </h2>
@@ -171,19 +169,19 @@
               class="w-16 h-16 rounded-full overflow-hidden flex-shrink-0 border-2 border-primary"
             >
               <img
-                src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20female%20politician%20with%20short%20brown%20hair%2C%20confident%20smile%2C%20business%20attire%2C%20neutral%20background%2C%20high%20quality%2C%20photorealistic&width=200&height=200&seq=candidate1&orientation=squarish"
+                src="{{ candidate.photo_url }}"
                 alt="Candidate Photo"
                 class="w-full h-full object-cover"
               />
             </div>
             <div class="flex-1">
-              <h3 class="font-medium text-lg">Dr. Alexandra Mercer</h3>
-              <p class="text-gray-400 text-sm">Progressive Party</p>
+              <h3 class="font-medium text-lg">{{ candidate.name }}</h3>
+              <p class="text-gray-400 text-sm">{{ candidate.party }}</p>
               <div
                 class="mt-1 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/20 text-primary"
               >
                 <span class="w-3 h-3 flex items-center justify-center mr-1">
-                  <i class="ri-check-line"></i>
+                  <i class="ri-check-line" aria-hidden="true"></i>
                 </span>
                 Confirmed
               </div>

@@ -172,12 +172,12 @@
                   {% if voter.photo_url %}
                     <img src="{{ voter.photo_url }}" alt="{{ voter.name }}" class="w-full h-full object-cover rounded-full" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
                     <div class="w-8 h-8 flex items-center justify-center text-primary" style="display:none;">
-                      <i class="ri-user-3-line ri-2x"></i>
-                    </div>
+                    <i class="ri-user-3-line ri-2x"></i>
+                  </div>
                   {% else %}
                     <div class="w-8 h-8 flex items-center justify-center text-primary">
-                      <i class="ri-user-3-line ri-2x"></i>
-                    </div>
+                    <i class="ri-user-3-line ri-2x"></i>
+                  </div>
                   {% endif %}
                 </div>
                 <div>
@@ -214,19 +214,19 @@
             <div class="p-4 bg-black bg-opacity-20 flex space-x-3">
               <form method="POST" action="{{ url_for('admin.approve_event_voter', event_id=event_id, voter_id=voter.user_id) }}" style="flex:1;">
                 <button type="submit" class="w-full bg-primary text-white py-2 !rounded-button hover:bg-opacity-80 transition-all duration-300 whitespace-nowrap flex items-center justify-center">
-                  <div class="w-5 h-5 flex items-center justify-center mr-1">
-                    <i class="ri-check-line"></i>
-                  </div>
-                  Approve
-                </button>
+                <div class="w-5 h-5 flex items-center justify-center mr-1">
+                  <i class="ri-check-line"></i>
+                </div>
+                Approve
+              </button>
               </form>
               <form method="POST" action="{{ url_for('admin.reject_event_voter', event_id=event_id, voter_id=voter.user_id) }}" style="flex:1;">
                 <button type="submit" class="w-full border border-red-500 text-red-400 py-2 !rounded-button hover:bg-red-500 hover:bg-opacity-20 transition-all duration-300 whitespace-nowrap flex items-center justify-center">
-                  <div class="w-5 h-5 flex items-center justify-center mr-1">
-                    <i class="ri-close-line"></i>
-                  </div>
-                  Reject
-                </button>
+                <div class="w-5 h-5 flex items-center justify-center mr-1">
+                  <i class="ri-close-line"></i>
+                </div>
+                Reject
+              </button>
               </form>
             </div>
           </div>

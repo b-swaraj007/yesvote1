@@ -118,50 +118,50 @@
       </div>
     </header>
     <main class="container mx-auto px-4 py-8">
-      <!-- Welcome Section -->
+      <!-- Event Info Section -->
       <section class="glassmorphism rounded-lg p-6 mb-8">
         <div
           class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6"
         >
           <div>
-            <h1 class="text-3xl font-bold mb-2">Welcome, Sarah Johnson!</h1>
-            <p class="text-gray-300">Your secure voting dashboard is ready.</p>
+            <h1 class="text-3xl font-bold mb-2" id="event-title">{{ event.event_name }}</h1>
+            <p class="text-gray-300" id="event-description">{{ event.event_description }}</p>
           </div>
           <div class="glassmorphism rounded-lg p-4 flex items-center gap-4">
             <div
               class="w-12 h-12 flex items-center justify-center bg-primary bg-opacity-20 rounded-full"
             >
-              <i class="ri-user-line ri-lg"></i>
+              <i class="ri-user-line ri-lg" aria-hidden="true"></i>
             </div>
             <div>
               <div class="flex items-center gap-2 mb-1">
                 <span class="w-5 h-5 flex items-center justify-center">
-                  <i class="ri-vip-crown-line text-primary"></i>
+                  <i class="ri-vip-crown-line text-primary" aria-hidden="true"></i>
                 </span>
                 <span
-                  >Voter ID: <span class="text-primary">SJ78945612</span></span
+                  >Voter ID: <span class="text-primary">{{ voter.voter_id }}</span></span
                 >
               </div>
               <div class="flex items-center gap-2 mb-1">
                 <span class="w-5 h-5 flex items-center justify-center">
-                  <i class="ri-mail-line text-primary"></i>
+                  <i class="ri-mail-line text-primary" aria-hidden="true"></i>
                 </span>
                 <span
                   >Email:
                   <a
-                    href="mailto:sarah.johnson@email.com"
+                    href="mailto:{{ voter.email }}"
                     class="text-primary hover:underline"
-                    >sarah.johnson@email.com</a
+                    >{{ voter.email }}</a
                   ></span
                 >
               </div>
               <div class="flex items-center gap-2">
                 <span class="w-5 h-5 flex items-center justify-center">
-                  <i class="ri-smartphone-line text-primary"></i>
+                  <i class="ri-smartphone-line text-primary" aria-hidden="true"></i>
                 </span>
                 <span
                   >Mobile:
-                  <span class="text-primary">+1 (555) 123-4567</span></span
+                  <span class="text-primary">{{ voter.mobile }}</span></span
                 >
               </div>
             </div>
@@ -172,195 +172,95 @@
       <section class="mb-8">
         <div class="flex items-center gap-2 mb-6">
           <span class="w-6 h-6 flex items-center justify-center">
-            <i class="ri-user-search-line text-primary ri-lg"></i>
+            <i class="ri-user-search-line text-primary ri-lg" aria-hidden="true"></i>
           </span>
           <h2 class="text-2xl font-bold">Select Your Candidate</h2>
         </div>
-        <div class="space-y-4">
-          <!-- Candidate 1 -->
-          <label
-            class="glassmorphism rounded-lg p-4 flex flex-col md:flex-row items-center gap-4 cursor-pointer candidate-card"
-          >
-            <div class="w-24 h-24 rounded-full overflow-hidden flex-shrink-0">
-              <img
-                src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20young%20Asian%20male%20student%20with%20short%20black%20hair%2C%20wearing%20a%20blue%20blazer%2C%20confident%20smile%2C%20university%20campus%20background%2C%20professional%20lighting&width=200&height=200&seq=1&orientation=squarish"
-                alt="Michael Chen"
-                class="w-full h-full object-cover"
-              />
-            </div>
-            <div class="flex-grow text-center md:text-left">
-              <h3 class="text-xl font-bold">Michael Chen</h3>
-              <p class="text-primary mb-1">Progressive Student Alliance</p>
-              <p class="text-gray-300">
-                "Building a campus that works for everyone"
-              </p>
-            </div>
-            <div class="flex items-center justify-center w-8 h-8">
-              <input type="radio" name="candidate" class="cursor-pointer" />
-            </div>
-          </label>
-          <!-- Candidate 2 -->
-          <label
-            class="glassmorphism rounded-lg p-4 flex flex-col md:flex-row items-center gap-4 cursor-pointer candidate-card"
-          >
-            <div class="w-24 h-24 rounded-full overflow-hidden flex-shrink-0">
-              <img
-                src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20young%20Black%20female%20student%20with%20natural%20curly%20hair%2C%20wearing%20a%20red%20blazer%2C%20confident%20smile%2C%20university%20campus%20background%2C%20professional%20lighting&width=200&height=200&seq=2&orientation=squarish"
-                alt="Amara Washington"
-                class="w-full h-full object-cover"
-              />
-            </div>
-            <div class="flex-grow text-center md:text-left">
-              <h3 class="text-xl font-bold">Amara Washington</h3>
-              <p class="text-primary mb-1">Student Innovation Coalition</p>
-              <p class="text-gray-300">
-                "Innovative solutions for tomorrow's challenges"
-              </p>
-            </div>
-            <div class="flex items-center justify-center w-8 h-8">
-              <input type="radio" name="candidate" class="cursor-pointer" />
-            </div>
-          </label>
-          <!-- Candidate 3 -->
-          <label
-            class="glassmorphism rounded-lg p-4 flex flex-col md:flex-row items-center gap-4 cursor-pointer candidate-card"
-          >
-            <div class="w-24 h-24 rounded-full overflow-hidden flex-shrink-0">
-              <img
-                src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20young%20Latino%20male%20student%20with%20short%20brown%20hair%2C%20wearing%20a%20green%20blazer%2C%20confident%20smile%2C%20university%20campus%20background%2C%20professional%20lighting&width=200&height=200&seq=3&orientation=squarish"
-                alt="Carlos Rodriguez"
-                class="w-full h-full object-cover"
-              />
-            </div>
-            <div class="flex-grow text-center md:text-left">
-              <h3 class="text-xl font-bold">Carlos Rodriguez</h3>
-              <p class="text-primary mb-1">Campus Unity Party</p>
-              <p class="text-gray-300">
-                "Uniting students across all backgrounds"
-              </p>
-            </div>
-            <div class="flex items-center justify-center w-8 h-8">
-              <input type="radio" name="candidate" class="cursor-pointer" />
-            </div>
-          </label>
-          <!-- Candidate 4 -->
-          <label
-            class="glassmorphism rounded-lg p-4 flex flex-col md:flex-row items-center gap-4 cursor-pointer candidate-card"
-          >
-            <div class="w-24 h-24 rounded-full overflow-hidden flex-shrink-0">
-              <img
-                src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20young%20Indian%20female%20student%20with%20long%20black%20hair%2C%20wearing%20a%20purple%20blazer%2C%20confident%20smile%2C%20university%20campus%20background%2C%20professional%20lighting&width=200&height=200&seq=4&orientation=squarish"
-                alt="Priya Patel"
-                class="w-full h-full object-cover"
-              />
-            </div>
-            <div class="flex-grow text-center md:text-left">
-              <h3 class="text-xl font-bold">Priya Patel</h3>
-              <p class="text-primary mb-1">Academic Excellence Movement</p>
-              <p class="text-gray-300">
-                "Prioritizing education and academic resources"
-              </p>
-            </div>
-            <div class="flex items-center justify-center w-8 h-8">
-              <input type="radio" name="candidate" class="cursor-pointer" />
-            </div>
-          </label>
-        </div>
-      </section>
-      <!-- Face Verification -->
-      <section class="mb-8">
-        <div class="flex items-center gap-2 mb-6">
-          <span class="w-6 h-6 flex items-center justify-center">
-            <i class="ri-camera-line text-primary ri-lg"></i>
-          </span>
-          <h2 class="text-2xl font-bold">Verify Your Identity</h2>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="glassmorphism rounded-lg p-5">
-            <h3 class="text-lg font-semibold mb-3">Webcam Preview</h3>
-            <div
-              class="webcam-container bg-black bg-opacity-50 rounded-lg mb-4 flex items-center justify-center"
-            >
-              <div class="text-center py-16">
-                <div
-                  class="w-16 h-16 mx-auto flex items-center justify-center mb-4"
-                >
-                  <i class="ri-camera-line ri-3x text-gray-400"></i>
-                </div>
-                <p class="text-gray-400">Camera access required</p>
-                <button
-                  class="mt-4 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 !rounded-button whitespace-nowrap transition-colors"
-                >
-                  Enable Camera
-                </button>
+        <form id="voteForm" method="POST" action="{{ url_for('cast_vote', event_id=event_id) }}" enctype="multipart/form-data" autocomplete="off">
+          <div class="space-y-4" role="radiogroup" aria-labelledby="candidate-list-label">
+            {% for candidate in candidates %}
+            <label class="glassmorphism rounded-lg p-4 flex flex-col md:flex-row items-center gap-4 cursor-pointer candidate-card" tabindex="0" aria-label="Select {{ candidate.name }}" for="candidate-{{ loop.index }}">
+              <div class="w-24 h-24 rounded-full overflow-hidden flex-shrink-0">
+                <img src="{{ candidate.photo_url }}" alt="{{ candidate.name }} photo" class="w-full h-full object-cover" />
               </div>
-            </div>
-            <button
-              class="w-full bg-primary hover:bg-opacity-90 text-white py-3 !rounded-button whitespace-nowrap transition-colors flex items-center justify-center gap-2"
-            >
-              <span class="w-5 h-5 flex items-center justify-center">
-                <i class="ri-camera-line"></i>
-              </span>
-              Capture Face
-            </button>
+              <div class="flex-grow text-center md:text-left">
+                <h3 class="text-xl font-bold">{{ candidate.name }}</h3>
+                <p class="text-primary mb-1">{{ candidate.party }}</p>
+                <p class="text-gray-300">{{ candidate.slogan }}</p>
+              </div>
+              <div class="flex items-center justify-center w-8 h-8">
+                <input type="radio" name="candidate_id" id="candidate-{{ loop.index }}" value="{{ candidate.candidate_id }}" class="cursor-pointer" aria-checked="false" required />
+              </div>
+            </label>
+            {% endfor %}
           </div>
-          <div class="glassmorphism rounded-lg p-5">
-            <h3 class="text-lg font-semibold mb-3">Verification Status</h3>
-            <div class="bg-black bg-opacity-50 rounded-lg p-4 mb-4">
-              <div class="flex items-center justify-center h-full">
-                <div class="text-center">
-                  <div
-                    class="w-16 h-16 mx-auto flex items-center justify-center mb-2"
-                  >
-                    <i class="ri-face-recognition-line ri-3x text-gray-400"></i>
+          <!-- Face Verification Section -->
+          <section class="mb-8 mt-8">
+            <div class="flex items-center gap-2 mb-6">
+              <span class="w-6 h-6 flex items-center justify-center">
+                <i class="ri-camera-line text-primary ri-lg" aria-hidden="true"></i>
+              </span>
+              <h2 class="text-2xl font-bold">Verify Your Identity</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="glassmorphism rounded-lg p-5">
+                <h3 class="text-lg font-semibold mb-3">Webcam Preview</h3>
+                <div class="webcam-container bg-black bg-opacity-50 rounded-lg mb-4 flex items-center justify-center" id="webcamContainer" style="aspect-ratio: 4/3; min-height: 200px;">
+                  <div id="webcamPlaceholder" class="text-center py-16">
+                    <div class="w-16 h-16 mx-auto flex items-center justify-center mb-4">
+                      <i class="ri-camera-line ri-3x text-gray-400"></i>
+                    </div>
+                    <p class="text-gray-400">Camera access required</p>
+                    <button type="button" id="enableCameraBtn" class="mt-4 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 !rounded-button whitespace-nowrap transition-colors">Enable Camera</button>
                   </div>
-                  <p class="text-gray-300 mb-2">No image captured yet</p>
-                  <p class="text-xs text-gray-400">
-                    Please capture your face to continue
+                </div>
+                <button type="button" id="captureFaceBtn" class="w-full bg-primary hover:bg-opacity-90 text-white py-3 !rounded-button whitespace-nowrap transition-colors flex items-center justify-center gap-2" disabled>
+                  <span class="w-5 h-5 flex items-center justify-center">
+                    <i class="ri-camera-line"></i>
+                  </span>
+                  Capture Face
+                </button>
+                <input type="hidden" name="face_captured" id="faceCaptured" value="0" />
+              </div>
+              <div class="glassmorphism rounded-lg p-5">
+                <h3 class="text-lg font-semibold mb-3">Verification Status</h3>
+                <div class="bg-black bg-opacity-50 rounded-lg p-4 mb-4" id="verificationStatus">
+                  <div class="flex items-center justify-center h-full" id="statusText">
+                    <div class="text-center">
+                      <div class="w-16 h-16 mx-auto flex items-center justify-center mb-2">
+                        <i class="ri-face-recognition-line ri-3x text-gray-400"></i>
+                      </div>
+                      <p class="text-gray-300 mb-2">No image captured yet</p>
+                      <p class="text-xs text-gray-400">Please capture your face to continue</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex items-center p-3 bg-gray-800 bg-opacity-50 rounded-lg">
+                  <span class="w-6 h-6 flex items-center justify-center mr-2">
+                    <i class="ri-information-line text-yellow-400"></i>
+                  </span>
+                  <p class="text-sm text-gray-300">
+                    Your face image will be used only for verification purposes and will be deleted after voting.
                   </p>
                 </div>
               </div>
             </div>
-            <div
-              class="flex items-center p-3 bg-gray-800 bg-opacity-50 rounded-lg"
-            >
-              <span class="w-6 h-6 flex items-center justify-center mr-2">
-                <i class="ri-information-line text-yellow-400"></i>
+          </section>
+          <div class="text-center mt-8">
+            <button type="submit" id="submitVoteBtn" class="bg-gray-700 text-gray-400 px-8 py-4 !rounded-button whitespace-nowrap transition-colors text-lg font-semibold flex items-center justify-center gap-2 mx-auto cursor-not-allowed" disabled>
+              <span class="w-6 h-6 flex items-center justify-center">
+                <i class="ri-check-line"></i>
               </span>
-              <p class="text-sm text-gray-300">
-                Your face image will be used only for verification purposes and
-                will be deleted after voting.
-              </p>
-            </div>
+              Submit Vote
+            </button>
+            <p class="text-yellow-400 text-sm mt-4 flex items-center justify-center gap-1" id="submitWarning">
+              <span class="w-4 h-4 flex items-center justify-center">
+                <i class="ri-error-warning-line"></i>
+              </span>
+              Please complete all required steps to enable submission
+            </p>
           </div>
-        </div>
-      </section>
-      <!-- Submit Vote -->
-      <section class="mb-8">
-        <div class="glassmorphism rounded-lg p-6 text-center">
-          <h2 class="text-2xl font-bold mb-4">Ready to Submit Your Vote?</h2>
-          <p class="text-gray-300 mb-6 max-w-2xl mx-auto">
-            Please ensure you have selected a candidate and completed the face
-            verification process before submitting your vote.
-          </p>
-          <button
-            disabled
-            class="bg-gray-700 text-gray-400 px-8 py-4 !rounded-button whitespace-nowrap transition-colors text-lg font-semibold flex items-center justify-center gap-2 mx-auto cursor-not-allowed"
-          >
-            <span class="w-6 h-6 flex items-center justify-center">
-              <i class="ri-check-line"></i>
-            </span>
-            Submit Vote
-          </button>
-          <p
-            class="text-yellow-400 text-sm mt-4 flex items-center justify-center gap-1"
-          >
-            <span class="w-4 h-4 flex items-center justify-center">
-              <i class="ri-error-warning-line"></i>
-            </span>
-            Please complete all required steps to enable submission
-          </p>
-        </div>
+        </form>
       </section>
       <!-- Past Votes -->
       <section>
@@ -497,87 +397,247 @@
         </div>
       </div>
     </footer>
-    <script id="candidateSelection">
-      document.addEventListener("DOMContentLoaded", function () {
-        const candidateCards = document.querySelectorAll('input[name="candidate"]');
-        const submitButton = document.querySelector("button[disabled]");
-        const captureButton = document.querySelector(
-          "button:not([disabled]):not(.bg-gray-700)",
-        );
-        let candidateSelected = false;
-        let faceVerified = false;
-        candidateCards.forEach((card) => {
-          card.addEventListener("change", function () {
-            candidateSelected = true;
-            updateSubmitButton();
-          });
-        });
-        captureButton.addEventListener("click", function () {
-          // Simulate face capture
-          const webcamContainer = document.querySelector(".webcam-container");
-          const verificationStatus = document.querySelector(
-            ".bg-black.bg-opacity-50.rounded-lg.p-4",
-          );
-          webcamContainer.innerHTML = `
-      <img src="https://readdy.ai/api/search-image?query=close%20up%20portrait%20of%20a%20young%20person%20looking%20directly%20at%20camera%20with%20neutral%20expression%2C%20clear%20face%2C%20simple%20background%2C%20verification%20photo%20style&width=400&height=300&seq=5&orientation=landscape" alt="Captured face" class="w-full h-full object-cover rounded-lg">
-      `;
-          verificationStatus.innerHTML = `
-      <div class="flex flex-col items-center justify-center h-full">
-      <div class="w-16 h-16 mx-auto flex items-center justify-center mb-2 text-green-500">
-      <i class="ri-checkbox-circle-line ri-3x"></i>
+    <!-- Add loading and error overlays -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden">
+      <div class="flex flex-col items-center">
+        <svg class="animate-spin h-12 w-12 text-primary mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-label="Loading spinner">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+        </svg>
+        <span class="text-white text-lg font-semibold">Processing...</span>
       </div>
-      <p class="text-green-400 font-semibold mb-2">Face successfully captured</p>
-      <p class="text-xs text-gray-400">Verification complete</p>
+    </div>
+    <div id="errorOverlay" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 hidden">
+      <div class="bg-red-700 bg-opacity-90 rounded-lg p-8 text-center max-w-sm w-full">
+        <div class="mb-4">
+          <i class="ri-error-warning-line text-4xl text-yellow-300"></i>
+        </div>
+        <div id="errorMessage" class="text-white text-lg mb-4">An error occurred.</div>
+        <button type="button" id="closeErrorBtn" class="bg-primary text-white px-6 py-2 rounded-button hover:bg-opacity-80 transition">Close</button>
       </div>
-      `;
-          faceVerified = true;
-          updateSubmitButton();
-        });
-        function updateSubmitButton() {
-          if (candidateSelected && faceVerified) {
-            submitButton.disabled = false;
-            submitButton.classList.remove(
-              "bg-gray-700",
-              "text-gray-400",
-              "cursor-not-allowed",
-            );
-            submitButton.classList.add(
-              "bg-primary",
-              "text-white",
-              "hover:bg-opacity-90",
-            );
-            const warningText = document.querySelector(".text-yellow-400.text-sm");
-            warningText.classList.add("hidden");
-          }
-        }
-        submitButton.addEventListener("click", function () {
-          if (!submitButton.disabled) {
-            // Show confirmation message
-            const mainContent = document.querySelector("main");
-            const confirmationMessage = document.createElement("div");
-            confirmationMessage.className =
-              "fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50";
-            confirmationMessage.innerHTML = `
-      <div class="glassmorphism rounded-lg p-8 max-w-md text-center">
-      <div class="w-20 h-20 mx-auto flex items-center justify-center mb-4 text-green-500">
-      <i class="ri-check-double-line ri-3x"></i>
-      </div>
-      <h2 class="text-2xl font-bold mb-2">Vote Successfully Submitted!</h2>
-      <p class="text-gray-300 mb-6">Your vote has been securely recorded. Thank you for participating in the democratic process.</p>
-      <button class="bg-primary hover:bg-opacity-90 text-white px-6 py-3 !rounded-button whitespace-nowrap transition-colors">
-      Return to Dashboard
-      </button>
-      </div>
-      `;
-            document.body.appendChild(confirmationMessage);
-            confirmationMessage
-              .querySelector("button")
-              .addEventListener("click", function () {
-                confirmationMessage.remove();
-              });
-          }
-        });
+    </div>
+    <script>
+    const event_id = '{{ event_id }}';
+    // Responsive webcam container for mobile
+    function setWebcamContainerAspect() {
+      const container = document.getElementById('webcamContainer');
+      if (!container) return;
+      if (window.innerWidth < 640) {
+        container.style.aspectRatio = '1/1';
+        container.style.minHeight = '180px';
+      } else {
+        container.style.aspectRatio = '4/3';
+        container.style.minHeight = '200px';
+      }
+    }
+    window.addEventListener('resize', setWebcamContainerAspect);
+    document.addEventListener('DOMContentLoaded', setWebcamContainerAspect);
+
+    // Loading and error overlays
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const errorOverlay = document.getElementById('errorOverlay');
+    const errorMessage = document.getElementById('errorMessage');
+    const closeErrorBtn = document.getElementById('closeErrorBtn');
+    if (closeErrorBtn) {
+      closeErrorBtn.onclick = function() {
+        errorOverlay.classList.add('hidden');
+      };
+    }
+    function showLoading(msg) {
+      if (loadingOverlay) {
+        loadingOverlay.querySelector('span').textContent = msg || 'Processing...';
+        loadingOverlay.classList.remove('hidden');
+      }
+    }
+    function hideLoading() {
+      if (loadingOverlay) loadingOverlay.classList.add('hidden');
+    }
+    function showError(msg) {
+      if (errorOverlay && errorMessage) {
+        errorMessage.textContent = msg || 'An error occurred.';
+        errorOverlay.classList.remove('hidden');
+      }
+    }
+    function hideError() {
+      if (errorOverlay) errorOverlay.classList.add('hidden');
+    }
+
+    // Webcam and face capture logic (with mobile support)
+    let stream = null;
+    let faceCaptured = false;
+    let faceVerified = false;
+    let candidateSelected = false;
+    const enableCameraBtn = document.getElementById('enableCameraBtn');
+    const captureFaceBtn = document.getElementById('captureFaceBtn');
+    const webcamContainer = document.getElementById('webcamContainer');
+    const verificationStatus = document.getElementById('verificationStatus');
+    const submitVoteBtn = document.getElementById('submitVoteBtn');
+    const submitWarning = document.getElementById('submitWarning');
+    const faceCapturedInput = document.getElementById('faceCaptured');
+
+    function updateSubmitButton() {
+      if (candidateSelected && faceCaptured && faceVerified) {
+        submitVoteBtn.disabled = false;
+        submitVoteBtn.classList.remove('bg-gray-700', 'text-gray-400', 'cursor-not-allowed');
+        submitVoteBtn.classList.add('bg-primary', 'text-white', 'hover:bg-opacity-90');
+        submitWarning.classList.add('hidden');
+      } else {
+        submitVoteBtn.disabled = true;
+        submitVoteBtn.classList.add('bg-gray-700', 'text-gray-400', 'cursor-not-allowed');
+        submitVoteBtn.classList.remove('bg-primary', 'text-white', 'hover:bg-opacity-90');
+        submitWarning.classList.remove('hidden');
+      }
+    }
+
+    // Candidate selection logic
+    const candidateRadios = document.querySelectorAll('input[name="candidate_id"]');
+    candidateRadios.forEach(radio => {
+      radio.addEventListener('change', function() {
+        candidateSelected = true;
+        updateSubmitButton();
       });
+    });
+
+    if (enableCameraBtn) {
+      enableCameraBtn.onclick = async function() {
+        if (stream) return;
+        showLoading('Requesting camera access...');
+        try {
+          const constraints = {
+            video: {
+              facingMode: { ideal: 'user' },
+              width: { ideal: 640 },
+              height: { ideal: 480 }
+            }
+          };
+          stream = await navigator.mediaDevices.getUserMedia(constraints);
+          const video = document.createElement('video');
+          video.setAttribute('autoplay', '');
+          video.setAttribute('playsinline', '');
+          video.style.width = '100%';
+          video.style.height = '100%';
+          video.srcObject = stream;
+          video.id = 'webcamVideo';
+          webcamContainer.innerHTML = '';
+          webcamContainer.appendChild(video);
+          captureFaceBtn.disabled = false;
+          hideLoading();
+        } catch (err) {
+          hideLoading();
+          webcamContainer.innerHTML = '<div class="text-red-400 text-center py-8">Camera access denied or not available.</div>';
+          captureFaceBtn.disabled = true;
+          showError('Camera access denied or not available. Please check your browser settings and permissions.');
+        }
+      };
+    }
+
+    if (captureFaceBtn) {
+      captureFaceBtn.onclick = function() {
+        const video = document.getElementById('webcamVideo');
+        if (!video) return;
+        showLoading('Capturing face...');
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        // Show preview
+        webcamContainer.innerHTML = `<img src="${canvas.toDataURL('image/jpeg')}" alt="Captured face" class="w-full h-full object-cover rounded-lg">`;
+        verificationStatus.innerHTML = `<div class="flex flex-col items-center justify-center h-full"><div class="w-16 h-16 mx-auto flex items-center justify-center mb-2 text-blue-400 animate-spin"><i class="ri-loader-4-line ri-3x"></i></div><p class="text-blue-300 font-semibold mb-2">Verifying your face...</p><p class="text-xs text-gray-400">Please wait while we verify your identity</p></div>`;
+        faceCaptured = true;
+        faceVerified = false;
+        faceCapturedInput.value = '1';
+        updateSubmitButton();
+        // Attach image to form as file
+        canvas.toBlob(function(blob) {
+          const fileInput = document.getElementById('livePhotoInput');
+          if (fileInput) fileInput.remove();
+          const newInput = document.createElement('input');
+          newInput.type = 'file';
+          newInput.name = 'live_photo';
+          newInput.id = 'livePhotoInput';
+          newInput.style.display = 'none';
+          const dt = new DataTransfer();
+          dt.items.add(new File([blob], 'live_photo.jpg', { type: 'image/jpeg' }));
+          newInput.files = dt.files;
+          document.getElementById('voteForm').appendChild(newInput);
+          // AJAX: send to backend for verification
+          showLoading('Verifying your face...');
+          const formData = new FormData();
+          formData.append('live_photo', dt.files[0]);
+          fetch(`/api/verify-face/${event_id}`, {
+            method: 'POST',
+            body: formData
+          })
+          .then(response => response.json())
+          .then(data => {
+            hideLoading();
+            if (data.match) {
+              faceVerified = true;
+              verificationStatus.innerHTML = `<div class='flex flex-col items-center justify-center h-full'><div class='w-16 h-16 mx-auto flex items-center justify-center mb-2 text-green-500'><i class='ri-checkbox-circle-line ri-3x'></i></div><p class='text-green-400 font-semibold mb-2'>Face verified successfully</p><p class='text-xs text-gray-400'>You may now submit your vote</p><button type='button' id='retakeFaceBtn' class='mt-4 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 !rounded-button whitespace-nowrap transition-colors'>Retake Photo</button></div>`;
+              updateSubmitButton();
+            } else {
+              faceVerified = false;
+              verificationStatus.innerHTML = `<div class='flex flex-col items-center justify-center h-full'><div class='w-16 h-16 mx-auto flex items-center justify-center mb-2 text-red-500'><i class='ri-close-circle-line ri-3x'></i></div><p class='text-red-400 font-semibold mb-2'>${data.message || 'System cannot verify you as voter. Cannot vote for now.'}</p><p class='text-xs text-gray-400'>Please retake your photo and try again</p><button type='button' id='retakeFaceBtn' class='mt-4 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 !rounded-button whitespace-nowrap transition-colors'>Retake Photo</button></div>`;
+              updateSubmitButton();
+            }
+            // Retake logic
+            setTimeout(() => {
+              const retakeBtn = document.getElementById('retakeFaceBtn');
+              if (retakeBtn) {
+                retakeBtn.onclick = function() {
+                  faceCaptured = false;
+                  faceVerified = false;
+                  faceCapturedInput.value = '0';
+                  webcamContainer.innerHTML = `<div id='webcamPlaceholder' class='text-center py-16'><div class='w-16 h-16 mx-auto flex items-center justify-center mb-4'><i class='ri-camera-line ri-3x text-gray-400'></i></div><p class='text-gray-400'>Camera access required</p><button type='button' id='enableCameraBtn' class='mt-4 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 !rounded-button whitespace-nowrap transition-colors'>Enable Camera</button></div>`;
+                  verificationStatus.innerHTML = `<div class='flex items-center justify-center h-full' id='statusText'><div class='text-center'><div class='w-16 h-16 mx-auto flex items-center justify-center mb-2'><i class='ri-face-recognition-line ri-3x text-gray-400'></i></div><p class='text-gray-300 mb-2'>No image captured yet</p><p class='text-xs text-gray-400'>Please capture your face to continue</p></div></div>`;
+                  updateSubmitButton();
+                  // Re-bind enable camera button
+                  setTimeout(() => {
+                    const enableBtn = document.getElementById('enableCameraBtn');
+                    if (enableBtn) enableBtn.onclick = enableCameraBtn.onclick;
+                  }, 100);
+                };
+              }
+            }, 200);
+          })
+          .catch(err => {
+            hideLoading();
+            faceVerified = false;
+            verificationStatus.innerHTML = `<div class='flex flex-col items-center justify-center h-full'><div class='w-16 h-16 mx-auto flex items-center justify-center mb-2 text-red-500'><i class='ri-close-circle-line ri-3x'></i></div><p class='text-red-400 font-semibold mb-2'>Verification failed</p><p class='text-xs text-gray-400'>${err.message || 'An error occurred during verification.'}</p><button type='button' id='retakeFaceBtn' class='mt-4 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 !rounded-button whitespace-nowrap transition-colors'>Retake Photo</button></div>`;
+            updateSubmitButton();
+            setTimeout(() => {
+              const retakeBtn = document.getElementById('retakeFaceBtn');
+              if (retakeBtn) {
+                retakeBtn.onclick = function() {
+                  faceCaptured = false;
+                  faceVerified = false;
+                  faceCapturedInput.value = '0';
+                  webcamContainer.innerHTML = `<div id='webcamPlaceholder' class='text-center py-16'><div class='w-16 h-16 mx-auto flex items-center justify-center mb-4'><i class='ri-camera-line ri-3x text-gray-400'></i></div><p class='text-gray-400'>Camera access required</p><button type='button' id='enableCameraBtn' class='mt-4 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 !rounded-button whitespace-nowrap transition-colors'>Enable Camera</button></div>`;
+                  verificationStatus.innerHTML = `<div class='flex items-center justify-center h-full' id='statusText'><div class='text-center'><div class='w-16 h-16 mx-auto flex items-center justify-center mb-2'><i class='ri-face-recognition-line ri-3x text-gray-400'></i></div><p class='text-gray-300 mb-2'>No image captured yet</p><p class='text-xs text-gray-400'>Please capture your face to continue</p></div></div>`;
+                  updateSubmitButton();
+                  setTimeout(() => {
+                    const enableBtn = document.getElementById('enableCameraBtn');
+                    if (enableBtn) enableBtn.onclick = enableCameraBtn.onclick;
+                  }, 100);
+                };
+              }
+            }, 200);
+          });
+          hideLoading();
+        }, 'image/jpeg');
+      };
+    }
+
+    // Prevent form submission unless face is verified
+    const voteForm = document.getElementById('voteForm');
+    voteForm.addEventListener('submit', function(e) {
+      if (!faceVerified) {
+        e.preventDefault();
+        showError('System cannot verify you as voter. Cannot vote for now.');
+        return false;
+      }
+    });
     </script>
   </body>
 </html>

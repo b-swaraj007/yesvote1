@@ -228,7 +228,7 @@
               </div>
             </div>
             {% if event.approved and not event.has_voted and event.start_time and event.end_time and now >= event.start_time and now <= event.end_time %}
-              <a href="{{ url_for('vote', event_id=event.event_id) }}" class="w-full bg-primary text-white py-2 !rounded-button hover:bg-opacity-80 transition-all duration-300 whitespace-nowrap flex items-center justify-center">
+              <a href="{{ url_for('vote_page', event_id=event.event_id) }}" class="w-full bg-primary text-white py-2 !rounded-button hover:bg-opacity-80 transition-all duration-300 whitespace-nowrap flex items-center justify-center">
                 <div class="w-5 h-5 flex items-center justify-center mr-2">
                   <i class="ri-check-double-line"></i>
                 </div>
