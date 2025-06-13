@@ -227,7 +227,23 @@
                 <span class="text-sm text-gray-300">{{ event.candidates|length }} Candidates</span>
               </div>
             </div>
-            {% if event.approved and not event.has_voted and event.start_time and event.end_time and now >= event.start_time and now <= event.end_time %}
+            {% if event.approved and event.has_voted %}
+              {% if event.results_published %}
+                <a href="{{ url_for('view_results', event_id=event.event_id) }}" class="w-full bg-primary text-white py-2 !rounded-button hover:bg-opacity-80 transition-all duration-300 whitespace-nowrap flex items-center justify-center">
+                  <div class="w-5 h-5 flex items-center justify-center mr-2">
+                    <i class="ri-bar-chart-line"></i>
+                  </div>
+                  View Results
+                </a>
+              {% else %}
+                <div class="w-full bg-gray-700 text-gray-400 py-2 !rounded-button flex items-center justify-center space-x-2">
+                  <div class="w-5 h-5 flex items-center justify-center mr-2">
+                    <i class="ri-time-line"></i>
+                  </div>
+                  Waiting for Results
+                </div>
+              {% endif %}
+            {% elif event.approved and not event.has_voted and event.start_time and event.end_time and now >= event.start_time and now <= event.end_time %}
               <a href="{{ url_for('vote_page', event_id=event.event_id) }}" class="w-full bg-primary text-white py-2 !rounded-button hover:bg-opacity-80 transition-all duration-300 whitespace-nowrap flex items-center justify-center">
                 <div class="w-5 h-5 flex items-center justify-center mr-2">
                   <i class="ri-check-double-line"></i>
@@ -291,12 +307,21 @@
                     {% endif %}
                   </td>
                   <td class="px-6 py-4 text-sm">
-                    <a href="#" class="text-primary hover:text-primary-dark transition-colors flex items-center">
-                      <div class="w-5 h-5 flex items-center justify-center mr-1">
-                        <i class="ri-external-link-line"></i>
-                      </div>
-                      View Results
-                    </a>
+                    {% if vote.results_published %}
+                      <a href="{{ url_for('view_results', event_id=vote.event_id) }}" class="text-primary hover:text-primary-dark transition-colors flex items-center">
+                        <div class="w-5 h-5 flex items-center justify-center mr-1">
+                          <i class="ri-external-link-line"></i>
+                        </div>
+                        View Results
+                      </a>
+                    {% else %}
+                      <span class="text-gray-400 flex items-center">
+                        <div class="w-5 h-5 flex items-center justify-center mr-1">
+                          <i class="ri-time-line"></i>
+                        </div>
+                        Results are not yet published by admin
+                      </span>
+                    {% endif %}
                   </td>
                 </tr>
                 {% endfor %}

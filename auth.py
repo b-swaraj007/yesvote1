@@ -26,7 +26,7 @@ def ensure_superadmin():
     return user.uid
 
 # Call this at app startup
-ensure_superadmin()
+# ensure_superadmin()
 
 def create_user(email, password, role, user_data):
     try:

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Election Results - Digi-Vote</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { primary: "#10B981", secondary: "#064E3B" },
+                    borderRadius: {
+                        none: "0px",
+                        sm: "8px",
+                        DEFAULT: "12px",
+                        md: "16px",
+                        lg: "20px",
+                        xl: "24px",
+                        "2xl": "28px",
+                        "3xl": "32px",
+                        full: "9999px",
+                        button: "12px",
+                    },
+                },
+            },
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+    <style>
+        :where([class^="ri-"])::before { content: "\f3c2"; }
+        body {
+            background: linear-gradient(135deg, #000, #064E3B);
+            min-height: 100vh;
+        }
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="text-white">
+    <main class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- Header -->
+            <div class="glassmorphism rounded p-6 mb-8">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h1 class="text-2xl font-bold">{{ event_name }}</h1>
+                        <p class="text-gray-400">Election Results</p>
+                    </div>
+                    <a href="{{ url_for('voter_dashboard') }}" class="px-6 py-3 border border-gray-600 rounded-button hover:bg-white hover:bg-opacity-5 transition-colors">
+                        <i class="ri-arrow-left-line mr-2"></i>
+                        Back to Dashboard
+                    </a>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="glassmorphism rounded p-6">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-gray-400 text-sm">Total Votes</p>
+                            <h3 class="text-3xl font-bold mt-2">{{ total_votes }}</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-primary bg-opacity-20 rounded-full flex items-center justify-center">
+                            <i class="ri-vote-line text-xl text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="glassmorphism rounded p-6">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-gray-400 text-sm">Total Voters</p>
+                            <h3 class="text-3xl font-bold mt-2">{{ total_voters }}</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-primary bg-opacity-20 rounded-full flex items-center justify-center">
+                            <i class="ri-user-line text-xl text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="glassmorphism rounded p-6">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-gray-400 text-sm">Voter Turnout</p>
+                            <h3 class="text-3xl font-bold mt-2">{{ "%.1f"|format(turnout) }}%</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-primary bg-opacity-20 rounded-full flex items-center justify-center">
+                            <i class="ri-line-chart-line text-xl text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Chart -->
+            <div class="glassmorphism rounded p-6 mb-8">
+                <h2 class="text-xl font-bold mb-6">Votes per Candidate</h2>
+                <div id="results-chart" class="w-full h-96"></div>
+            </div>
+
+            <!-- Results Table -->
+            <div class="glassmorphism rounded p-6">
+                <h2 class="text-xl font-bold mb-6">Detailed Results</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="text-left text-gray-400 text-sm border-b border-gray-700">
+                                <th class="pb-3 font-medium">Rank</th>
+                                <th class="pb-3 font-medium">Candidate</th>
+                                <th class="pb-3 font-medium">Votes</th>
+                                <th class="pb-3 font-medium">Percentage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for candidate_id, data in candidates %}
+                            <tr class="border-b border-gray-800 hover:bg-white hover:bg-opacity-5">
+                                <td class="py-4">{{ loop.index }}</td>
+                                <td class="py-4">{{ data.name }}</td>
+                                <td class="py-4">{{ data.votes }}</td>
+                                <td class="py-4">{{ "%.1f"|format(data.percentage) }}%</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const chart = echarts.init(document.getElementById('results-chart'));
+            
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'value',
+                    axisLabel: {
+                        color: '#fff'
+                    }
+                },
+                yAxis: {
+                    type: 'category',
+                    data: {{ candidates|map(attribute='1.name')|list|tojson }},
+                    axisLabel: {
+                        color: '#fff'
+                    }
+                },
+                series: [{
+                    name: 'Votes',
+                    type: 'bar',
+                    data: {{ candidates|map(attribute='1.votes')|list|tojson }},
+                    itemStyle: {
+                        color: '#10B981'
+                    }
+                }]
+            };
+            
+            chart.setOption(option);
+            
+            window.addEventListener('resize', function() {
+                chart.resize();
+            });
+        });
+    </script>
+</body>
+</html> 

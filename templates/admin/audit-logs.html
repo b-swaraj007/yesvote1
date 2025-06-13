@@ -117,7 +117,6 @@
           <a href="{{ url_for('admin.create_event') }}" class="hover:text-primary transition-colors {% if active_page == 'create_event' %}text-primary{% endif %}">Create Event</a>
           <a href="{{ url_for('admin.manage_events') }}" class="hover:text-primary transition-colors {% if active_page == 'manage_events' %}text-primary{% endif %}">Manage Events</a>
           <a href="{{ url_for('admin.results') }}" class="hover:text-primary transition-colors {% if active_page == 'results' %}text-primary{% endif %}">Results</a>
-          <a href="{{ url_for('admin.audit_logs') }}" class="hover:text-primary transition-colors {% if active_page == 'audit_logs' %}text-primary{% endif %}">Audit Log</a>
         </nav>
         <button class="md:hidden w-10 h-10 flex items-center justify-center">
           <i class="ri-menu-line text-xl"></i>
@@ -127,12 +126,10 @@
 
     <main class="container mx-auto px-4 py-8">
       <div class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold">Audit Logs</h1>
+        <h1 class="text-3xl font-bold">Audit Logs - {{ event_name }}</h1>
         <div class="flex items-center space-x-4">
-          <span class="text-sm">June 8, 2025</span>
-          <button
-            class="bg-primary text-white px-4 py-2 rounded-button flex items-center space-x-2 hover:bg-opacity-90 transition-all whitespace-nowrap"
-          >
+          <span class="text-sm">{{ now().strftime('%b %d, %Y') }}</span>
+          <button class="bg-primary text-white px-4 py-2 rounded-button flex items-center space-x-2 hover:bg-opacity-90 transition-all whitespace-nowrap" onclick="location.reload()">
             <i class="ri-refresh-line"></i>
             <span>Refresh Data</span>
           </button>
@@ -236,471 +233,93 @@
 
       <!-- Filters and Search -->
       <div class="glassmorphism rounded p-6 mb-8">
-        <div
-          class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 flex-wrap"
-        >
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 flex-wrap">
           <div class="relative w-full md:w-auto flex-grow max-w-md">
             <input
               type="text"
+              id="searchInput"
               placeholder="Search by name, email or voter ID..."
               class="glassmorphism border-none rounded-button pl-10 pr-4 py-3 text-sm w-full"
             />
-            <div
-              class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 flex items-center justify-center"
-            >
+            <div class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 flex items-center justify-center">
               <i class="ri-search-line text-gray-400"></i>
             </div>
           </div>
-
           <div class="flex flex-wrap gap-4">
             <div class="relative">
               <select
-                id="event-filter"
+                id="statusFilter"
                 class="glassmorphism appearance-none border-none rounded-button pl-4 pr-10 py-3 text-sm min-w-[180px]"
               >
-                <option value="">All Events</option>
-                <option value="student-council">
-                  Student Council Election 2025
-                </option>
-                <option value="faculty-senate">
-                  Faculty Senate Election 2025
-                </option>
-                <option value="department-chair">
-                  Department Chair Selection
-                </option>
-                <option value="graduate-student">
-                  Graduate Student Association
-                </option>
-              </select>
-              <div
-                class="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none"
-              >
-                <i class="ri-arrow-down-s-line text-gray-400"></i>
-              </div>
-            </div>
-
-            <div class="relative">
-              <select
-                id="status-filter"
-                class="glassmorphism appearance-none border-none rounded-button pl-4 pr-10 py-3 text-sm min-w-[150px]"
-              >
                 <option value="">All Status</option>
-                <option value="voted">Voted</option>
-                <option value="not-voted">Not Voted</option>
+                <option value="Vote Cast">Vote Cast</option>
+                <option value="Face Verification">Face Verification</option>
+                <option value="Face Verification Api">Face Verification Api</option>
+                <option value="Failed">Failed</option>
               </select>
-              <div
-                class="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none"
-              >
+              <div class="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
                 <i class="ri-arrow-down-s-line text-gray-400"></i>
               </div>
             </div>
-
             <div class="relative">
               <input
                 type="date"
-                class="glassmorphism border-none rounded-button pl-4 pr-4 py-3 text-sm min-w-[180px]"
+                id="dateFilter"
+                class="glassmorphism border-none rounded-button pl-4 pr-10 py-3 text-sm min-w-[180px]"
               />
             </div>
-
-            <button
-              id="send-all-reminders"
-              class="bg-primary text-white px-4 py-3 rounded-button flex items-center space-x-2 hover:bg-opacity-90 transition-all whitespace-nowrap"
-            >
-              <i class="ri-notification-line"></i>
+            <button class="bg-primary text-white px-4 py-2 rounded-button flex items-center space-x-2 hover:bg-opacity-90 transition-all whitespace-nowrap" id="sendReminderBtn">
+              <i class="ri-notification-3-line"></i>
               <span>Send Reminder to All</span>
             </button>
           </div>
         </div>
       </div>
 
-      <!-- Voter Activity Table -->
+      <!-- Dynamic Audit Log Table -->
       <div class="glassmorphism rounded p-6 mb-8">
         <div class="overflow-x-auto">
           <table class="w-full">
             <thead>
-              <tr
-                class="text-left text-gray-400 text-sm border-b border-gray-700"
-              >
-                <th class="pb-3 pl-3 font-medium">
-                  <div class="flex items-center space-x-2">
-                    <div id="select-all" class="custom-checkbox"></div>
-                    <span>Voter Name</span>
-                  </div>
-                </th>
-                <th class="pb-3 font-medium">Email ID</th>
-                <th class="pb-3 font-medium">Mobile Number</th>
+              <tr class="text-left text-gray-400 text-sm border-b border-gray-700">
+                <th class="pb-3 pl-3 font-medium">User</th>
                 <th class="pb-3 font-medium">Voter ID</th>
-                <th class="pb-3 font-medium">Event Name</th>
-                <th class="pb-3 font-medium">Status</th>
-                <th class="pb-3 font-medium">Timestamp</th>
                 <th class="pb-3 font-medium">Action</th>
+                <th class="pb-3 font-medium">Details</th>
+                <th class="pb-3 font-medium">Timestamp</th>
               </tr>
             </thead>
             <tbody>
-              <tr
-                class="border-b border-gray-800 hover:bg-white hover:bg-opacity-5"
-              >
+              {% for log in logs %}
+              <tr class="border-b border-gray-800 hover:bg-white hover:bg-opacity-5">
                 <td class="py-4 pl-3">
-                  <div class="flex items-center space-x-3">
-                    <div class="custom-checkbox" data-id="1"></div>
-                    <div class="flex items-center space-x-3">
-                      <div
-                        class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center"
-                      >
-                        <span class="font-medium">ER</span>
-                      </div>
-                      <span>Emily Richardson</span>
-                    </div>
+                  <div class="flex flex-col">
+                    <span class="font-semibold">{{ log.user_info.name or 'Unknown' }}</span>
+                    <span class="text-xs text-gray-400">{{ log.user_info.email or '' }}</span>
                   </div>
                 </td>
-                <td class="py-4">emily.r@example.com</td>
-                <td class="py-4">+1 (555) 123-4567</td>
-                <td class="py-4">VOT-78542</td>
-                <td class="py-4">Student Council Election 2025</td>
+                <td class="py-4">{{ log.user_info.voter_id or '' }}</td>
                 <td class="py-4">
-                  <span
-                    class="bg-green-500 bg-opacity-20 text-green-400 text-xs px-2 py-1 rounded-full"
-                    >Voted</span
-                  >
+                  <span class="px-2 py-1 rounded-full text-xs font-semibold {% if 'fail' in (log.details.status|default('')).lower() or log.details.match is sameas false %}bg-red-500 bg-opacity-20 text-red-400{% elif log.action == 'vote_cast' %}bg-green-500 bg-opacity-20 text-green-400{% elif log.action == 'face_verification' or log.action == 'face_verification_api' %}bg-blue-500 bg-opacity-20 text-blue-400{% else %}bg-gray-500 bg-opacity-20 text-gray-400{% endif %}">
+                    {{ log.action.replace('_', ' ').title() }}
+                  </span>
                 </td>
-                <td class="py-4">Jun 7, 2025 10:23 AM</td>
-                <td class="py-4">
-                  <button
-                    class="w-8 h-8 bg-blue-500 bg-opacity-20 rounded flex items-center justify-center"
-                    disabled
-                  >
-                    <i class="ri-notification-line text-gray-500"></i>
-                  </button>
+                <td class="py-4 text-xs">
+                  {% if log.details %}
+                    {% for k, v in log.details.items() %}
+                      <div><span class="font-semibold">{{ k.replace('_', ' ').title() }}:</span> {{ v }}</div>
+                    {% endfor %}
+                  {% else %}
+                    <span class="text-gray-400">-</span>
+                  {% endif %}
                 </td>
+                <td class="py-4">{{ log.timestamp.strftime('%b %d, %Y %I:%M %p') if log.timestamp and log.timestamp.strftime else log.timestamp }}</td>
               </tr>
-              <tr
-                class="border-b border-gray-800 hover:bg-white hover:bg-opacity-5"
-              >
-                <td class="py-4 pl-3">
-                  <div class="flex items-center space-x-3">
-                    <div class="custom-checkbox" data-id="2"></div>
-                    <div class="flex items-center space-x-3">
-                      <div
-                        class="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center"
-                      >
-                        <span class="font-medium">MT</span>
-                      </div>
-                      <span>Michael Thompson</span>
-                    </div>
-                  </div>
-                </td>
-                <td class="py-4">m.thompson@example.com</td>
-                <td class="py-4">+1 (555) 987-6543</td>
-                <td class="py-4">VOT-12385</td>
-                <td class="py-4">Faculty Senate Election 2025</td>
-                <td class="py-4">
-                  <span
-                    class="bg-red-500 bg-opacity-20 text-red-400 text-xs px-2 py-1 rounded-full"
-                    >Not Voted</span
-                  >
-                </td>
-                <td class="py-4">-</td>
-                <td class="py-4">
-                  <button
-                    class="send-reminder w-8 h-8 bg-yellow-500 bg-opacity-20 rounded flex items-center justify-center hover:bg-opacity-40 transition-all"
-                    data-id="2"
-                  >
-                    <i class="ri-notification-line text-yellow-400"></i>
-                  </button>
-                </td>
-              </tr>
-              <tr
-                class="border-b border-gray-800 hover:bg-white hover:bg-opacity-5"
-              >
-                <td class="py-4 pl-3">
-                  <div class="flex items-center space-x-3">
-                    <div class="custom-checkbox" data-id="3"></div>
-                    <div class="flex items-center space-x-3">
-                      <div
-                        class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center"
-                      >
-                        <span class="font-medium">SJ</span>
-                      </div>
-                      <span>Sophia Johnson</span>
-                    </div>
-                  </div>
-                </td>
-                <td class="py-4">sophia.j@example.com</td>
-                <td class="py-4">+1 (555) 234-5678</td>
-                <td class="py-4">VOT-45678</td>
-                <td class="py-4">Student Council Election 2025</td>
-                <td class="py-4">
-                  <span
-                    class="bg-green-500 bg-opacity-20 text-green-400 text-xs px-2 py-1 rounded-full"
-                    >Voted</span
-                  >
-                </td>
-                <td class="py-4">Jun 6, 2025 3:45 PM</td>
-                <td class="py-4">
-                  <button
-                    class="w-8 h-8 bg-blue-500 bg-opacity-20 rounded flex items-center justify-center"
-                    disabled
-                  >
-                    <i class="ri-notification-line text-gray-500"></i>
-                  </button>
-                </td>
-              </tr>
-              <tr
-                class="border-b border-gray-800 hover:bg-white hover:bg-opacity-5"
-              >
-                <td class="py-4 pl-3">
-                  <div class="flex items-center space-x-3">
-                    <div class="custom-checkbox" data-id="4"></div>
-                    <div class="flex items-center space-x-3">
-                      <div
-                        class="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center"
-                      >
-                        <span class="font-medium">DW</span>
-                      </div>
-                      <span>David Williams</span>
-                    </div>
-                  </div>
-                </td>
-                <td class="py-4">d.williams@example.com</td>
-                <td class="py-4">+1 (555) 345-6789</td>
-                <td class="py-4">VOT-89012</td>
-                <td class="py-4">Department Chair Selection</td>
-                <td class="py-4">
-                  <span
-                    class="bg-red-500 bg-opacity-20 text-red-400 text-xs px-2 py-1 rounded-full"
-                    >Not Voted</span
-                  >
-                </td>
-                <td class="py-4">-</td>
-                <td class="py-4">
-                  <button
-                    class="send-reminder w-8 h-8 bg-yellow-500 bg-opacity-20 rounded flex items-center justify-center hover:bg-opacity-40 transition-all"
-                    data-id="4"
-                  >
-                    <i class="ri-notification-line text-yellow-400"></i>
-                  </button>
-                </td>
-              </tr>
-              <tr
-                class="border-b border-gray-800 hover:bg-white hover:bg-opacity-5"
-              >
-                <td class="py-4 pl-3">
-                  <div class="flex items-center space-x-3">
-                    <div class="custom-checkbox" data-id="5"></div>
-                    <div class="flex items-center space-x-3">
-                      <div
-                        class="w-8 h-8 rounded-full bg-yellow-500 flex items-center justify-center"
-                      >
-                        <span class="font-medium">OL</span>
-                      </div>
-                      <span>Olivia Lee</span>
-                    </div>
-                  </div>
-                </td>
-                <td class="py-4">olivia.l@example.com</td>
-                <td class="py-4">+1 (555) 456-7890</td>
-                <td class="py-4">VOT-23456</td>
-                <td class="py-4">Graduate Student Association</td>
-                <td class="py-4">
-                  <span
-                    class="bg-green-500 bg-opacity-20 text-green-400 text-xs px-2 py-1 rounded-full"
-                    >Voted</span
-                  >
-                </td>
-                <td class="py-4">Jun 5, 2025 9:12 AM</td>
-                <td class="py-4">
-                  <button
-                    class="w-8 h-8 bg-blue-500 bg-opacity-20 rounded flex items-center justify-center"
-                    disabled
-                  >
-                    <i class="ri-notification-line text-gray-500"></i>
-                  </button>
-                </td>
-              </tr>
-              <tr
-                class="border-b border-gray-800 hover:bg-white hover:bg-opacity-5"
-              >
-                <td class="py-4 pl-3">
-                  <div class="flex items-center space-x-3">
-                    <div class="custom-checkbox" data-id="6"></div>
-                    <div class="flex items-center space-x-3">
-                      <div
-                        class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center"
-                      >
-                        <span class="font-medium">JB</span>
-                      </div>
-                      <span>James Brown</span>
-                    </div>
-                  </div>
-                </td>
-                <td class="py-4">j.brown@example.com</td>
-                <td class="py-4">+1 (555) 567-8901</td>
-                <td class="py-4">VOT-34567</td>
-                <td class="py-4">Faculty Senate Election 2025</td>
-                <td class="py-4">
-                  <span
-                    class="bg-red-500 bg-opacity-20 text-red-400 text-xs px-2 py-1 rounded-full"
-                    >Not Voted</span
-                  >
-                </td>
-                <td class="py-4">-</td>
-                <td class="py-4">
-                  <button
-                    class="send-reminder w-8 h-8 bg-yellow-500 bg-opacity-20 rounded flex items-center justify-center hover:bg-opacity-40 transition-all"
-                    data-id="6"
-                  >
-                    <i class="ri-notification-line text-yellow-400"></i>
-                  </button>
-                </td>
-              </tr>
-              <tr
-                class="border-b border-gray-800 hover:bg-white hover:bg-opacity-5"
-              >
-                <td class="py-4 pl-3">
-                  <div class="flex items-center space-x-3">
-                    <div class="custom-checkbox" data-id="7"></div>
-                    <div class="flex items-center space-x-3">
-                      <div
-                        class="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center"
-                      >
-                        <span class="font-medium">AM</span>
-                      </div>
-                      <span>Ava Martinez</span>
-                    </div>
-                  </div>
-                </td>
-                <td class="py-4">ava.m@example.com</td>
-                <td class="py-4">+1 (555) 678-9012</td>
-                <td class="py-4">VOT-56789</td>
-                <td class="py-4">Student Council Election 2025</td>
-                <td class="py-4">
-                  <span
-                    class="bg-green-500 bg-opacity-20 text-green-400 text-xs px-2 py-1 rounded-full"
-                    >Voted</span
-                  >
-                </td>
-                <td class="py-4">Jun 7, 2025 2:34 PM</td>
-                <td class="py-4">
-                  <button
-                    class="w-8 h-8 bg-blue-500 bg-opacity-20 rounded flex items-center justify-center"
-                    disabled
-                  >
-                    <i class="ri-notification-line text-gray-500"></i>
-                  </button>
-                </td>
-              </tr>
-              <tr
-                class="border-b border-gray-800 hover:bg-white hover:bg-opacity-5"
-              >
-                <td class="py-4 pl-3">
-                  <div class="flex items-center space-x-3">
-                    <div class="custom-checkbox" data-id="8"></div>
-                    <div class="flex items-center space-x-3">
-                      <div
-                        class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center"
-                      >
-                        <span class="font-medium">ND</span>
-                      </div>
-                      <span>Noah Davis</span>
-                    </div>
-                  </div>
-                </td>
-                <td class="py-4">noah.d@example.com</td>
-                <td class="py-4">+1 (555) 789-0123</td>
-                <td class="py-4">VOT-67890</td>
-                <td class="py-4">Department Chair Selection</td>
-                <td class="py-4">
-                  <span
-                    class="bg-red-500 bg-opacity-20 text-red-400 text-xs px-2 py-1 rounded-full"
-                    >Not Voted</span
-                  >
-                </td>
-                <td class="py-4">-</td>
-                <td class="py-4">
-                  <button
-                    class="send-reminder w-8 h-8 bg-yellow-500 bg-opacity-20 rounded flex items-center justify-center hover:bg-opacity-40 transition-all"
-                    data-id="8"
-                  >
-                    <i class="ri-notification-line text-yellow-400"></i>
-                  </button>
-                </td>
-              </tr>
-              <tr class="hover:bg-white hover:bg-opacity-5">
-                <td class="py-4 pl-3">
-                  <div class="flex items-center space-x-3">
-                    <div class="custom-checkbox" data-id="9"></div>
-                    <div class="flex items-center space-x-3">
-                      <div
-                        class="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center"
-                      >
-                        <span class="font-medium">EW</span>
-                      </div>
-                      <span>Emma Wilson</span>
-                    </div>
-                  </div>
-                </td>
-                <td class="py-4">emma.w@example.com</td>
-                <td class="py-4">+1 (555) 890-1234</td>
-                <td class="py-4">VOT-78901</td>
-                <td class="py-4">Graduate Student Association</td>
-                <td class="py-4">
-                  <span
-                    class="bg-green-500 bg-opacity-20 text-green-400 text-xs px-2 py-1 rounded-full"
-                    >Voted</span
-                  >
-                </td>
-                <td class="py-4">Jun 6, 2025 11:56 AM</td>
-                <td class="py-4">
-                  <button
-                    class="w-8 h-8 bg-blue-500 bg-opacity-20 rounded flex items-center justify-center"
-                    disabled
-                  >
-                    <i class="ri-notification-line text-gray-500"></i>
-                  </button>
-                </td>
-              </tr>
+              {% else %}
+              <tr><td colspan="5" class="text-center py-8 text-gray-400">No audit logs found for this event.</td></tr>
+              {% endfor %}
             </tbody>
           </table>
-        </div>
-        <div class="flex justify-between items-center mt-6">
-          <div class="text-sm text-gray-400">Showing 9 of 8,742 voters</div>
-          <div class="flex space-x-2">
-            <button
-              class="w-10 h-10 rounded-button border border-gray-700 flex items-center justify-center hover:bg-white hover:bg-opacity-10"
-            >
-              <i class="ri-arrow-left-s-line"></i>
-            </button>
-            <button
-              class="w-10 h-10 rounded-button bg-primary flex items-center justify-center"
-            >
-              1
-            </button>
-            <button
-              class="w-10 h-10 rounded-button border border-gray-700 flex items-center justify-center hover:bg-white hover:bg-opacity-10"
-            >
-              2
-            </button>
-            <button
-              class="w-10 h-10 rounded-button border border-gray-700 flex items-center justify-center hover:bg-white hover:bg-opacity-10"
-            >
-              3
-            </button>
-            <button
-              class="w-10 h-10 rounded-button border border-gray-700 flex items-center justify-center hover:bg-white hover:bg-opacity-10"
-            >
-              ...
-            </button>
-            <button
-              class="w-10 h-10 rounded-button border border-gray-700 flex items-center justify-center hover:bg-white hover:bg-opacity-10"
-            >
-              875
-            </button>
-            <button
-              class="w-10 h-10 rounded-button border border-gray-700 flex items-center justify-center hover:bg-white hover:bg-opacity-10"
-            >
-              <i class="ri-arrow-right-s-line"></i>
-            </button>
-          </div>
         </div>
       </div>
     </main>
@@ -937,20 +556,62 @@
 
     <script id="filter-handler">
       document.addEventListener("DOMContentLoaded", function () {
-        const eventFilter = document.getElementById("event-filter");
-        const statusFilter = document.getElementById("status-filter");
+        const searchInput = document.getElementById('searchInput');
+        const statusFilter = document.getElementById('statusFilter');
+        const dateFilter = document.getElementById('dateFilter');
+        const tableRows = document.querySelectorAll('tbody tr');
 
-        // Event filter change
-        eventFilter.addEventListener("change", function () {
-          // Filter implementation would go here
-          console.log("Event filter changed to:", this.value);
-        });
+        function normalize(str) {
+          return (str || '').toLowerCase();
+        }
 
-        // Status filter change
-        statusFilter.addEventListener("change", function () {
-          // Filter implementation would go here
-          console.log("Status filter changed to:", this.value);
-        });
+        function filterTable() {
+          const searchVal = normalize(searchInput.value);
+          const statusVal = statusFilter.value;
+          const dateVal = dateFilter.value;
+          tableRows.forEach(row => {
+            // Get columns
+            const user = normalize(row.querySelector('td:nth-child(1) .font-semibold')?.textContent);
+            const email = normalize(row.querySelector('td:nth-child(1) .text-xs')?.textContent);
+            const voterId = normalize(row.querySelector('td:nth-child(2)')?.textContent);
+            const action = normalize(row.querySelector('td:nth-child(3) span')?.textContent);
+            const timestamp = row.querySelector('td:nth-child(5)')?.textContent.trim();
+            // Search filter
+            const matchesSearch =
+              !searchVal ||
+              user.includes(searchVal) ||
+              email.includes(searchVal) ||
+              voterId.includes(searchVal);
+            // Status filter
+            const matchesStatus =
+              !statusVal ||
+              (statusVal === 'Failed'
+                ? action.includes('fail') || action.includes('false')
+                : action === normalize(statusVal));
+            // Date filter
+            let matchesDate = true;
+            if (dateVal && timestamp) {
+              // Convert dateVal (yyyy-mm-dd) to readable format (e.g., Jun 11, 2025)
+              const [yyyy, mm, dd] = dateVal.split('-');
+              const filterDate = new Date(`${yyyy}-${mm}-${dd}`);
+              const rowDate = new Date(timestamp.replace(/\s\d{1,2}:\d{2}\s[AP]M/,''));
+              matchesDate =
+                filterDate.getFullYear() === rowDate.getFullYear() &&
+                filterDate.getMonth() === rowDate.getMonth() &&
+                filterDate.getDate() === rowDate.getDate();
+            }
+            // Show/hide row
+            if (matchesSearch && matchesStatus && matchesDate) {
+              row.style.display = '';
+            } else {
+              row.style.display = 'none';
+            }
+          });
+        }
+
+        searchInput.addEventListener('input', filterTable);
+        statusFilter.addEventListener('change', filterTable);
+        dateFilter.addEventListener('change', filterTable);
       });
     </script>
   </body>

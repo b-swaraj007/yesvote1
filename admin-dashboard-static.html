@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digi-Vote - Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16">
+</script>
+    <script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: { primary: "#10B981", secondary: "#064E3B" },
+      borderRadius: {
+        none: "0px",
+        sm: "8px",
+        DEFAULT: "12px",
+        md: "16px",
+        lg: "20px",
+        xl: "24px",
+        "2xl": "28px",
+        "3xl": "32px",
+        full: "9999px",
+        button: "12px",
+      },
+    },
+  },
+};
+</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js">
+</script>
+    <style>
+        :where([class^="ri-"])::before { content: "\f3c2"; }
+        body {
+            background: linear-gradient(135deg, #000, #064E3B);
+            min-height: 100vh;
+        }
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(16, 185, 129, 0.15);
+        }
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #10B981;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .custom-checkbox {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            cursor: pointer;
+        }
+        .custom-checkbox:checked {
+            background-color: #10B981;
+            border-color: #10B981;
+        }
+        .custom-checkbox:checked::after {
+            content: '';
+            position: absolute;
+            left: 7px;
+            top: 3px;
+            width: 6px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+    </style>
+</head>
+<body class="text-white">
+    <header class="glassmorphism sticky top-0 z-50 px-6 py-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <a href="#" class="font-['Pacifico'] text-2xl text-primary">Digi-Vote</a>
+                <span class="bg-primary bg-opacity-20 text-primary text-xs px-2 py-1 rounded-full">Admin</span>
+            </div>
+            
+            <nav class="hidden md:flex space-x-6">
+                <a href="#" class="text-primary border-b-2 border-primary py-1 transition-colors">Dashboard</a>
+                <a href="#" class="hover:text-primary border-b-2 border-transparent hover:border-primary py-1 transition-colors">Create Event</a>
+                <a href="#" class="hover:text-primary border-b-2 border-transparent hover:border-primary py-1 transition-colors">Approvals</a>
+                <a href="#" class="hover:text-primary border-b-2 border-transparent hover:border-primary py-1 transition-colors">Voter List</a>
+                <a href="#" class="hover:text-primary border-b-2 border-transparent hover:border-primary py-1 transition-colors">Results</a>
+                <a href="#" class="hover:text-primary border-b-2 border-transparent hover:border-primary py-1 transition-colors">Audit Log</a>
+            </nav>
+            
+            <div class="flex items-center space-x-4">
+                <div class="relative hidden md:block">
+                    <input type="text" placeholder="Search..." class="glassmorphism border-none rounded-full pl-10 pr-4 py-2 text-sm w-48 bg-white bg-opacity-5 focus:bg-opacity-10 transition-all">
+                    <div class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 flex items-center justify-center">
+                        <i class="ri-search-line text-gray-400"></i>
+                    </div>
+                </div>
+                
+                <div class="relative group">
+                    <button class="w-10 h-10 rounded-full glassmorphism flex items-center justify-center">
+                        <i class="ri-notification-3-line"></i>
+                        <span class="absolute top-0 right-0 w-4 h-4 bg-red-500 rounded-full text-xs flex items-center justify-center">3</span>
+                    </button>
+                    <div class="absolute right-0 mt-2 w-72 glassmorphism rounded p-4 hidden group-hover:block z-50">
+                        <h4 class="text-sm font-medium mb-2">Notifications</h4>
+                        <div class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar">
+                            <div class="flex items-start space-x-3 p-2 hover:bg-white hover:bg-opacity-5 rounded">
+                                <div class="w-8 h-8 rounded-full bg-blue-500 bg-opacity-20 flex items-center justify-center flex-shrink-0">
+                                    <i class="ri-user-add-line text-blue-400"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-medium">New voter registration</p>
+                                    <p class="text-xs text-gray-400">5 minutes ago</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-3 p-2 hover:bg-white hover:bg-opacity-5 rounded">
+                                <div class="w-8 h-8 rounded-full bg-yellow-500 bg-opacity-20 flex items-center justify-center flex-shrink-0">
+                                    <i class="ri-alarm-warning-line text-yellow-400"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-medium">Event "Student Council" ending soon</p>
+                                    <p class="text-xs text-gray-400">1 hour ago</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-3 p-2 hover:bg-white hover:bg-opacity-5 rounded">
+                                <div class="w-8 h-8 rounded-full bg-red-500 bg-opacity-20 flex items-center justify-center flex-shrink-0">
+                                    <i class="ri-error-warning-line text-red-400"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-medium">Failed login attempt detected</p>
+                                    <p class="text-xs text-gray-400">2 hours ago</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="w-full text-center text-xs text-primary mt-2">View all notifications</button>
+                    </div>
+                </div>
+                
+                <div class="relative group">
+                    <button class="flex items-center space-x-2">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center">
+                            <span class="font-medium">JD</span>
+                        </div>
+                    </button>
+                    <div class="absolute right-0 mt-2 w-48 glassmorphism rounded p-2 hidden group-hover:block z-50">
+                        <div class="p-2 text-center border-b border-white border-opacity-10">
+                            <p class="font-medium">Jonathan Davis</p>
+                            <p class="text-xs text-gray-400">jonathan@university.edu</p>
+                        </div>
+                        <div class="py-1">
+                            <a href="#" class="flex items-center space-x-2 p-2 hover:bg-white hover:bg-opacity-5 rounded">
+                                <i class="ri-user-settings-line"></i>
+                                <span class="text-sm">Profile Settings</span>
+                            </a>
+                            <a href="#" class="flex items-center space-x-2 p-2 hover:bg-white hover:bg-opacity-5 rounded">
+                                <i class="ri-shield-keyhole-line"></i>
+                                <span class="text-sm">Security</span>
+                            </a>
+                            <a href="#" class="flex items-center space-x-2 p-2 hover:bg-white hover:bg-opacity-5 rounded">
+                                <i class="ri-logout-box-r-line"></i>
+                                <span class="text-sm">Logout</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="md:hidden w-10 h-10 glassmorphism rounded flex items-center justify-center" id="mobile-menu-button">
+                    <i class="ri-menu-line text-xl"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="md:hidden glassmorphism mt-4 rounded p-4 hidden" id="mobile-menu">
+            <nav class="flex flex-col space-y-3">
+                <a href="#" class="text-primary flex items-center space-x-2">
+                    <i class="ri-dashboard-line"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="hover:text-primary flex items-center space-x-2">
+                    <i class="ri-add-circle-line"></i>
+                    <span>Create Event</span>
+                </a>
+                <a href="#" class="hover:text-primary flex items-center space-x-2">
+                    <i class="ri-user-follow-line"></i>
+                    <span>Approvals</span>
+                </a>
+                <a href="#" class="hover:text-primary flex items-center space-x-2">
+                    <i class="ri-team-line"></i>
+                    <span>Voter List</span>
+                </a>
+                <a href="#" class="hover:text-primary flex items-center space-x-2">
+                    <i class="ri-bar-chart-grouped-line"></i>
+                    <span>Results</span>
+                </a>
+                <a href="#" class="hover:text-primary flex items-center space-x-2">
+                    <i class="ri-file-list-3-line"></i>
+                    <span>Audit Log</span>
+                </a>
+                <a href="#" class="hover:text-primary flex items-center space-x-2">
+                    <i class="ri-logout-box-r-line"></i>
+                    <span>Logout</span>
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+            <div>
+                <h1 class="text-3xl font-bold">Admin Dashboard</h1>
+                <p class="text-gray-400">Welcome back, Jonathan. Here's what's happening today.</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+                <div class="glassmorphism rounded-full px-4 py-2 flex items-center space-x-2">
+                    <i class="ri-calendar-line"></i>
+                    <span>June 8, 2025</span>
+                </div>
+                <button class="bg-primary text-white px-4 py-2 rounded-button flex items-center space-x-2 hover:bg-opacity-90 transition-all whitespace-nowrap">
+                    <i class="ri-add-line"></i>
+                    <span>New Event</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Quick Stats Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+            <div class="glassmorphism rounded p-6 transition-all duration-300 card-hover">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-400 text-sm">Total Voters</p>
+                        <h3 class="text-3xl font-bold mt-2">8,742</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-primary bg-opacity-20 rounded-full flex items-center justify-center">
+                        <i class="ri-user-line text-xl text-primary"></i>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center text-xs">
+                    <span class="text-green-400 flex items-center">
+                        <i class="ri-arrow-up-line mr-1"></i>
+                        12.5%
+                    </span>
+                    <span class="ml-2 text-gray-400">from last month</span>
+                </div>
+            </div>
+
+            <div class="glassmorphism rounded p-6 transition-all duration-300 card-hover">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-400 text-sm">Approved Voters</p>
+                        <h3 class="text-3xl font-bold mt-2">7,519</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-green-500 bg-opacity-20 rounded-full flex items-center justify-center">
+                        <i class="ri-check-double-line text-xl text-green-500"></i>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center text-xs">
+                    <span class="text-green-400 flex items-center">
+                        <i class="ri-arrow-up-line mr-1"></i>
+                        8.3%
+                    </span>
+                    <span class="ml-2 text-gray-400">from last month</span>
+                </div>
+            </div>
+
+            <div class="glassmorphism rounded p-6 transition-all duration-300 card-hover">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-400 text-sm">Pending Approvals</p>
+                        <h3 class="text-3xl font-bold mt-2">124</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-yellow-500 bg-opacity-20 rounded-full flex items-center justify-center">
+                        <i class="ri-time-line text-xl text-yellow-500"></i>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center text-xs">
+                    <span class="text-red-400 flex items-center">
+                        <i class="ri-arrow-up-line mr-1"></i>
+                        23.8%
+                    </span>
+                    <span class="ml-2 text-gray-400">needs attention</span>
+                </div>
+            </div>
+            <div class="glassmorphism rounded p-6 transition-all duration-300 card-hover">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-400 text-sm">Events Created</p>
+                        <h3 class="text-3xl font-bold mt-2">24</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-500 bg-opacity-20 rounded-full flex items-center justify-center">
+                        <i class="ri-calendar-event-line text-xl text-blue-500"></i>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center text-xs">
+                    <span class="text-green-400 flex items-center">
+                        <i class="ri-arrow-up-line mr-1"></i>
+                        4 events
+                    </span>
+                    <span class="ml-2 text-gray-400">this quarter</span>
+                </div>
+            </div>
+
+            <div class="glassmorphism rounded p-6 transition-all duration-300 card-hover">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-gray-400 text-sm">Voter Turnout</p>
+                        <h3 class="text-3xl font-bold mt-2">85.7%</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-purple-500 bg-opacity-20 rounded-full flex items-center justify-center">
+                        <i class="ri-bar-chart-box-line text-xl text-purple-500"></i>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center text-xs">
+                    <span class="text-green-400 flex items-center">
+                        <i class="ri-arrow-up-line mr-1"></i>
+                        3.2%
+                    </span>
+                    <span class="ml-2 text-gray-400">from last event</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Visual Statistics -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <div class="glassmorphism rounded p-6 lg:col-span-2">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold">Votes per Candidate</h2>
+                    <div class="flex space-x-2">
+                        <select id="event-selector" class="glassmorphism border-none rounded-button text-sm px-3 py-2 pr-8 appearance-none bg-right bg-no-repeat" style="background-image: url('data:image/svg+xml;charset=US-ASCII,<svg width=\"12\" height=\"12\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M3 5h6l-3 3z\" fill=\"%23fff\"/></svg>'); background-position: right 10px center;">
+                            <option value="student-council">Student Council Election</option>
+                            <option value="faculty-senate">Faculty Senate Election</option>
+                            <option value="department-chair">Department Chair Selection</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="votes-chart" class="w-full h-80"></div>
+            </div>
+            <div class="glassmorphism rounded p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold">Voter Turnout</h2>
+                    <div class="flex items-center space-x-2">
+                        <button class="w-8 h-8 glassmorphism rounded flex items-center justify-center hover:bg-white hover:bg-opacity-10 transition-colors">
+                            <i class="ri-refresh-line"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="turnout-chart" class="w-full h-80"></div>
+            </div>
+        </div>
+
+        <!-- Action Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-8">
+            <div class="glassmorphism rounded p-6 transition-all duration-300 card-hover flex flex-col items-center justify-center text-center">
+                <div class="w-16 h-16 bg-green-500 bg-opacity-20 rounded-full flex items-center justify-center mb-4">
+                    <i class="ri-add-circle-line text-2xl text-green-500"></i>
+                </div>
+                <h3 class="font-medium mb-2">Create New Voting Event</h3>
+                <p class="text-sm text-gray-400 mb-4">Set up a new election or poll</p>
+                <button class="bg-green-500 bg-opacity-20 text-green-400 px-4 py-2 rounded-button hover:bg-opacity-30 transition-all whitespace-nowrap">Create Event</button>
+            </div>
+
+            <div class="glassmorphism rounded p-6 transition-all duration-300 card-hover flex flex-col items-center justify-center text-center">
+                <div class="w-16 h-16 bg-blue-500 bg-opacity-20 rounded-full flex items-center justify-center mb-4">
+                    <i class="ri-user-follow-line text-2xl text-blue-500"></i>
+                </div>
+                <h3 class="font-medium mb-2">Pending Voter Approvals</h3>
+                <p class="text-sm text-gray-400 mb-4">124 voters awaiting approval</p>
+                <button class="bg-blue-500 bg-opacity-20 text-blue-400 px-4 py-2 rounded-button hover:bg-opacity-30 transition-all whitespace-nowrap">Review</button>
+            </div>
+
+            <div class="glassmorphism rounded p-6 transition-all duration-300 card-hover flex flex-col items-center justify-center text-center">
+                <div class="w-16 h-16 bg-purple-500 bg-opacity-20 rounded-full flex items-center justify-center mb-4">
+                    <i class="ri-team-line text-2xl text-purple-500"></i>
+                </div>
+                <h3 class="font-medium mb-2">View Registered Voters</h3>
+                <p class="text-sm text-gray-400 mb-4">Manage all voter accounts</p>
+                <button class="bg-purple-500 bg-opacity-20 text-purple-400 px-4 py-2 rounded-button hover:bg-opacity-30 transition-all whitespace-nowrap">View List</button>
+            </div>
+
+            <div class="glassmorphism rounded p-6 transition-all duration-300 card-hover flex flex-col items-center justify-center text-center">
+                <div class="w-16 h-16 bg-yellow-500 bg-opacity-20 rounded-full flex items-center justify-center mb-4">
+                    <i class="ri-bar-chart-2-line text-2xl text-yellow-500"></i>
+                </div>
+                <h3 class="font-medium mb-2">View and Publish Results</h3>
+                <p class="text-sm text-gray-400 mb-4">Manage election results</p>
+                <button class="bg-yellow-500 bg-opacity-20 text-yellow-400 px-4 py-2 rounded-button hover:bg-opacity-30 transition-all whitespace-nowrap">View Results</button>
+            </div>
+
+            <div class="glassmorphism rounded p-6 transition-all duration-300 card-hover flex flex-col items-center justify-center text-center">
+                <div class="w-16 h-16 bg-red-500 bg-opacity-20 rounded-full flex items-center justify-center mb-4">
+                    <i class="ri-shield-check-line text-2xl text-red-500"></i>
+                </div>
+                <h3 class="font-medium mb-2">Access Audit Logs</h3>
+                <p class="text-sm text-gray-400 mb-4">Review system activity</p>
+                <button class="bg-red-500 bg-opacity-20 text-red-400 px-4 py-2 rounded-button hover:bg-opacity-30 transition-all whitespace-nowrap">View Logs</button>
+            </div>
+
+            <div class="glassmorphism rounded p-6 transition-all duration-300 card-hover flex flex-col items-center justify-center text-center">
+                <div class="w-16 h-16 bg-indigo-500 bg-opacity-20 rounded-full flex items-center justify-center mb-4">
+                    <i class="ri-notification-4-line text-2xl text-indigo-500"></i>
+                </div>
+                <h3 class="font-medium mb-2">Send Reminder to Non-voters</h3>
+                <p class="text-sm text-gray-400 mb-4">1,223 voters haven't voted</p>
+                <button class="bg-indigo-500 bg-opacity-20 text-indigo-400 px-4 py-2 rounded-button hover:bg-opacity-30 transition-all whitespace-nowrap">Send Reminder</button>
+            </div>
+        </div>
+
+        <!-- Audit Logs Table -->
+        <div class="glassmorphism rounded p-6 mb-8">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                <h2 class="text-xl font-bold">Audit Logs</h2>
+                <div class="flex flex-wrap items-center gap-3">
+                    <div class="relative">
+                        <input type="text" placeholder="Search logs..." class="glassmorphism border-none rounded-button pl-10 pr-4 py-2 text-sm w-full md:w-64">
+                        <div class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 flex items-center justify-center">
+                            <i class="ri-search-line text-gray-400"></i>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <select class="glassmorphism border-none rounded-button text-sm px-3 py-2 pr-8 appearance-none bg-right bg-no-repeat" style="background-image: url('data:image/svg+xml;charset=US-ASCII,<svg width=\"12\" height=\"12\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M3 5h6l-3 3z\" fill=\"%23fff\"/></svg>'); background-position: right 10px center;">
+                            <option value="all">All Events</option>
+                            <option value="student-council">Student Council Election</option>
+                            <option value="faculty-senate">Faculty Senate Election</option>
+                        </select>
+                        <button class="w-10 h-10 glassmorphism rounded flex items-center justify-center hover:bg-white hover:bg-opacity-10 transition-colors">
+                            <i class="ri-filter-3-line"></i>
+                        </button>
+                        <button class="w-10 h-10 glassmorphism rounded flex items-center justify-center hover:bg-white hover:bg-opacity-10 transition-colors">
+                            <i class="ri-download-2-line"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="text-left text-gray-400 text-sm border-b border-gray-700">
+                            <th class="pb-3 font-medium">
+                                <div class="flex items-center space-x-2">
+                                    <input type="checkbox" class="custom-checkbox">
+                                    <span>Voter ID</span>
+                                </div>
+                            </th>
+                            <th class="pb-3 font-medium">Full Name</th>
+                            <th class="pb-3 font-medium">Email</th>
+                            <th class="pb-3 font-medium">Vote Status</th>
+                            <th class="pb-3 font-medium">Time of Vote</th>
+                            <th class="pb-3 font-medium">Event Name</th>
+                            <th class="pb-3 font-medium">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-800 hover:bg-white hover:bg-opacity-5">
+                            <td class="py-4">
+                                <div class="flex items-center space-x-2">
+                                    <input type="checkbox" class="custom-checkbox">
+                                    <span>STU-2025-1458</span>
+                                </div>
+                            </td>
+                            <td class="py-4">Emily Richardson</td>
+                            <td class="py-4">emily.r@university.edu</td>
+                            <td class="py-4">
+                                <span class="bg-green-500 bg-opacity-20 text-green-400 text-xs px-2 py-1 rounded-full">Vote Cast</span>
+                            </td>
+                            <td class="py-4">Jun 8, 2025 09:45 AM</td>
+                            <td class="py-4">Student Council Election</td>
+                            <td class="py-4">
+                                <div class="flex space-x-2">
+                                    <button class="w-8 h-8 bg-blue-500 bg-opacity-20 rounded flex items-center justify-center">
+                                        <i class="ri-eye-line text-blue-400"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-800 hover:bg-white hover:bg-opacity-5">
+                            <td class="py-4">
+                                <div class="flex items-center space-x-2">
+                                    <input type="checkbox" class="custom-checkbox">
+                                    <span>STU-2025-2367</span>
+                                </div>
+                            </td>
+                            <td class="py-4">Michael Thompson</td>
+                            <td class="py-4">m.thompson@university.edu</td>
+                            <td class="py-4">
+                                <span class="bg-green-500 bg-opacity-20 text-green-400 text-xs px-2 py-1 rounded-full">Vote Cast</span>
+                            </td>
+                            <td class="py-4">Jun 8, 2025 10:12 AM</td>
+                            <td class="py-4">Student Council Election</td>
+                            <td class="py-4">
+                                <div class="flex space-x-2">
+                                    <button class="w-8 h-8 bg-blue-500 bg-opacity-20 rounded flex items-center justify-center">
+                                        <i class="ri-eye-line text-blue-400"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-800 hover:bg-white hover:bg-opacity-5">
+                            <td class="py-4">
+                                <div class="flex items-center space-x-2">
+                                    <input type="checkbox" class="custom-checkbox">
+                                    <span>FAC-2025-0142</span>
+                                </div>
+                            </td>
+                            <td class="py-4">Dr. Sarah Williams</td>
+                            <td class="py-4">s.williams@university.edu</td>
+                            <td class="py-4">
+                                <span class="bg-green-500 bg-opacity-20 text-green-400 text-xs px-2 py-1 rounded-full">Vote Cast</span>
+                            </td>
+                            <td class="py-4">Jun 8, 2025 08:30 AM</td>
+                            <td class="py-4">Faculty Senate Election</td>
+                            <td class="py-4">
+                                <div class="flex space-x-2">
+                                    <button class="w-8 h-8 bg-blue-500 bg-opacity-20 rounded flex items-center justify-center">
+                                        <i class="ri-eye-line text-blue-400"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-800 hover:bg-white hover:bg-opacity-5">
+                            <td class="py-4">
+                                <div class="flex items-center space-x-2">
+                                    <input type="checkbox" class="custom-checkbox">
+                                    <span>STU-2025-3891</span>
+                                </div>
+                            </td>
+                            <td class="py-4">James Rodriguez</td>
+                            <td class="py-4">j.rodriguez@university.edu</td>
+                            <td class="py-4">
+                                <span class="bg-red-500 bg-opacity-20 text-red-400 text-xs px-2 py-1 rounded-full">Not Voted</span>
+                            </td>
+                            <td class="py-4">-</td>
+                            <td class="py-4">Student Council Election</td>
+                            <td class="py-4">
+                                <div class="flex space-x-2">
+                                    <button class="w-8 h-8 bg-indigo-500 bg-opacity-20 rounded flex items-center justify-center">
+                                        <i class="ri-notification-3-line text-indigo-400"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-white hover:bg-opacity-5">
+                            <td class="py-4">
+                                <div class="flex items-center space-x-2">
+                                    <input type="checkbox" class="custom-checkbox">
+                                    <span>STU-2025-4102</span>
+                                </div>
+                            </td>
+                            <td class="py-4">Sophia Chen</td>
+                            <td class="py-4">s.chen@university.edu</td>
+                            <td class="py-4">
+                                <span class="bg-red-500 bg-opacity-20 text-red-400 text-xs px-2 py-1 rounded-full">Not Voted</span>
+                            </td>
+                            <td class="py-4">-</td>
+                            <td class="py-4">Student Council Election</td>
+                            <td class="py-4">
+                                <div class="flex space-x-2">
+                                    <button class="w-8 h-8 bg-indigo-500 bg-opacity-20 rounded flex items-center justify-center">
+                                        <i class="ri-notification-3-line text-indigo-400"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="flex justify-between items-center mt-6">
+                <div class="text-sm text-gray-400">Showing 5 of 1,245 logs</div>
+                <div class="flex space-x-2">
+                    <button class="w-10 h-10 rounded-button border border-gray-700 flex items-center justify-center hover:bg-white hover:bg-opacity-10">
+                        <i class="ri-arrow-left-s-line"></i>
+                    </button>
+                    <button class="w-10 h-10 rounded-button bg-primary flex items-center justify-center">1</button>
+                    <button class="w-10 h-10 rounded-button border border-gray-700 flex items-center justify-center hover:bg-white hover:bg-opacity-10">2</button>
+                    <button class="w-10 h-10 rounded-button border border-gray-700 flex items-center justify-center hover:bg-white hover:bg-opacity-10">3</button>
+                    <button class="w-10 h-10 rounded-button border border-gray-700 flex items-center justify-center hover:bg-white hover:bg-opacity-10">
+                        <i class="ri-arrow-right-s-line"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result Publishing -->
+        <div class="glassmorphism rounded p-6 mb-8">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-xl font-bold">Result Publishing</h2>
+                    <p class="text-gray-400 text-sm">Publish final results to make them visible to all voters</p>
+                </div>
+                <button id="publish-results-btn" class="bg-primary text-white px-6 py-3 rounded-button flex items-center space-x-2 hover:bg-opacity-90 transition-all whitespace-nowrap">
+                    <i class="ri-send-plane-line"></i>
+                    <span>Publish Final Results</span>
+                </button>
+            </div>
+            
+            <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="glassmorphism rounded p-4">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-medium">Student Council Election</h3>
+                        <span class="bg-yellow-500 bg-opacity-20 text-yellow-400 text-xs px-2 py-1 rounded-full">Pending</span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-400">Voting ends in:</span>
+                        <span class="font-medium">3 days, 14 hours</span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm mt-2">
+                        <span class="text-gray-400">Current turnout:</span>
+                        <span class="font-medium">68.4% (2,217 of 3,241)</span>
+                    </div>
+                    <button class="w-full mt-4 bg-yellow-500 bg-opacity-20 text-yellow-400 py-2 rounded-button flex items-center justify-center space-x-2 hover:bg-opacity-30 transition-all whitespace-nowrap">
+                        <i class="ri-eye-line"></i>
+                        <span>Preview Results</span>
+                    </button>
+                </div>
+                
+                <div class="glassmorphism rounded p-4">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-medium">Faculty Senate Election</h3>
+                        <span class="bg-blue-500 bg-opacity-20 text-blue-400 text-xs px-2 py-1 rounded-full">Completed</span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-400">Voting ended:</span>
+                        <span class="font-medium">June 1, 2025</span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm mt-2">
+                        <span class="text-gray-400">Final turnout:</span>
+                        <span class="font-medium">92.3% (395 of 428)</span>
+                    </div>
+                    <button class="w-full mt-4 bg-primary bg-opacity-20 text-primary py-2 rounded-button flex items-center justify-center space-x-2 hover:bg-opacity-30 transition-all whitespace-nowrap">
+                        <i class="ri-send-plane-line"></i>
+                        <span>Publish Results</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="glassmorphism py-6 px-4">
+        <div class="container mx-auto flex flex-col md:flex-row justify-between items-center">
+            <div class="mb-4 md:mb-0">
+                <p class="text-sm text-gray-400">© 2025 University Digital Voting System. All rights reserved.</p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <a href="mailto:support@digi-vote.edu" class="text-sm text-gray-400 hover:text-white transition-colors">support@digi-vote.edu</a>
+                <a href="#" class="text-sm text-gray-400 hover:text-white transition-colors flex items-center">
+                    <i class="ri-github-fill mr-1"></i> GitHub
+                </a>
+                <a href="#" class="text-sm text-gray-400 hover:text-white transition-colors">Privacy Policy</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmation-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+        <div class="glassmorphism rounded p-6 max-w-md w-full mx-4">
+            <div class="flex justify-between items-start mb-4">
+                <h3 class="text-xl font-bold">Confirm Publication</h3>
+                <button id="close-modal" class="text-gray-400 hover:text-white">
+                    <i class="ri-close-line text-xl"></i>
+                </button>
+            </div>
+            <p class="mb-6">Are you sure you want to publish the final results? This action cannot be undone and results will be visible to all voters.</p>
+            <div class="flex justify-end space-x-4">
+                <button id="cancel-publish" class="px-4 py-2 border border-gray-600 rounded-button hover:bg-white hover:bg-opacity-5 transition-colors whitespace-nowrap">Cancel</button>
+                <button id="confirm-publish" class="bg-primary text-white px-4 py-2 rounded-button hover:bg-opacity-90 transition-colors whitespace-nowrap">Publish Results</button>
+            </div>
+        </div>
+    </div>
+
+    <script id="mobile-menu-script">
+document.addEventListener("DOMContentLoaded", function () {
+  const mobileMenuButton = document.getElementById("mobile-menu-button");
+  const mobileMenu = document.getElementById("mobile-menu");
+
+  mobileMenuButton.addEventListener("click", function () {
+    if (mobileMenu.classList.contains("hidden")) {
+      mobileMenu.classList.remove("hidden");
+    } else {
+      mobileMenu.classList.add("hidden");
+    }
+  });
+});
+</script>
+
+    <script id="modal-script">
+document.addEventListener("DOMContentLoaded", function () {
+  const publishBtn = document.getElementById("publish-results-btn");
+  const modal = document.getElementById("confirmation-modal");
+  const closeModal = document.getElementById("close-modal");
+  const cancelPublish = document.getElementById("cancel-publish");
+  const confirmPublish = document.getElementById("confirm-publish");
+
+  function openModal() {
+    modal.classList.remove("hidden");
+  }
+
+  function closeModalFunc() {
+    modal.classList.add("hidden");
+  }
+
+  publishBtn.addEventListener("click", openModal);
+  closeModal.addEventListener("click", closeModalFunc);
+  cancelPublish.addEventListener("click", closeModalFunc);
+
+  confirmPublish.addEventListener("click", function () {
+    // Here would be the actual publishing logic
+    closeModalFunc();
+    // Show success notification
+    alert("Results published successfully!");
+  });
+});
+</script>
+
+    <script id="votes-chart-script">
+document.addEventListener("DOMContentLoaded", function () {
+  const chartElement = document.getElementById("votes-chart");
+  const chart = echarts.init(chartElement);
+
+  const option = {
+    animation: false,
+    tooltip: {
+      trigger: "axis",
+      backgroundColor: "rgba(255, 255, 255, 0.8)",
+      textStyle: {
+        color: "#1f2937",
+      },
+    },
+    grid: {
+      left: "3%",
+      right: "4%",
+      bottom: "3%",
+      containLabel: true,
+    },
+    xAxis: {
+      type: "category",
+      data: [
+        "Sarah Johnson",
+        "Michael Lee",
+        "Emily Davis",
+        "David Wilson",
+        "Jessica Brown",
+        "James Miller",
+        "Rachel Taylor",
+        "Thomas Anderson",
+      ],
+      axisLine: {
+        lineStyle: {
+          color: "rgba(255, 255, 255, 0.2)",
+        },
+      },
+      axisLabel: {
+        color: "rgba(255, 255, 255, 0.7)",
+        rotate: 45,
+      },
+    },
+    yAxis: {
+      type: "value",
+      axisLine: {
+        lineStyle: {
+          color: "rgba(255, 255, 255, 0.2)",
+        },
+      },
+      splitLine: {
+        lineStyle: {
+          color: "rgba(255, 255, 255, 0.1)",
+        },
+      },
+      axisLabel: {
+        color: "rgba(255, 255, 255, 0.7)",
+      },
+    },
+    series: [
+      {
+        name: "Votes",
+        type: "bar",
+        data: [648, 521, 489, 432, 387, 345, 302, 278],
+        itemStyle: {
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: "rgba(87, 181, 231, 0.8)" },
+            { offset: 1, color: "rgba(87, 181, 231, 0.3)" },
+          ]),
+          borderRadius: [5, 5, 0, 0],
+        },
+        emphasis: {
+          itemStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: "rgba(87, 181, 231, 1)" },
+              { offset: 1, color: "rgba(87, 181, 231, 0.5)" },
+            ]),
+          },
+        },
+      },
+    ],
+  };
+
+  chart.setOption(option);
+
+  window.addEventListener("resize", function () {
+    chart.resize();
+  });
+
+  // Event selector change
+  const eventSelector = document.getElementById("event-selector");
+  eventSelector.addEventListener("change", function () {
+    // This would update the chart with new data based on selected event
+    // For demo purposes, we'll just use random data
+    const newData = Array.from(
+      { length: 8 },
+      () => Math.floor(Math.random() * 500) + 200,
+    );
+    chart.setOption({
+      series: [
+        {
+          data: newData,
+        },
+      ],
+    });
+  });
+});
+</script>
+
+    <script id="turnout-chart-script">
+document.addEventListener("DOMContentLoaded", function () {
+  const chartElement = document.getElementById("turnout-chart");
+  const chart = echarts.init(chartElement);
+
+  const option = {
+    animation: false,
+    tooltip: {
+      trigger: "item",
+      backgroundColor: "rgba(255, 255, 255, 0.8)",
+      textStyle: {
+        color: "#1f2937",
+      },
+    },
+    legend: {
+      top: "bottom",
+      left: "center",
+      textStyle: {
+        color: "#fff",
+      },
+    },
+    series: [
+      {
+        name: "Voter Turnout",
+        type: "pie",
+        radius: ["40%", "70%"],
+        avoidLabelOverlap: false,
+        itemStyle: {
+          borderRadius: 10,
+          borderColor: "rgba(0, 0, 0, 0.1)",
+          borderWidth: 2,
+        },
+        label: {
+          show: false,
+        },
+        emphasis: {
+          label: {
+            show: true,
+            fontSize: "14",
+            fontWeight: "bold",
+            color: "#fff",
+          },
+        },
+        labelLine: {
+          show: false,
+        },
+        data: [
+          {
+            value: 2217,
+            name: "Voted",
+            itemStyle: { color: "rgba(87, 181, 231, 1)" },
+          },
+          {
+            value: 1024,
+            name: "Not Voted",
+            itemStyle: { color: "rgba(252, 141, 98, 1)" },
+          },
+        ],
+      },
+    ],
+  };
+
+  chart.setOption(option);
+
+  window.addEventListener("resize", function () {
+    chart.resize();
+  });
+});
+</script>
+</body>
+</html>

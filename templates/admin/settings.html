@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Profile Settings</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: { primary: "#10B981", secondary: "#064e3b" },
+            borderRadius: {
+              none: "0px",
+              sm: "8px",
+              DEFAULT: "12px",
+              md: "16px",
+              lg: "20px",
+              xl: "24px",
+              "2xl": "28px",
+              "3xl": "32px",
+              full: "9999px",
+              button: "12px",
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
+    />
+  </head>
+  <body class="font-sans bg-gradient-to-br from-black via-[#003322] to-[#001a11] text-white min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+      <header class="mb-8">
+        <h1 class="text-3xl font-bold text-white mb-2">Admin Profile Settings</h1>
+        <div class="h-1 w-24 bg-gradient-to-r from-primary to-transparent rounded-full"></div>
+      </header>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- User Info Section -->
+        <div class="lg:col-span-1">
+          <div class="glassmorphism rounded p-6 h-full">
+            <div class="flex flex-col items-center mb-6">
+              <div class="relative mb-4 group">
+                <div class="w-28 h-28 rounded-full overflow-hidden border-2 border-primary">
+                  <img src="{{ admin.photo_url or '/static/default-avatar.png' }}" alt="Profile" class="w-full h-full object-cover" />
+                </div>
+                <div class="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                  <div class="w-8 h-8 flex items-center justify-center text-white">
+                    <i class="ri-camera-line ri-lg"></i>
+                  </div>
+                </div>
+              </div>
+              <h2 class="text-xl font-semibold text-white">{{ admin.name or '' }}</h2>
+              <span class="inline-block px-3 py-1 rounded-full bg-primary text-xs font-medium text-white mt-2">Admin</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="lg:col-span-2 space-y-6">
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              <div class="mb-4">
+                {% for category, message in messages %}
+                  <div class="px-4 py-3 rounded text-sm mb-2 {% if category == 'success' %}bg-green-800 text-green-200{% else %}bg-red-800 text-red-200{% endif %}">
+                    {{ message }}
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+          {% endwith %}
+
+          <!-- Edit Profile Section -->
+          <div class="glassmorphism rounded p-6">
+            <h3 class="text-xl font-semibold text-white mb-4">Edit Profile</h3>
+            <form method="POST" autocomplete="off">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div class="flex flex-col">
+                  <label for="firstName" class="text-sm text-gray-400 mb-1">First Name</label>
+                  <input type="text" id="firstName" name="firstName" value="{{ admin.name.split(' ')[0] if admin.name else '' }}" class="bg-gray-800 bg-opacity-50 border border-gray-700 rounded text-white px-4 py-2 focus:border-primary transition-colors" />
+                </div>
+                <div class="flex flex-col">
+                  <label for="lastName" class="text-sm text-gray-400 mb-1">Last Name</label>
+                  <input type="text" id="lastName" name="lastName" value="{{ admin.name.split(' ')[1] if admin.name and admin.name.split(' ')|length > 1 else '' }}" class="bg-gray-800 bg-opacity-50 border border-gray-700 rounded text-white px-4 py-2 focus:border-primary transition-colors" />
+                </div>
+                <div class="flex flex-col">
+                  <label for="email" class="text-sm text-gray-400 mb-1">Email</label>
+                  <input type="email" id="email" name="email" value="{{ admin.email or '' }}" disabled class="bg-gray-800 bg-opacity-30 border border-gray-700 rounded text-gray-500 px-4 py-2 cursor-not-allowed" />
+                </div>
+                <div class="flex flex-col">
+                  <label for="phone" class="text-sm text-gray-400 mb-1">Phone</label>
+                  <input type="tel" id="phone" name="phone" value="{{ admin.mobile or '' }}" class="bg-gray-800 bg-opacity-50 border border-gray-700 rounded text-white px-4 py-2 focus:border-primary transition-colors" />
+                </div>
+              </div>
+              <div class="flex flex-col mb-6">
+                <label for="bio" class="text-sm text-gray-400 mb-1">Bio</label>
+                <textarea id="bio" name="bio" rows="3" class="bg-gray-800 bg-opacity-50 border border-gray-700 rounded text-white px-4 py-2 focus:border-primary transition-colors">{{ admin.bio or '' }}</textarea>
+              </div>
+              <div class="flex justify-end">
+                <button type="submit" class="bg-primary hover:bg-opacity-90 text-white px-6 py-2 !rounded-button whitespace-nowrap flex items-center">
+                  <i class="ri-save-line mr-2"></i>
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Security Settings -->
+          <div class="glassmorphism rounded p-6">
+            <h3 class="text-xl font-semibold text-white mb-4">Security Settings</h3>
+            <div class="space-y-6">
+              <div class="flex flex-col space-y-4">
+                <div class="flex justify-between items-center">
+                  <div>
+                    <h4 class="font-medium text-white">Password</h4>
+                    <p class="text-sm text-gray-400">Last changed: {{ admin.password_last_changed or 'N/A' }}</p>
+                  </div>
+                  <button class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 !rounded-button whitespace-nowrap flex items-center">
+                    <i class="ri-lock-line mr-2"></i>
+                    Change Password
+                  </button>
+                </div>
+                <div class="h-px bg-gray-700"></div>
+                <div class="flex justify-between items-center">
+                  <div>
+                    <h4 class="font-medium text-white">Two-Factor Authentication</h4>
+                    <p class="text-sm text-gray-400">Add an extra layer of security</p>
+                  </div>
+                  <label class="custom-switch">
+                    <input type="checkbox" {% if admin.two_factor_enabled %}checked{% endif %} />
+                    <span class="switch-slider"></span>
+                  </label>
+                </div>
+                <div class="h-px bg-gray-700"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html> 

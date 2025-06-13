@@ -1,0 +1,45 @@
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for event in events %}
+    <div class="glassmorphism rounded p-6 transition-all duration-300 card-hover">
+        <div class="flex justify-between items-start mb-4">
+            <div>
+                <h3 class="font-medium">{{ event.name }}</h3>
+                <p class="text-gray-400 text-sm">{{ event.description }}</p>
+            </div>
+            <span class="{{ 'bg-green-500 bg-opacity-20 text-green-500' if event.has_voted else 'bg-yellow-500 bg-opacity-20 text-yellow-500' }} text-xs px-2 py-1 rounded-full">
+                {{ 'Voted' if event.has_voted else 'Not Voted' }}
+            </span>
+        </div>
+        
+        <div class="space-y-2 mb-6">
+            <div class="flex items-center text-sm">
+                <i class="ri-calendar-line mr-2"></i>
+                <span>{{ event.start_date }} - {{ event.end_date }}</span>
+            </div>
+            <div class="flex items-center text-sm">
+                <i class="ri-user-line mr-2"></i>
+                <span>{{ event.total_voters }} Voters</span>
+            </div>
+        </div>
+        
+        {% if event.has_voted %}
+            {% if event.results_published %}
+                <a href="{{ url_for('view_results', event_id=event.event_id) }}" class="w-full bg-primary text-white px-4 py-2 rounded-button flex items-center justify-center space-x-2 hover:bg-opacity-90 transition-all">
+                    <i class="ri-bar-chart-line"></i>
+                    <span>View Results</span>
+                </a>
+            {% else %}
+                <div class="w-full bg-gray-700 text-gray-400 px-4 py-2 rounded-button flex items-center justify-center space-x-2">
+                    <i class="ri-time-line"></i>
+                    <span>Waiting for Results</span>
+                </div>
+            {% endif %}
+        {% else %}
+            <a href="{{ url_for('vote_page', event_id=event.event_id) }}" class="w-full bg-primary text-white px-4 py-2 rounded-button flex items-center justify-center space-x-2 hover:bg-opacity-90 transition-all">
+                <i class="ri-vote-line"></i>
+                <span>Cast Vote</span>
+            </a>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div> 

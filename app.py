@@ -6,7 +6,7 @@ from register_voter import register_voter_face
 from firebase_config import db, bucket
 from firebase_admin import firestore, auth as firebase_auth
 from auth import create_user, verify_user, get_user_data, update_user_data
-from admin_routes import admin_bp
+from admin_routes import admin_bp, init_app
 from werkzeug.utils import secure_filename
 import tempfile
 from datetime import datetime
@@ -29,6 +29,9 @@ app.secret_key = os.urandom(24)
 
 # Register admin blueprint
 app.register_blueprint(admin_bp, url_prefix='/admin')
+
+# Register Jinja2 filters
+init_app(app)
 
 # Login required decorator
 def login_required(f):
@@ -206,6 +209,10 @@ def voter_dashboard():
     # Get events the user has joined (exists in event's voters subcollection)
     events_ref = db.collection('events').stream()
     joined_events = []
+    closed_events = []
+    from dateutil import parser
+    from datetime import datetime
+    now = datetime.now()
     for event in events_ref:
         event_data = event.to_dict()
         event_id = event.id
@@ -230,7 +237,7 @@ def voter_dashboard():
                     end_time = parser.parse(end_time)
                 except Exception:
                     end_time = None
-            joined_events.append({
+            event_obj = {
                 'event_id': event_id,
                 'event_name': event_data.get('event_name'),
                 'event_description': event_data.get('event_description'),
@@ -240,7 +247,12 @@ def voter_dashboard():
                 'approved': approved,
                 'has_voted': has_voted,
                 'candidates': event_data.get('candidates', []),
-            })
+                'results_published': event_data.get('results_published', False),
+            }
+            if end_time and now > end_time:
+                closed_events.append(event_obj)
+            else:
+                joined_events.append(event_obj)
 
     # Get past votes (optional, keep as before)
     votes_ref = db.collection('votes').where('voter_id', '==', voter_id).stream()
@@ -255,11 +267,29 @@ def voter_dashboard():
             vote_data['status'] = 'Voted'
             past_votes.append(vote_data)
 
+    # Add closed events to past_votes if not already present
+    closed_event_ids = {e['event_id'] for e in closed_events}
+    existing_past_event_ids = {v['event_id'] for v in past_votes if 'event_id' in v}
+    for e in closed_events:
+        if e['event_id'] not in existing_past_event_ids:
+            past_votes.append({
+                'event_id': e['event_id'],
+                'event_name': e['event_name'],
+                'date': e['end_time'].strftime('%B %d, %Y') if e['end_time'] else 'N/A',
+                'status': 'Closed',
+                'results_published': e.get('results_published', False),
+            })
+    # Ensure all past_votes have results_published field
+    for v in past_votes:
+        if 'results_published' not in v:
+            event_ref = db.collection('events').document(v['event_id']).get()
+            v['results_published'] = event_ref.to_dict().get('results_published', False) if event_ref.exists else False
+
     return render_template('voter/dashboard.html', 
                          user=user_data,
                          joined_events=joined_events,
                          past_votes=past_votes,
-                         now=datetime.now())
+                         now=now)
 
 @app.route('/vote/<event_id>', methods=['GET'])
 @login_required
@@ -377,6 +407,11 @@ def cast_vote(event_id):
     audit_data = {
         'action': 'vote_cast',
         'user_id': user_id,
+        'voter_id': voter_data.get('voter_id', '-'),
+        'full_name': voter_data.get('name', '-'),
+        'email': voter_data.get('email', '-'),
+        'vote_status': 'Vote Cast',
+        'time_of_vote': datetime.now().strftime('%b %d, %Y %I:%M %p'),
         'timestamp': datetime.now(),
         'details': {
             'ballot_id': ballot_id,
@@ -763,6 +798,94 @@ def api_verify_face(event_id):
             return jsonify({'match': False, 'message': 'System cannot verify you as voter. Cannot vote for now.'}), 200
     except Exception as e:
         return jsonify({'match': False, 'message': f'Error processing image: {str(e)}'}), 500
+
+@app.route('/event/<event_id>/results')
+def view_results(event_id):
+    if not session.get('user_id'):
+        return redirect(url_for('login_page'))
+    
+    # Get event data
+    event_ref = db.collection('events').document(event_id)
+    event = event_ref.get()
+    
+    if not event.exists:
+        flash('Event not found', 'error')
+        return redirect(url_for('dashboard'))
+    
+    event_data = event.to_dict()
+    
+    # Check if results are published
+    if not event_data.get('results_published', False):
+        return render_template('waiting_results.html', 
+                             event_name=event_data.get('name'),
+                             event_id=event_id)
+    
+    # Get candidates and their votes
+    candidates = event_data.get('candidates', [])
+    ballots_ref = event_ref.collection('ballots').stream()
+    ballots = [b.to_dict() for b in ballots_ref]
+    
+    # Calculate votes per candidate
+    candidate_votes = {}
+    for candidate in candidates:
+        candidate_id = candidate.get('candidate_id')
+        votes = sum(1 for b in ballots if b.get('candidate_id') == candidate_id)
+        candidate_votes[candidate_id] = {
+            'name': candidate.get('name'),
+            'votes': votes,
+            'percentage': (votes / len(ballots) * 100) if ballots else 0
+        }
+    
+    # Sort candidates by votes
+    sorted_candidates = sorted(
+        candidate_votes.items(),
+        key=lambda x: x[1]['votes'],
+        reverse=True
+    )
+    
+    # Calculate total votes and turnout
+    total_voters = len(list(event_ref.collection('voters').stream()))
+    total_votes = len(ballots)
+    turnout = (total_votes / total_voters * 100) if total_voters > 0 else 0
+    
+    return render_template('results.html',
+                         event_name=event_data.get('name'),
+                         event_id=event_id,
+                         candidates=sorted_candidates,
+                         total_votes=total_votes,
+                         total_voters=total_voters,
+                         turnout=turnout)
+
+@app.route('/dashboard')
+def dashboard():
+    if not session.get('user_id'):
+        return redirect(url_for('login_page'))
+    
+    user_data = get_user_data(session['user_id'])
+    if not user_data:
+        return redirect(url_for('login_page'))
+    
+    # Get all events
+    events_ref = db.collection('events').stream()
+    events = []
+    for event in events_ref:
+        event_data = event.to_dict()
+        event_data['event_id'] = event.id
+        
+        # Check if user has voted in this event
+        voter_ref = db.collection('events').document(event.id).collection('voters').document(session['user_id'])
+        voter = voter_ref.get()
+        has_voted = voter.exists and voter.to_dict().get('has_voted', False)
+        
+        # Add voting status and results status
+        event_data['has_voted'] = has_voted
+        event_data['results_published'] = event_data.get('results_published', False)
+        
+        events.append(event_data)
+    
+    return render_template('dashboard.html',
+                         user_data=user_data,
+                         events=events)
 
 if __name__ == '__main__':
     app.run(debug=True) 
