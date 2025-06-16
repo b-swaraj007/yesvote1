@@ -887,5 +887,11 @@ def dashboard():
                          user_data=user_data,
                          events=events)
 
-if __name__ == '__main__':
-    app.run(debug=True) 
+@app.route('/health')
+def health_check():
+    return jsonify({"status": "healthy"}), 200
+
+if __name__ == "__main__":
+    import os
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host="0.0.0.0", port=port) 

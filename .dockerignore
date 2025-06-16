@@ -1,0 +1,103 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+*.dist-info/
+
+# Virtual environment folders
+venv/
+venv38/
+facenet-venv/
+.env/
+.env*/
+.venv/
+env/
+ENV/
+
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+
+# Logs and temp files
+*.log
+*.tmp
+gcloud-logs.json
+logs/
+tmp/
+temp/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+.directory
+*.swp
+*.swo
+*~
+
+# Video and media files (if not required)
+*.mp4
+*.webm
+*.avi
+*.mov
+*.wmv
+*.flv
+*.mkv
+
+# Node or frontend build files (if applicable)
+node_modules/
+dist/
+build/
+coverage/
+.npm/
+.yarn/
+
+# Firebase credentials and secrets (should not be inside image)
+firebase-adminsdk.json
+.env
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# Docker and Git
+.git
+.gitignore
+.gitattributes
+.github/
+
+# VSCode specific settings
+*.code-workspace
+.history/
+
+# Python specific
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+.pytest_cache/
+.coverage
+coverage.xml
+*.cover
+.hypothesis/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# Local development
+local_settings.py
+db.sqlite3
+db.sqlite3-journal

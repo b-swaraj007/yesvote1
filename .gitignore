@@ -22,8 +22,12 @@ wheels/
 
 # Virtual Environment
 venv/
+venv38/
+facenet-venv/
 env/
 ENV/
+.env/
+.env*/
 
 # IDE
 .idea/
@@ -31,11 +35,17 @@ ENV/
 *.swp
 *.swo
 .DS_Store
+*.code-workspace
+.history/
 
 # Project specific
 firebase-adminsdk.json
 .env
 *.log
+gcloud-logs.json
+logs/
+tmp/
+temp/
 
 # Node (if we add any frontend tools later)
 node_modules/
@@ -44,4 +54,19 @@ yarn-debug.log*
 yarn-error.log*
 
 # Build files
-*.tsbuildinfo 
+*.tsbuildinfo
+
+# Keep these directories and files
+!models/
+!static/
+!templates/
+!utils/
+!app.py
+!requirements.txt
+!Dockerfile
+!firebase_config.py
+!verify_voter.py
+!register_voter.py
+!face_embedder.py
+!admin_routes.py
+!auth.py 
