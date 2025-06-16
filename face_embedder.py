@@ -3,7 +3,7 @@ import numpy as np
 import cv2
 from mtcnn import MTCNN
 
-embedder = FaceNet()
+embedder = FaceNet(model_path="models/facenet_keras.h5")
 detector = MTCNN()
 
 def extract_face(img, required_size=(160, 160)):
